@@ -116,6 +116,36 @@ MetaMake
 
 ---
 
+## Tasklist
+
+- [x] framework base - Electron/React
+- [ ] read files
+  - [ ] read from specific sources
+    - [ ] locally
+    - [ ] (?) on-line (might need to stream)
+  - [ ] support of tabular formats
+    - [ ] CSV
+    - [ ] XML
+    - [ ] JSON
+    - [ ] XSLT
+  - [ ] extract metadata
+    - [ ] OS-specific file metadata (title, changed on, created on, owner ...)
+    - [ ] embedded metadata (schema references)
+    - [ ] external metadata (schema files provided by user)
+  - [ ] generate metadata
+    - [ ] keyword extraction
+    - [ ] data processing via LM
+    - [ ] mapping data to fixed ontologies (topic, geography...)
+  - [ ] accept knowledge bases
+    - [ ] ...
+  - [ ] combine extracted, generated metadata with knowledge base
+  - [ ] offer user summary & editor for finalized metadata
+  - [ ] output meta file
+    - [ ] DCAT-AP-CZ
+    - [ ] (?) other formats, custom formats
+
+---
+
 ## Related SW viability for MetMake toolkit
 
 - <no></no> ANVL/ERC Kernel Metadata Conversion toolkit
