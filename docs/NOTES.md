@@ -156,6 +156,79 @@ MetaMake
 
 ---
 
+## DCAT-AP-CZ schema by acquisition method
+
+- KEY = keyword extraction from data (header / metadata / title)
+- GPT = ChatGPT or similar language model capable of processing and generating NL
+- KB = Knowledge Base -- file containing pre-configured set of values to be used during metadata generation
+- MAN = Manual input during the review step of the metadata generation
+- DATA = Datafile content parsing, including schema extraction, enum recognition...
+- ENUM = classification of provided input into fixed set of values (usually public codebooks, i.e. media types)
+
+## Datová sada
+- názov
+  - KEY -> GPT
+- popis
+  - KEY -> GPT
+- poskytovateľ
+  - KB / MAN
+- téma
+  - KEY -> ENUM
+- periodicita aktualizácie
+  - KB / MAN
+- kľúčové slová
+  - KEY
+- súvisiace geografické územia - RÚIAN
+  - DATA -> ENUM + (KB / MAN)
+- súvisiace geografické územia 
+  - DATA -> ENUM + (KB / MAN)
+- časové pokrytie
+  - DATA / MAN
+- kontaktný bod
+  - KB / MAN
+- odkaz na dokumentáciu
+  - KB / MAN (AUTOGEN?)
+- odkaz na špecifikáciu
+  - KB / MAN (AUTOGEN?)
+- klasifikácia podľa EuroVoc
+  - KEY -> ENUM
+- priestorové rozlíšenie v metroch
+  - DATA / MAN
+- časové rozlíšenie v metroch
+  - DATA / MAN
+- je súčasťou
+  - KB
+- ## Distribúcia
+  - špecifikácia podmienok užitia
+    - KB / MAN
+  - odkaz na stiahnutie súboru
+    - KB / MAN
+  - prístupové URL
+    - KB / MAN
+  - formát súboru na stiahnutie
+    - DATA -> ENUM
+  - media type súboru na stiahnutie
+    - DATA -> ENUM
+  - odkaz na strojovo čitateľné schéma súboru na stiahnutie
+    - MAN (AUTOGEN SCHEMA?)
+  - media type kompresného formátu
+    - DATA / KB / MAN
+  - media type balíčkovacieho formátu
+    - DATA / KB / MAN
+  - názov
+    - KEY -> GPT
+  - ## Dátová služba
+    - názov
+      - DATA -> TYPE
+    - prísutpový bod
+      - KB / MAN
+    - odkaz na špecifikáciu
+      - KB / MAN
+    - popis prístupového bodu
+      - KB / MAN
+
+---
+
 <style>
     todo::before {
         content: "TODO: ";
