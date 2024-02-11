@@ -1,13 +1,27 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { electronAPI } from '@electron-toolkit/preload'
+import { ElectronAPI, electronAPI } from "@electron-toolkit/preload";
 
-interface MetaMakeAPI {
-  ping: () => void
+
+declare global {
+
+  type StrHandlingCallback = (value: string) => void
+
+  interface MetaMakeAPI {
+    loadData: (path: string) => void,
+    onDataLoaded: (callback: (preview: string) => void) => void
+  }
+
+  interface Window {
+    electron: ElectronAPI
+    api: MetaMakeAPI
+  }
 }
 
 // Custom APIs for renderer
 const api: MetaMakeAPI = {
-  ping: () => ipcRenderer.invoke('ping')
+  loadData: (path: string) => ipcRenderer.invoke('load-data', path),
+  onDataLoaded: (callback: (preview: string) => void) => ipcRenderer.on('data-loaded', (_, value) => callback(value))
+
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
