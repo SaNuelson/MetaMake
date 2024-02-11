@@ -57,7 +57,7 @@ function NavDropdown({ title, children }: NavDropdownProps): React.JSX.Element {
             <TEDropdownItem>
               <a
                 href="#"
-                key={i}
+                key={`${title}-${i}`}
                 className="block w-full min-w-[160px] cursor-pointer whitespace-nowrap bg-primary-100 px-4 py-2 text-sm text-left font-normal pointer-events-auto text-neutral-700 hover:bg-primary-300 active:text-neutral-800 active:bg-primary-500 focus:bg-primary-500 focus:text-neutral-800 focus:outline-none active:no-underline"
               >
                 {child}
