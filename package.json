@@ -1,8 +1,0 @@
-{
-  "devDependencies": {
-    "electron-vite": "^2.0.0"
-  },
-  "dependencies": {
-    "@sniptt/guards": "^0.2.0"
-  }
-}
