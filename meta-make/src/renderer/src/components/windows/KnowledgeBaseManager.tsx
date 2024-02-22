@@ -1,15 +1,24 @@
+import React from "react";
+import { KBButton, Table, KnowledgeBaseTableRow } from "../helpers/Table";
 
-export default function KnowledgeBaseManager() {
-
-
+export default function KnowledgeBaseManager(): React.JSX.Element {
   return (
     <div>
-      KBM
-      <button
-        type="button"
-        className="inline-block rounded bg-primary px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_#3b71ca] transition duration-150 ease-in-out hover:bg-primary-600 hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:bg-primary-600 focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:outline-none focus:ring-0 active:bg-primary-700 active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] dark:shadow-[0_4px_9px_-4px_rgba(59,113,202,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)]">
-        Button
-      </button>
+      <div>
+        <Table>
+          <KnowledgeBaseTableRow knowledge_base_name={'ABC Inc. KB'} format={'DCAT-AP-CZ'} date_created={'2022-02-02'} other={''}></KnowledgeBaseTableRow>
+          <KnowledgeBaseTableRow knowledge_base_name={'DEF Inc. KB'} format={'DCAT-AP-CZ'} date_created={'2022-04-04'} other={''}></KnowledgeBaseTableRow>
+        </Table>
+      </div>
+      <div className="float-left space-x-2">
+        <KBButton title={'New...'}></KBButton>
+        <KBButton title={'Load...'}></KBButton>
+      </div>
+      <div className="float-right space-x-2">
+        <KBButton title={'Edit'}></KBButton>
+        <KBButton title={'Duplicate'}></KBButton>
+        <KBButton title={'Delete'}></KBButton>
+      </div>
     </div>
   );
 }

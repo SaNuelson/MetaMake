@@ -1,4 +1,6 @@
-import { BrowserWindow, Menu } from "electron";
+import { BrowserWindow, Menu, dialog } from "electron";
+import DataManager from "./DataManager";
+import { loadLocalFile } from "./commands/storage";
 
 export function createMainNavigation(window: BrowserWindow): Electron.Menu {
   return Menu.buildFromTemplate([
@@ -6,11 +8,11 @@ export function createMainNavigation(window: BrowserWindow): Electron.Menu {
       label: "Data",
       submenu: [
         {
-          click: () => window.webContents.send("request-load-data"),
+          click: () => loadLocalFile(window),
           label: "Load data..."
         },
         {
-          click: () => window.webContents.send("request-load-meta" ),
+          click: () => {},
           label: "Load meta..."
         }
       ]
@@ -19,15 +21,15 @@ export function createMainNavigation(window: BrowserWindow): Electron.Menu {
       label: "Knowledge base",
       submenu: [
         {
-          click: () => window.webContents.send("request-load-data"),
+          click: () => {},
           label: "New knowledge base..."
         },
         {
-          click: () => window.webContents.send("request-load-meta" ),
+          click: () => {},
           label: "Load knowledge base..."
         },
         {
-          click: () => window.webContents.send("request-load-meta" ),
+          click: () => {},
           label: "Manage knowledge bases"
         }
       ]

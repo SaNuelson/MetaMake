@@ -1,24 +1,21 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import { electronAPI } from "@electron-toolkit/preload";
+import { EventType } from "../common/constants";
 
-
-type StrHandlingCallback = (value: string) => void
+type StringHandlingCallback = (value: string) => void;
+type EmptyCallback = () => void;
 
 export interface MetaMakeAPI {
-  loadData: (path: string) => void,
-  onDataLoaded: (callback: StrHandlingCallback) => void
+  requestDataPreview: () => Promise<string[][]>,
+  listenDataChanged: (dataChangedCallback: EmptyCallback) => void
 }
 
 // Custom APIs for renderer
-const api: MetaMakeAPI = {
-  loadData: (path: string) => ipcRenderer.invoke('load-data', path),
-  onDataLoaded: (callback: (preview: string) => void) => ipcRenderer.on('data-loaded', (_, value) => callback(value))
-
+let api: MetaMakeAPI = {
+  requestDataPreview: () => ipcRenderer.invoke(EventType.DataPreviewRequested),
+  listenDataChanged: (dataChangedCallback) => ipcRenderer.on(EventType.DataChanged, dataChangedCallback)
 }
 
-// Use `contextBridge` APIs to expose Electron APIs to
-// renderer only if context isolation is enabled, otherwise
-// just add to the DOM global.
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
@@ -27,8 +24,6 @@ if (process.contextIsolated) {
     console.error(error)
   }
 } else {
-  // @ts-ignore (define in dts)
   window.electron = electronAPI
-  // @ts-ignore (define in dts)
   window.api = api
 }

@@ -1,14 +1,14 @@
-import React from "react";
-import { Navigation } from "./components/Navigation";
 import DataPreview from "./components/windows/DataPreview";
+import React from "react";
 
-function App(): React.JSX.Element {
-  return (
-    <div>
-      <Navigation></Navigation>
-      <DataPreview></DataPreview>
-    </div>
-  );
+class App extends React.Component {
+  render(): React.JSX.Element {
+    return (
+      <div>
+        <DataPreview></DataPreview>
+      </div>
+    )
+  }
 }
 
-export default App
+export default App;

@@ -2,5 +2,8 @@
   "references": [
     { "path": "./tsconfig.node.json" },
     { "path": "./tsconfig.web.json" }
-  ]
+  ],
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true
+  }
 }
