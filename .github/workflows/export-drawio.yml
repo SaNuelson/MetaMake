@@ -3,10 +3,24 @@ on: [push]
 jobs:
   export-to-png:
     runs-on: ubuntu-latest
+    name: Render .drawio files
     steps:
-    - uses: actions/checkout@v2
-    - name: Convert digramm to png
-      uses: Burnett01/actions-drawio@1.2
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Render .drawio files
+      uses: docker://ghcr.io/racklet/render-drawio-action:v1
       with:
-        src: MetaMake.drawio
-        dest: MetaMake.png
+        formats: 'svg'
+        sub-dirs: '.'
+        skip-dirs: '.git'
+        log-level: 'info'
+      id: render
+    - name: List the rendered files
+      run: 'ls -l ${{ steps.render.outputs.rendered-files }}'
+    - name: Commit the rendered files
+      uses: EndBug/add-and-commit@v7
+      with:
+        default_author: github_actor
+        message: 'Automatically render .drawio files'
+        add: "${{ steps.render.outputs.rendered-files }}"
+      if: "${{ steps.render.outputs.rendered-files != ''}}"
