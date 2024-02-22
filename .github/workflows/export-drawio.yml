@@ -1,0 +1,12 @@
+name: Render drawio
+on: [push]
+jobs:
+  export-to-png:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Convert digramm to png
+      uses: Burnett01/actions-drawio@1.2
+      with:
+        src: MetaMake.drawio
+        dest: MetaMake.png
