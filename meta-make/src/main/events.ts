@@ -1,30 +1,36 @@
 import { EventType } from "../common/constants";
-import DataManager from "./DataManager";
+import DataManager from "./data/DataManager";
 import { BrowserWindow, ipcMain, IpcMainInvokeEvent, ipcRenderer, IpcRendererEvent } from "electron";
+import KnowledgeBaseManager from "./kb/KnowledgeBaseManager";
 
 type MainElectronEventHandler = (event: IpcMainInvokeEvent, ...args: any[]) => (Promise<any>) | (any);
 type RendererElectronEventHandler = (event: IpcRendererEvent, ...args: any[]) => (Promise<any>) | (any);
 
+const logLevel = 1;
+
 // HANDLING: RENDERER -> MAIN
-export const mainEventHandlers: { [type in EventType]?: MainElectronEventHandler} = {
-  [EventType.DataPreviewRequested]: () => DataManager.dataSource?.getPreview()
+export const indexMainEventHandlers: { [type in EventType]?: MainElectronEventHandler} = {
+  [EventType.DataPreviewRequested]: () => DataManager.dataSource?.getPreview(),
+  [EventType.MetaFormatListRequested]: () => KnowledgeBaseManager.getMetaFormatList()
 };
 
 
 // EMITTING: MAIN -> RENDERER
-export const rendererEventHandlers: { [type in EventType]?: RendererElectronEventHandler} = {
+export const indexRendererEventHandlers: { [type in EventType]?: RendererElectronEventHandler} = {
 
 }
 
 export function broadcastToWindows(eventType: string, ...args: any[]) {
-  // TODO: Log
+  if (logLevel > 0) {
+    console.log(`Broadcast MAIN -> WINDOWs (${eventType})`);
+  }
   BrowserWindow.getAllWindows().forEach(window => window.webContents.send(eventType, ...args));
 }
 
-export function attachEventHandlers(log: boolean) {
-  Object.entries(mainEventHandlers)
+export function attachIndexEventHandlers() {
+  Object.entries(indexMainEventHandlers)
     .forEach(([type, callback]) => {
-      if (!log) {
+      if (logLevel <= 0) {
         ipcMain.handle(type, callback);
         return;
       }
@@ -36,10 +42,7 @@ export function attachEventHandlers(log: boolean) {
       ipcMain.handle(type, wrapped);
     });
 
-  Object.entries(rendererEventHandlers)
+  Object.entries(indexRendererEventHandlers)
     .forEach(([type, callback]) => {
-      if (!log) {
-
-      }
     })
 }

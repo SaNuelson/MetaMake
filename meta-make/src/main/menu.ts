@@ -1,6 +1,7 @@
 import { BrowserWindow, Menu, dialog } from "electron";
-import DataManager from "./DataManager";
-import { loadLocalFile } from "./commands/storage";
+import DataManager from "./data/DataManager";
+import { loadLocalDataFile } from "./commands/storage";
+import { createKnowledgeBaseWindow } from "./windows";
 
 export function createMainNavigation(window: BrowserWindow): Electron.Menu {
   return Menu.buildFromTemplate([
@@ -8,12 +9,12 @@ export function createMainNavigation(window: BrowserWindow): Electron.Menu {
       label: "Data",
       submenu: [
         {
-          click: () => loadLocalFile(window),
-          label: "Load data..."
+          label: "Load data...",
+          click: () => loadLocalDataFile(window)
         },
         {
-          click: () => {},
-          label: "Load meta..."
+          label: "Load meta...",
+          click: () => {}
         }
       ]
     },
@@ -21,16 +22,42 @@ export function createMainNavigation(window: BrowserWindow): Electron.Menu {
       label: "Knowledge base",
       submenu: [
         {
-          click: () => {},
-          label: "New knowledge base..."
+          label: "New knowledge base...",
+          click: () => {}
         },
         {
-          click: () => {},
-          label: "Load knowledge base..."
+          label: "Load knowledge base...",
+          click: () => {}
         },
         {
-          click: () => {},
-          label: "Manage knowledge bases"
+          label: "Manage knowledge bases",
+          click: () => createKnowledgeBaseWindow(window)
+        }
+      ]
+    },
+    {
+      label: "Options",
+      submenu: [
+        {
+          label: "Preferences",
+          click: () => {}
+        }
+      ]
+    },
+    {
+      label: "About",
+      submenu: [
+        {
+          label: "Help",
+          click: () => {}
+        },
+        {
+          label: "Github",
+          click: () => {}
+        },
+        {
+          label: "Copyright",
+          click: () => {}
         }
       ]
     }

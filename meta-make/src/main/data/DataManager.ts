@@ -1,25 +1,14 @@
-import DataSource, { LocalCsvDataSource } from "./data/DataSource";
+import DataSource from "./DataSource";
 import { BrowserWindow } from "electron";
-import { EventType } from "../common/constants";
+import { EventType } from "../../common/constants";
 import { Readable, Writable } from "stream";
-import { broadcastToWindows } from "./events";
+import { broadcastToWindows } from "../events";
+import { LocalCsvDataSource } from "./LocalCsvDataSource";
 
 class DataManager {
-  private dataStream: Readable;
-
   // meta: Meta;
   // knowledgeBases: KnowledgeBase[];
-  private __dataSource: DataSource;
-  public get dataSource() {
-    return this.__dataSource;
-  }
-  private set dataSource(value: DataSource) {
-    if (this.__dataSource === value)
-      return;
-
-    this.__dataSource = value;
-    broadcastToWindows(EventType.DataChanged);
-  }
+  public dataSource: DataSource;
 
   public async loadData(filePath: string): Promise<boolean> {
     const extension = filePath.split('.').slice(-1)[0].toLowerCase();

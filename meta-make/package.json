@@ -22,6 +22,8 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.0",
     "@electron-toolkit/utils": "^3.0.0",
+    "@sniptt/guards": "^0.2.0",
+    "electron-settings": "^4.0.2",
     "papaparse": "^5.4.1"
   },
   "devDependencies": {
