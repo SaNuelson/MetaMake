@@ -1,9 +1,9 @@
-import { BrowserWindow, Menu, shell } from "electron";
-import icon from "../../resources/icon.png";
-import { join } from "path";
-import { is } from "@electron-toolkit/utils";
-import { createMainNavigation } from "./menu";
-import { attachIndexEventHandlers } from "./events";
+import { BrowserWindow, Menu, shell } from 'electron'
+import icon from '../../resources/icon.png'
+import { join } from 'path'
+import { is } from '@electron-toolkit/utils'
+import { createMainNavigation } from './menu'
+import { attachIndexEventHandlers } from './events'
 
 export function createIndexWindow(): BrowserWindow {
   // Create the browser window.
@@ -12,36 +12,37 @@ export function createIndexWindow(): BrowserWindow {
     height: 670,
     show: false,
     autoHideMenuBar: false,
-    ...(process.platform === "linux" ? { icon } : {}),
+    ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
-      preload: join(__dirname, "../preload/index.js"),
-      sandbox: false
+      preload: join(__dirname, '../preload/index.js'),
+      sandbox: false,
+      contextIsolation: false
     }
-  });
+  })
 
-  mainWindow.on("ready-to-show", () => {
-    mainWindow.show();
-  });
+  mainWindow.on('ready-to-show', () => {
+    mainWindow.show()
+  })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
-    shell.openExternal(details.url);
-    return { action: "deny" };
-  });
+    shell.openExternal(details.url)
+    return { action: 'deny' }
+  })
 
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
-  if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
-    mainWindow.loadURL(process.env["ELECTRON_RENDERER_URL"]);
+  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+    mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {
-    mainWindow.loadFile(join(__dirname, "../renderer/index.html"));
+    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 
-  const mainMenu = createMainNavigation(mainWindow);
-  Menu.setApplicationMenu(mainMenu);
+  const mainMenu = createMainNavigation(mainWindow)
+  Menu.setApplicationMenu(mainMenu)
 
-  attachIndexEventHandlers();
+  attachIndexEventHandlers()
 
-  return mainWindow;
+  return mainWindow
 }
 
 export function createKnowledgeBaseWindow(parent: BrowserWindow = null) {
@@ -52,33 +53,33 @@ export function createKnowledgeBaseWindow(parent: BrowserWindow = null) {
     height: 670,
     show: false,
     autoHideMenuBar: false,
-    ...(process.platform === "linux" ? { icon } : {}),
+    ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
-      preload: join(__dirname, "../preload/index.js"),
+      preload: join(__dirname, '../preload/index.js'),
       sandbox: false
     }
-  });
+  })
 
   if (parent) {
-    let pPos = parent.getPosition();
-    kbWindow.setPosition(pPos[0] + 40, pPos[1] + 40);
+    let pPos = parent.getPosition()
+    kbWindow.setPosition(pPos[0] + 40, pPos[1] + 40)
   }
 
-  kbWindow.on("ready-to-show", () => {
-    kbWindow.show();
-  });
+  kbWindow.on('ready-to-show', () => {
+    kbWindow.show()
+  })
 
   kbWindow.webContents.setWindowOpenHandler((details) => {
-    shell.openExternal(details.url);
-    return { action: "deny" };
-  });
+    shell.openExternal(details.url)
+    return { action: 'deny' }
+  })
 
-  if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
-    console.log("ELECTRON_RENDERER_URL", process.env["ELECTRON_RENDERER_URL"])
-    kbWindow.loadURL(process.env["ELECTRON_RENDERER_URL"] + "?kb");
+  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+    console.log('ELECTRON_RENDERER_URL', process.env['ELECTRON_RENDERER_URL'])
+    kbWindow.loadURL(process.env['ELECTRON_RENDERER_URL'] + '?kb')
   } else {
-    kbWindow.loadFile(join(__dirname, "../renderer/index.html?kb"));
+    kbWindow.loadFile(join(__dirname, '../renderer/index.html?kb'))
   }
 
-  return kbWindow;
+  return kbWindow
 }

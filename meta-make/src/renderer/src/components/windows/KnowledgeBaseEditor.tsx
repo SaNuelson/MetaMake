@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react'
-import { TEInput, TERipple, TESelect } from 'tw-elements-react'
+import { ReactElement, useEffect, useState } from 'react'
+import { TEInput, TESelect } from 'tw-elements-react'
+import { KnowledgeBase } from '../../../../common/dto/KnowledgeBase'
 
-export default function KnowledgeBaseEditor() {
-  let [metaFormatList, setMetaFormatList] = useState([] as string[])
+export default function KnowledgeBaseEditor(): ReactElement {
+  const [metaFormatList, setMetaFormatList] = useState([] as string[])
   useEffect(() => {
     console.log('useEffect')
     window.api.requestMetaFormatList().then((mfList: string[]) => {
@@ -10,6 +11,8 @@ export default function KnowledgeBaseEditor() {
       setMetaFormatList(mfList)
     })
   }, [])
+
+  const [state, setState] = useState({} as KnowledgeBase)
 
   return (
     <div className="p-5">
@@ -21,14 +24,22 @@ export default function KnowledgeBaseEditor() {
         </div>
       </div>
       <hr className="h-px my-4 bg-gray-200 border-0 dark:bg-gray-700" />
+      <div className="flex justify-around">
+        <button onClick={onClickBack} className="">
+          Back
+        </button>
+        <button onClick={onClickSave} className="">
+          Save
+        </button>
+      </div>
     </div>
   )
 }
 
-type FormProps = {
-  format:
+function onClickBack(): void {
+  console.log('back')
 }
 
-function KnowledgeBaseForm({format}: FormProps) {
-
+function onClickSave(): void {
+  console.log('save')
 }

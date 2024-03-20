@@ -17,7 +17,8 @@
     "postinstall": "electron-builder install-app-deps",
     "build:win": "npm run build && electron-builder --win --config",
     "build:mac": "electron-vite build && electron-builder --mac --config",
-    "build:linux": "electron-vite build && electron-builder --linux --config"
+    "build:linux": "electron-vite build && electron-builder --linux --config",
+    "test": "mocha --require ts-node/register --recursive \"./src/**/test/*.ts\""
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.0",
@@ -30,7 +31,8 @@
     "@electron-toolkit/eslint-config-prettier": "^2.0.0",
     "@electron-toolkit/eslint-config-ts": "^1.0.1",
     "@electron-toolkit/tsconfig": "^1.0.1",
-    "@types/node": "^18.19.5",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.11.26",
     "@types/papaparse": "^5.3.14",
     "@types/react": "^18.2.47",
     "@types/react-dom": "^18.2.18",
@@ -41,6 +43,7 @@
     "electron-vite": "^2.0.0",
     "eslint": "^8.56.0",
     "eslint-plugin-react": "^7.33.2",
+    "mocha": "^10.3.0",
     "postcss": "^8.4.33",
     "prettier": "^3.1.1",
     "react": "^18.2.0",
