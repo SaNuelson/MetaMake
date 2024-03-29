@@ -27,3 +27,4 @@ export class KnowledgeBase extends Restructurable {
     this.changedOn = changedOn
   }
 }
+Restructurable.addClass(KnowledgeBase)

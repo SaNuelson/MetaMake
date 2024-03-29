@@ -1,41 +1,39 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
-import { DataInfo } from '../common/dto/DataInfo'
+import DataInfo from '../common/dto/DataInfo'
 import { EventType } from '../common/constants'
-import Restructurable from '../common/dto/Restructurable'
 
 export type StringHandlingCallback = (value: string) => void
 export type EmptyCallback = () => void
 
 export interface MetaMakeAPI {
+  isContextIsolated: () => Promise<boolean>
+  isDebugEnabled: () => Promise<boolean>
   requestDataPreview: () => Promise<DataInfo | null>
   requestMetaFormatList: () => Promise<string[]>
   listenDataChanged: (dataChangedCallback: EmptyCallback) => void
 }
 
-Restructurable.addClass(DataInfo)
-
 // Custom APIs for renderer
 const api: MetaMakeAPI = {
-  requestDataPreview: () =>
-    ipcRenderer
-      .invoke(EventType.DataPreviewRequested)
-      .then((result) => Restructurable.restructure(result)),
+  isContextIsolated: async () => true, // TODO
+  isDebugEnabled: async () => true, // TODO
+  requestDataPreview: () => ipcRenderer.invoke(EventType.DataPreviewRequested),
   requestMetaFormatList: () => ipcRenderer.invoke(EventType.MetaFormatListRequested),
   listenDataChanged: (dataChangedCallback) =>
     ipcRenderer.on(EventType.DataChanged, dataChangedCallback)
 }
 
-console.log('process.contextIsolated', process.contextIsolated)
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', api)
+    contextBridge.exposeInMainWorld('rawApi', api)
   } catch (error) {
     console.error(error)
   }
 } else {
   window.electron = electronAPI
+  window.rawApi = api
   window.api = api
 }

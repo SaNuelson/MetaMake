@@ -5,7 +5,6 @@ import { KnowledgeBase } from '../../../../common/dto/KnowledgeBase'
 export default function KnowledgeBaseEditor(): ReactElement {
   const [metaFormatList, setMetaFormatList] = useState([] as string[])
   useEffect(() => {
-    console.log('useEffect')
     window.api.requestMetaFormatList().then((mfList: string[]) => {
       console.log('KnowledgeBaseEditor.setFormatList()', mfList)
       setMetaFormatList(mfList)

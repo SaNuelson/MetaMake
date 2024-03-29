@@ -3,10 +3,12 @@ export default class Restructurable {
 
   protected static __classDict: { [className: string]: typeof Restructurable } = {}
 
-  public static addClass(clazz: typeof Restructurable, sourceName: string | null = null) {
+  public static addClass(clazz: typeof Restructurable, sourceName: string | null = null): boolean {
     const name = sourceName ?? clazz.name
-    if (Restructurable.__classDict.hasOwnProperty(name)) return
+    if (Restructurable.__classDict.hasOwnProperty(name))
+      return false
     Restructurable.__classDict[name] = clazz
+    return true
   }
 
   // @ts-ignore

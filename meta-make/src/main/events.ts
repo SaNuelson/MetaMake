@@ -1,7 +1,7 @@
-import { EventType } from "../common/constants";
-import DataManager from "./data/DataManager";
-import { BrowserWindow, ipcMain, IpcMainInvokeEvent, ipcRenderer, IpcRendererEvent } from "electron";
-import KnowledgeBaseManager from "./kb/KnowledgeBaseManager";
+import { EventType } from '../common/constants'
+import DataManager from './data/DataManager'
+import { BrowserWindow, ipcMain, IpcMainInvokeEvent, IpcRendererEvent } from 'electron'
+import KnowledgeBaseManager from './kb/KnowledgeBaseManager'
 
 type MainElectronEventHandler = (event: IpcMainInvokeEvent, ...args: any[]) => (Promise<any>) | (any);
 type RendererElectronEventHandler = (event: IpcRendererEvent, ...args: any[]) => (Promise<any>) | (any);

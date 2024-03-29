@@ -1,5 +1,4 @@
 import { BrowserWindow, Menu, shell } from 'electron'
-import icon from '../../resources/icon.png'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import { createMainNavigation } from './menu'
@@ -12,11 +11,10 @@ export function createIndexWindow(): BrowserWindow {
     height: 670,
     show: false,
     autoHideMenuBar: false,
-    ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
-      contextIsolation: false
+      contextIsolation: true
     }
   })
 
@@ -45,7 +43,7 @@ export function createIndexWindow(): BrowserWindow {
   return mainWindow
 }
 
-export function createKnowledgeBaseWindow(parent: BrowserWindow = null) {
+export function createKnowledgeBaseWindow(parent?: BrowserWindow) {
   const kbWindow = new BrowserWindow({
     parent: parent,
     modal: !!parent,
@@ -53,7 +51,6 @@ export function createKnowledgeBaseWindow(parent: BrowserWindow = null) {
     height: 670,
     show: false,
     autoHideMenuBar: false,
-    ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false

@@ -21,3 +21,4 @@ export class StructuredMetaProperty extends MetaProperty {
     this.children = children
   }
 }
+Restructurable.addClass(MetaProperty)

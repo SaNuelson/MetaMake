@@ -1,10 +1,7 @@
-import { PathLike, readFile } from 'fs'
-import { promisify } from 'util'
+import { PathLike } from 'fs'
 import { broadcastToWindows } from '../events'
 import { EventType } from '../../common/constants'
-import { DataInfo } from '../../common/dto/DataInfo'
-
-const readFileAsync = promisify(readFile)
+import DataInfo from '../../common/dto/DataInfo'
 
 export default class DataSource {
   protected dataPath: PathLike

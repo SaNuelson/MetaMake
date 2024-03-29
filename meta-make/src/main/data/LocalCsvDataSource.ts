@@ -3,7 +3,7 @@ import { isString } from '@sniptt/guards'
 import { isURL } from '../../common/typeguards'
 import DataSource from './DataSource'
 import { papaStream } from '../utils/io'
-import { DataInfo } from '../../common/dto/DataInfo'
+import DataInfo from '../../common/dto/DataInfo'
 
 export class LocalCsvDataSource extends DataSource {
   private dataStream: Readable

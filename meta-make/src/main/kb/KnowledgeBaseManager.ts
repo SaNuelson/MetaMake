@@ -1,11 +1,7 @@
 import { KnowledgeBase } from '../../common/dto/KnowledgeBase'
-import { promisify } from 'util'
-import { readFile } from 'fs'
 import { papaStream } from '../utils/io'
 import Essential from '../format/Essential'
 import MetaFormat from '../../common/dto/MetaFormat'
-
-const readFileAsync = promisify(readFile)
 
 class KnowledgeBaseManager {
   private __metaFormats: Array<MetaFormat> = [Essential]

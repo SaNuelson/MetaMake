@@ -1,6 +1,6 @@
 import Restructurable from './Restructurable'
 
-export class DataInfo extends Restructurable {
+export default class DataInfo extends Restructurable {
   public header: string[]
   public data: string[][]
   public rowCount: number
@@ -16,3 +16,4 @@ export class DataInfo extends Restructurable {
     return this.header?.length ?? this.data[0]?.length ?? 0
   }
 }
+Restructurable.addClass(DataInfo)

@@ -1,7 +1,7 @@
 import { app, BrowserWindow, globalShortcut } from 'electron'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
-import { loadLocalDataFile } from './commands/storage'
 import { createIndexWindow } from './windows'
+import initShortcuts from './shortcuts'
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.electron')
@@ -13,9 +13,7 @@ app.whenReady().then(() => {
   const mainWindow = createIndexWindow()
 
   // shortcuts
-  const openDataShortcut = globalShortcut.register('CommandOrControl+O', () =>
-    loadLocalDataFile(mainWindow)
-  )
+  initShortcuts(mainWindow)
 
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createIndexWindow()

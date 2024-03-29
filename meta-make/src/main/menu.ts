@@ -1,65 +1,64 @@
-import { BrowserWindow, Menu, dialog } from "electron";
-import DataManager from "./data/DataManager";
-import { loadLocalDataFile } from "./commands/storage";
-import { createKnowledgeBaseWindow } from "./windows";
+import { BrowserWindow, Menu } from 'electron'
+import { loadLocalDataFile } from './commands/storage'
+import { createKnowledgeBaseWindow } from './windows'
 
 export function createMainNavigation(window: BrowserWindow): Electron.Menu {
   return Menu.buildFromTemplate([
     {
-      label: "Data",
+      label: 'Data',
       submenu: [
         {
-          label: "Load data...",
+          label: 'Load data...',
           click: () => loadLocalDataFile(window)
         },
         {
-          label: "Load meta...",
+          label: 'Load meta...',
           click: () => {}
         }
       ]
     },
     {
-      label: "Knowledge base",
+      label: 'Knowledge base',
       submenu: [
         {
-          label: "New knowledge base...",
+          label: 'New knowledge base...',
           click: () => {}
         },
         {
-          label: "Load knowledge base...",
+          label: 'Load knowledge base...',
           click: () => {}
         },
         {
-          label: "Manage knowledge bases",
+          label: 'Manage knowledge bases',
           click: () => createKnowledgeBaseWindow(window)
         }
       ]
     },
     {
-      label: "Options",
+      label: 'Options',
       submenu: [
         {
-          label: "Preferences",
+          label: 'Preferences',
           click: () => {}
         }
       ]
     },
     {
-      label: "About",
+      label: 'About',
       submenu: [
         {
-          label: "Help",
+          label: 'Help',
           click: () => {}
         },
         {
-          label: "Github",
+          label: 'Github',
           click: () => {}
         },
         {
-          label: "Copyright",
+          label: 'Copyright',
           click: () => {}
         }
       ]
     }
-  ]);
+  ])
 }
