@@ -4,6 +4,9 @@ import './assets/index.css'
 import App from './App'
 import 'tw-elements-react/dist/css/tw-elements-react.min.css'
 import Restructurable from '../../common/dto/Restructurable'
+import InitDtos from '../../common/dto/Init'
+
+InitDtos()
 
 const contextIsolated = await window.rawApi.isContextIsolated()
 console.log("Context isolated?", contextIsolated);
@@ -24,7 +27,6 @@ if (contextIsolated) {
     }
   });
 }
-
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>

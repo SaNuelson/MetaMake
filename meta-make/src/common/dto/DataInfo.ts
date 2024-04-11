@@ -16,4 +16,3 @@ export default class DataInfo extends Restructurable {
     return this.header?.length ?? this.data[0]?.length ?? 0
   }
 }
-Restructurable.addClass(DataInfo)

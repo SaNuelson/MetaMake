@@ -3,7 +3,7 @@ import DataManager from './data/DataManager'
 import { BrowserWindow, ipcMain, IpcMainInvokeEvent, IpcRendererEvent } from 'electron'
 import KnowledgeBaseManager from './kb/KnowledgeBaseManager'
 
-type MainElectronEventHandler = (event: IpcMainInvokeEvent, ...args: any[]) => (Promise<any>) | (any);
+type MainElectronEventHandler = (event: IpcMainInvokeEvent, ...args: any[]) => Promise<any> | any
 type RendererElectronEventHandler = (event: IpcRendererEvent, ...args: any[]) => (Promise<any>) | (any);
 
 const logLevel = 1;
@@ -11,6 +11,7 @@ const logLevel = 1;
 // HANDLING: RENDERER -> MAIN
 export const indexMainEventHandlers: { [type in EventType]?: MainElectronEventHandler} = {
   [EventType.DataPreviewRequested]: () => DataManager.dataSource?.getPreview(),
+  [EventType.MetaFormatsRequested]: () => KnowledgeBaseManager.metaFormats,
   [EventType.MetaFormatListRequested]: () => KnowledgeBaseManager.getMetaFormatList()
 };
 

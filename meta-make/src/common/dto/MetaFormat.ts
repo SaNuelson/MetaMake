@@ -11,4 +11,3 @@ export default class MetaFormat extends Restructurable {
     this.metaProps = metaProps
   }
 }
-Restructurable.addClass(MetaFormat)

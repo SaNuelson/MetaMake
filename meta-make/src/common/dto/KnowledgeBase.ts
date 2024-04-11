@@ -1,6 +1,3 @@
-import settings from 'electron-settings'
-import { Config } from '../constants'
-import { join } from 'path'
 import Restructurable from './Restructurable'
 import MetaFormat from './MetaFormat'
 
@@ -15,16 +12,19 @@ export class KnowledgeBase extends Restructurable {
     id: string | null,
     name: string,
     path: string | null,
-    format: MetaFormat,
+    format: MetaFormat | null,
     changedOn: Date
   ) {
     super()
     this.id = id ?? crypto.randomUUID()
     this.name = name
     // TODO: Make sure name is usable as filename, and/or normalize it
-    this.path = path ?? join(settings.getSync(Config.KBBasePath) as string, this.name)
+    this.path = path ?? 'Unknown' // ?? join(settings.getSync(Config.KBBasePath) as string, this.name)
     this.format = format
     this.changedOn = changedOn
   }
+
+  static Empty(format: MetaFormat): KnowledgeBase {
+    return new KnowledgeBase(null, 'New KnowledgeBase', null, format, new Date())
+  }
 }
-Restructurable.addClass(KnowledgeBase)

@@ -1,6 +1,6 @@
 import { BrowserWindow, Menu } from 'electron'
 import { loadLocalDataFile } from './commands/storage'
-import { createKnowledgeBaseWindow } from './windows'
+import { createKnowledgeBaseEditorWindow, createKnowledgeBaseWindow } from './windows'
 
 export function createMainNavigation(window: BrowserWindow): Electron.Menu {
   return Menu.buildFromTemplate([
@@ -22,7 +22,7 @@ export function createMainNavigation(window: BrowserWindow): Electron.Menu {
       submenu: [
         {
           label: 'New knowledge base...',
-          click: () => {}
+          click: () => createKnowledgeBaseEditorWindow(window)
         },
         {
           label: 'Load knowledge base...',

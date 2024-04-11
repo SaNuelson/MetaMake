@@ -2,15 +2,19 @@ import { app, BrowserWindow, globalShortcut } from 'electron'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { createIndexWindow } from './windows'
 import initShortcuts from './shortcuts'
+import InitDtos from '../common/dto/Init'
+
+InitDtos()
 
 app.whenReady().then(() => {
-  electronApp.setAppUserModelId('com.electron')
+  electronApp.setAppUserModelId('com.electron.metamake')
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
 
   const mainWindow = createIndexWindow()
+
 
   // shortcuts
   initShortcuts(mainWindow)

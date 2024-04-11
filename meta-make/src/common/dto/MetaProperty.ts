@@ -1,11 +1,13 @@
 import Restructurable from './Restructurable'
 
+type PropertyType = 'string' | 'email' | 'number' | 'object'
+
 export default class MetaProperty extends Restructurable {
   readonly name: string
   readonly description: string
-  readonly type: string
+  readonly type: PropertyType
 
-  constructor(name: string, description: string, type: string) {
+  constructor(name: string, description: string, type: PropertyType) {
     super()
     this.name = name
     this.description = description
@@ -21,4 +23,3 @@ export class StructuredMetaProperty extends MetaProperty {
     this.children = children
   }
 }
-Restructurable.addClass(MetaProperty)

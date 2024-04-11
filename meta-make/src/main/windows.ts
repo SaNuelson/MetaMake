@@ -3,6 +3,7 @@ import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import { createMainNavigation } from './menu'
 import { attachIndexEventHandlers } from './events'
+import { getMetaUrl, MetaUrl } from '../common/constants'
 
 export function createIndexWindow(): BrowserWindow {
   // Create the browser window.
@@ -73,9 +74,49 @@ export function createKnowledgeBaseWindow(parent?: BrowserWindow) {
 
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     console.log('ELECTRON_RENDERER_URL', process.env['ELECTRON_RENDERER_URL'])
-    kbWindow.loadURL(process.env['ELECTRON_RENDERER_URL'] + '?kb')
+    kbWindow.loadURL(process.env['ELECTRON_RENDERER_URL'] + '/kb')
   } else {
-    kbWindow.loadFile(join(__dirname, '../renderer/index.html?kb'))
+    kbWindow.loadFile(join(__dirname, '../renderer/index.html/kb'))
+  }
+
+  return kbWindow
+}
+
+export function createKnowledgeBaseEditorWindow(parent?: BrowserWindow, kbId?: string) {
+  const kbWindow = new BrowserWindow({
+    parent: parent,
+    modal: !!parent,
+    width: 900,
+    height: 670,
+    show: false,
+    autoHideMenuBar: false,
+    webPreferences: {
+      preload: join(__dirname, '../preload/index.js'),
+      sandbox: false
+    }
+  })
+
+  if (parent) {
+    let pPos = parent.getPosition()
+    kbWindow.setPosition(pPos[0] + 40, pPos[1] + 40)
+  }
+
+  kbWindow.on('ready-to-show', () => {
+    kbWindow.show()
+  })
+
+  kbWindow.webContents.setWindowOpenHandler((details) => {
+    shell.openExternal(details.url)
+    return { action: 'deny' }
+  })
+
+  const suffix = getMetaUrl(!!kbId ? MetaUrl.KnowledgeBase : MetaUrl.KnowledgeBaseCreate, kbId);
+
+  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+    console.log('ELECTRON_RENDERER_URL', process.env['ELECTRON_RENDERER_URL'])
+    kbWindow.loadURL(process.env['ELECTRON_RENDERER_URL'] + suffix)
+  } else {
+    kbWindow.loadFile(join(__dirname, '../renderer/index.html' + suffix))
   }
 
   return kbWindow

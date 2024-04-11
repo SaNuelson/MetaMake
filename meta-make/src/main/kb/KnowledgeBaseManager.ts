@@ -2,9 +2,10 @@ import { KnowledgeBase } from '../../common/dto/KnowledgeBase'
 import { papaStream } from '../utils/io'
 import Essential from '../format/Essential'
 import MetaFormat from '../../common/dto/MetaFormat'
+import Basic from '../format/Basic'
 
 class KnowledgeBaseManager {
-  private __metaFormats: Array<MetaFormat> = [Essential]
+  private __metaFormats: Array<MetaFormat> = [Essential, Basic]
 
   public get metaFormats(): Array<MetaFormat> {
     return [...this.__metaFormats]
