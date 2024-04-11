@@ -4,7 +4,7 @@ import { KnowledgeBase } from '../../../../common/dto/KnowledgeBase'
 import Modal from '../helpers/Modal'
 import MetaFormat from '../../../../common/dto/MetaFormat'
 import { useNavigate } from 'react-router-dom'
-import { getMetaUrl, MetaUrl } from '../../../../common/constants'
+import { createMetaUrl, MetaUrl } from '../../../../common/constants'
 import MetaProperty, { StructuredMetaProperty } from '../../../../common/dto/MetaProperty'
 import { SelectData } from 'tw-elements-react/dist/types/forms/Select/types'
 
@@ -72,7 +72,7 @@ export default function KnowledgeBaseEditor(): ReactElement {
           {
             text: 'Yes',
             onClick: () => {
-              navigation(getMetaUrl(MetaUrl.KnowledgeBase))
+              navigation(createMetaUrl(MetaUrl.KnowledgeBase))
               return true
             }
           },

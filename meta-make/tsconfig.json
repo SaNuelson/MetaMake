@@ -4,6 +4,7 @@
     { "path": "./tsconfig.web.json" }
   ],
   "compilerOptions": {
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "lib": ["ES2021"]
   }
 }

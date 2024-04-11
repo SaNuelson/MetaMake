@@ -4,6 +4,7 @@ import { is } from '@electron-toolkit/utils'
 import { createMainNavigation } from './menu'
 import { attachIndexEventHandlers } from './events'
 import { getMetaUrl, MetaUrl } from '../common/constants'
+import { createMetaUrl, MetaUrl } from '../common/constants'
 
 export function createIndexWindow(): BrowserWindow {
   // Create the browser window.
@@ -110,7 +111,7 @@ export function createKnowledgeBaseEditorWindow(parent?: BrowserWindow, kbId?: s
     return { action: 'deny' }
   })
 
-  const suffix = getMetaUrl(!!kbId ? MetaUrl.KnowledgeBase : MetaUrl.KnowledgeBaseCreate, kbId);
+  const suffix = createMetaUrl(!!kbId ? MetaUrl.KnowledgeBase : MetaUrl.KnowledgeBaseCreate, kbId);
 
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     console.log('ELECTRON_RENDERER_URL', process.env['ELECTRON_RENDERER_URL'])

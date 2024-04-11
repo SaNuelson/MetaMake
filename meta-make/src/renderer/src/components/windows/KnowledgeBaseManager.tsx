@@ -1,6 +1,6 @@
 import React from 'react'
 import { KBButton, KBButtonLink, KnowledgeBaseTableRow, Table } from '../helpers/Table'
-import { getMetaUrl, MetaUrl } from '../../../../common/constants'
+import { createMetaUrl, MetaUrl } from '../../../../common/constants'
 
 export default function KnowledgeBaseManager(): React.JSX.Element {
   return (
@@ -24,7 +24,7 @@ export default function KnowledgeBaseManager(): React.JSX.Element {
       <div className="float-left space-x-2">
         <KBButtonLink
           title={'New...'}
-          href={getMetaUrl(MetaUrl.KnowledgeBaseCreate)}
+          href={createMetaUrl(MetaUrl.KnowledgeBaseCreate)}
         ></KBButtonLink>
         <KBButton title={'Load...'}></KBButton>
       </div>
