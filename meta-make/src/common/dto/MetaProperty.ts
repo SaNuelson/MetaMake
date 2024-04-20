@@ -23,3 +23,7 @@ export class StructuredMetaProperty extends MetaProperty {
     this.children = children
   }
 }
+
+export class ListMetaProperty extends MetaProperty {
+  
+}

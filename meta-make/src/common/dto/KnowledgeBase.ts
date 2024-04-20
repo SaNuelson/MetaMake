@@ -12,7 +12,7 @@ export class KnowledgeBase extends Restructurable {
     id: string | null,
     name: string,
     path: string | null,
-    format: MetaFormat | null,
+    format: MetaFormat,
     changedOn: Date
   ) {
     super()
@@ -24,7 +24,23 @@ export class KnowledgeBase extends Restructurable {
     this.changedOn = changedOn
   }
 
+  info(): KnowledgeBaseInfo {
+    return {
+      id: this.id,
+      name: this.name,
+      format: this.format.name,
+      changedOn: this.changedOn
+    }
+  }
+
   static Empty(format: MetaFormat): KnowledgeBase {
     return new KnowledgeBase(null, 'New KnowledgeBase', null, format, new Date())
   }
+}
+
+export type KnowledgeBaseInfo = {
+  id: string
+  name: string
+  format: string
+  changedOn: Date
 }

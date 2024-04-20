@@ -3,13 +3,15 @@ import { TEInput, TESelect } from 'tw-elements-react'
 import { KnowledgeBase } from '../../../../common/dto/KnowledgeBase'
 import Modal from '../helpers/Modal'
 import MetaFormat from '../../../../common/dto/MetaFormat'
-import { useNavigate } from 'react-router-dom'
-import { createMetaUrl, MetaUrl } from '../../../../common/constants'
+import { useNavigate, useParams } from 'react-router-dom'
+import { MetaUrl } from '../../../../common/constants'
 import MetaProperty, { StructuredMetaProperty } from '../../../../common/dto/MetaProperty'
+import { createMetaUrl } from '../../../../common/utils/url'
 import { SelectData } from 'tw-elements-react/dist/types/forms/Select/types'
 
 export default function KnowledgeBaseEditor(): ReactElement {
   const [knownFormats, setKnownFormats] = useState([] as MetaFormat[])
+  // @ts-ignore TODO
   const [activeFormat, setActiveFormat] = useState(undefined as MetaFormat | undefined)
   const [knowledgeBase, setKnowledgeBase] = useState(undefined as KnowledgeBase | undefined)
 
@@ -17,27 +19,54 @@ export default function KnowledgeBaseEditor(): ReactElement {
 
   useEffect(() => {
     window.api.requestMetaFormats().then((metaFormats: MetaFormat[]) => {
-      console.log(`KnowledgeBaseEditor.setFormats(${metaFormats})`)
+      console.groupCollapsed('KnowledgeBaseEditor.setFormats')
+      console.log(metaFormats)
+      console.groupEnd()
+
       setKnownFormats(metaFormats)
+
+      if (!editMode) {
+        const firstFormat = metaFormats[0]
+        setActiveFormat(firstFormat)
+        setKnowledgeBase(KnowledgeBase.Empty(firstFormat))
+      }
     })
+  }, [])
+
+  const kbId = useParams()['kb']
+  const editMode = kbId !== 'create'
+  useEffect(() => {
+    if (kbId && kbId !== 'create') {
+      window.api.requestKnowledgeBase(kbId).then((kb) => {
+        setActiveFormat(kb.format)
+        setKnowledgeBase(kb)
+      })
+    }
   }, [])
 
   const isChanged = false
   const navigation = useNavigate()
+
+  const formatSelection: SelectData[] = knownFormats.map((f: MetaFormat, i: number) => ({
+    text: f.name,
+    value: i + 1,
+    defaultSelected: editMode ? f.name === knowledgeBase?.format.name : i === 0
+  }))
 
   return (
     <div className="p-5">
       <div className="flex justify-center">
         <div className="relative mb-3 md:w-96">
           <TEInput type="text" label="Knowledge base name" size="lg" className="mb-6" />
-
           <TESelect
-            data={state.metaFormats.map((f: MetaFormat, i: number) => ({ text: f.name, value: i }))}
+            label="Meta format"
+            data={formatSelection}
             multiple={false}
             onValueChange={(select) => {
-              const idx = (select as SelectData).value as number
+              const idx = ((select as SelectData).value as number) - 1
               setActiveFormat(knownFormats[idx])
-              if (!knowledgeBase) setKnowledgeBase(KnowledgeBase.Empty(knownFormats[idx]))
+              // TODO: Lose unsaved changes modal
+              setKnowledgeBase(KnowledgeBase.Empty(knownFormats[idx]))
             }}
           />
         </div>
@@ -66,7 +95,7 @@ export default function KnowledgeBaseEditor(): ReactElement {
 
       <Modal
         title="Discard changes?"
-        isShown={state.isModalShown}
+        isShown={isModalShown}
         hasCloseButton={true}
         buttonConfig={[
           {
@@ -93,13 +122,19 @@ function KnowledgeBaseEditorNode({property} : NodeProps): ReactElement {
   switch(property.type) {
     case "object":
       return (<div>
-        {(property as StructuredMetaProperty).children.map(property => KnowledgeBaseEditorNode({property}))}
+        <ul>
+          {(property as StructuredMetaProperty).children.map((property, idx) =>
+            <li key={idx}>
+              {KnowledgeBaseEditorNode({property})}
+            </li>
+          )}
+        </ul>
       </div>)
     case "string":
-      return <TEInput type="text" />
+      return <TEInput label={property.name} type="text" />
     case "email":
-      return <TEInput type="email" />
+      return <TEInput label={property.name} type="email" />
     default:
-      return "I dunno."
+      return <p>"I dunno {property.name}."</p>
   }
 }

@@ -1,4 +1,4 @@
-import { KnowledgeBase } from '../../common/dto/KnowledgeBase'
+import { KnowledgeBase, KnowledgeBaseInfo } from '../../common/dto/KnowledgeBase'
 import { papaStream } from '../utils/io'
 import Essential from '../format/Essential'
 import MetaFormat from '../../common/dto/MetaFormat'
@@ -14,7 +14,8 @@ class KnowledgeBaseManager {
   private __knowledgeBases: Array<KnowledgeBase> = [
     // TODO: Remove
     new KnowledgeBase('testkb001', 'Test KB 001', '/testkb001.kb', Essential, new Date(Date.now())),
-    new KnowledgeBase('testkb002', 'Test KB 002', '/testkb002.kb', Essential, new Date(Date.now()))
+    new KnowledgeBase('testkb002', 'Test KB 002', '/testkb002.kb', Essential, new Date(Date.now())),
+    new KnowledgeBase('testbk003', 'Test KB 002', '/testkb003.kb', Basic, new Date(Date.now()))
   ]
 
   public get knowledgeBases(): Array<KnowledgeBase> {
@@ -40,6 +41,14 @@ class KnowledgeBaseManager {
         new KnowledgeBase(id, name, path, new MetaFormat(format, {}), changedOn)
       )
     })
+  }
+
+  getKnowledgeBaseList(): KnowledgeBaseInfo[] {
+    return this.knowledgeBases.map((kb) => kb.info())
+  }
+
+  getKnowledgeBase(id: string): KnowledgeBase | undefined {
+    return this.knowledgeBases.find((kb) => kb.id == id)
   }
 }
 

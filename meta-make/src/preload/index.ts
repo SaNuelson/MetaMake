@@ -4,11 +4,14 @@ import { electronAPI } from '@electron-toolkit/preload'
 import DataInfo from '../common/dto/DataInfo'
 import { EventType } from '../common/constants'
 import MetaFormat from '../common/dto/MetaFormat'
+import { KnowledgeBase, KnowledgeBaseInfo } from '../common/dto/KnowledgeBase'
 
 export type StringHandlingCallback = (value: string) => void
 export type EmptyCallback = () => void
 
 export interface MetaMakeAPI {
+  requestKnowledgeBase: (id: string) => Promise<KnowledgeBase>
+  requestKnowledgeBaseList: () => Promise<KnowledgeBaseInfo[]>
   isContextIsolated: () => Promise<boolean>
   isDebugEnabled: () => Promise<boolean>
   requestDataPreview: () => Promise<DataInfo | null>
@@ -21,6 +24,8 @@ export interface MetaMakeAPI {
 const api: MetaMakeAPI = {
   isContextIsolated: async () => true, // TODO
   isDebugEnabled: async () => true, // TODO
+  requestKnowledgeBase: (id: string) => ipcRenderer.invoke(EventType.KnowledgeBaseRequested, id),
+  requestKnowledgeBaseList: () => ipcRenderer.invoke(EventType.KnowledgeBaseListRequested),
   requestDataPreview: () => ipcRenderer.invoke(EventType.DataPreviewRequested),
   requestMetaFormats: () => ipcRenderer.invoke(EventType.MetaFormatsRequested),
   requestMetaFormatList: () => ipcRenderer.invoke(EventType.MetaFormatListRequested),

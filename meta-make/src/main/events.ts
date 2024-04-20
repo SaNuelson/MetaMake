@@ -12,7 +12,9 @@ const logLevel = 1;
 export const indexMainEventHandlers: { [type in EventType]?: MainElectronEventHandler} = {
   [EventType.DataPreviewRequested]: () => DataManager.dataSource?.getPreview(),
   [EventType.MetaFormatsRequested]: () => KnowledgeBaseManager.metaFormats,
-  [EventType.MetaFormatListRequested]: () => KnowledgeBaseManager.getMetaFormatList()
+  [EventType.MetaFormatListRequested]: () => KnowledgeBaseManager.getMetaFormatList(),
+  [EventType.KnowledgeBaseListRequested]: () => KnowledgeBaseManager.getKnowledgeBaseList(),
+  [EventType.KnowledgeBaseRequested]: (_, id: string) => KnowledgeBaseManager.getKnowledgeBase(id)
 };
 
 

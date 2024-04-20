@@ -2,12 +2,6 @@
 
 An Electron application with React and TypeScript
 
-## Recommended IDE Setup
-
-- [VSCode](https://code.visualstudio.com/) + [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) + [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
-
-## Project Setup
-
 ### Install
 
 ```bash
@@ -32,3 +26,11 @@ $ npm run build:mac
 # For Linux
 $ npm run build:linux
 ```
+
+
+### Backlog
+
+- [x] KBEditor::CreateMode, select first by default
+- [x] KBEditor::EditMode, select format KB being edited
+- [ ] KBEditor, ability to change KB & save changes
+- [ ]
