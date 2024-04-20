@@ -3,8 +3,9 @@ import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import { createMainNavigation } from './menu'
 import { attachIndexEventHandlers } from './events'
-import { getMetaUrl, MetaUrl } from '../common/constants'
-import { createMetaUrl, MetaUrl } from '../common/constants'
+import { MetaUrl } from '../common/constants'
+import { handleShortcut } from './shortcuts'
+import { createMetaUrl } from '../common/utils/url'
 
 export function createIndexWindow(): BrowserWindow {
   // Create the browser window.
@@ -18,6 +19,11 @@ export function createIndexWindow(): BrowserWindow {
       sandbox: false,
       contextIsolation: true
     }
+  })
+
+  mainWindow.webContents.on('before-input-event', (event, input) => {
+    const shouldPreventDefault = handleShortcut(mainWindow, input)
+    if (shouldPreventDefault) event.preventDefault()
   })
 
   mainWindow.on('ready-to-show', () => {
@@ -63,6 +69,11 @@ export function createKnowledgeBaseWindow(parent?: BrowserWindow) {
     let pPos = parent.getPosition()
     kbWindow.setPosition(pPos[0] + 40, pPos[1] + 40)
   }
+
+  kbWindow.webContents.on('before-input-event', (event, input) => {
+    const shouldPreventDefault = handleShortcut(kbWindow, input)
+    if (shouldPreventDefault) event.preventDefault()
+  })
 
   kbWindow.on('ready-to-show', () => {
     kbWindow.show()

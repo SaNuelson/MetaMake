@@ -43,7 +43,10 @@ export function attachIndexEventHandlers() {
       ipcMain.handle(type, wrapped);
     });
 
-  Object.entries(indexRendererEventHandlers)
-    .forEach(([type, callback]) => {
-    })
+  // Object.entries(indexRendererEventHandlers)
+  //   .forEach(([type, callback]) => {
+  //     if (logLevel <= 0) {
+  //       ipcRenderer.
+  //     }
+  //   })
 }

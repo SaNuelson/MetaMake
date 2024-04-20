@@ -1,5 +1,6 @@
 import { strict as assert } from 'assert'
-import { createMetaUrl, MetaUrl, parseMetaUrl } from '../constants'
+import { MetaUrl } from '../constants'
+import { createMetaUrl, parseMetaUrl } from '../utils/url'
 
 describe('createMetaUrl', () => {
   it('should leave parameterless URL untouched', () => {
