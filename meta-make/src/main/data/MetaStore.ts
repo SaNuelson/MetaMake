@@ -12,3 +12,5 @@ const metaStoreSchema: Schema<MetaStore>  = {
 }
 
 export default new Store<MetaStore>({schema: metaStoreSchema});
+
+// export default {get:()=>"A", set:()=>{}}

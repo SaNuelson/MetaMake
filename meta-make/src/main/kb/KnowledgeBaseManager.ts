@@ -63,17 +63,6 @@ class KnowledgeBaseManager {
     })
   }
   // endregion
-
-  async init() {
-    const kbIds = ['testkb001', 'testkb002', 'testkb003']
-
-    await Promise.all(kbIds.map(async (id) => await KnowledgeBaseModel.load(id)))
-      .then((kbms) => {
-        console.log("KBMan.init() ->", kbms)
-        this.__knowledgeBases.push(...kbms)
-      })
-  }
-
 }
 
 export default new KnowledgeBaseManager()

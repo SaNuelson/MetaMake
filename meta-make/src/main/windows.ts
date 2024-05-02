@@ -15,7 +15,7 @@ export function createIndexWindow(): BrowserWindow {
     show: false,
     autoHideMenuBar: false,
     webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
+      preload: join(__dirname, '../preload/index.mjs'),
       sandbox: false,
       contextIsolation: true
     }
@@ -60,7 +60,7 @@ export function createKnowledgeBaseWindow(parent?: BrowserWindow) {
     show: false,
     autoHideMenuBar: false,
     webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
+      preload: join(__dirname, '../preload/index.mjs'),
       sandbox: false
     }
   })
@@ -103,7 +103,7 @@ export function createKnowledgeBaseEditorWindow(parent?: BrowserWindow, kbId?: s
     show: false,
     autoHideMenuBar: false,
     webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
+      preload: join(__dirname, '../preload/index.mjs'),
       sandbox: false
     }
   })
@@ -122,6 +122,7 @@ export function createKnowledgeBaseEditorWindow(parent?: BrowserWindow, kbId?: s
     return { action: 'deny' }
   })
 
+  // @ts-ignore
   const suffix = createMetaUrl(!!kbId ? MetaUrl.KnowledgeBase : MetaUrl.KnowledgeBaseCreate, kbId);
 
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {

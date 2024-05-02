@@ -1,6 +1,6 @@
 import Restructurable from './Restructurable'
 
-type PropertyType = 'string' | 'email' | 'number' | 'object' | 'array' | 'boolean'
+type PropertyType = 'string' | 'email' | 'number' | 'object' | 'array' | 'boolean' | 'date'
 
 export default class MetaProperty extends Restructurable {
   readonly name: string
