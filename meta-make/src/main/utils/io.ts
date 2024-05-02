@@ -2,8 +2,6 @@ import { promisify } from 'util'
 import { createReadStream, PathLike, readFile, writeFile } from 'fs'
 import Papa from 'papaparse'
 import { Readable } from 'stream'
-import MetaFormat from "../../common/dto/MetaFormat";
-import knowledgeBaseManager from "../kb/KnowledgeBaseManager";
 
 export const readFileAsync = promisify(readFile)
 export const writeFileAsync = promisify(writeFile);
@@ -29,36 +27,3 @@ export function readTextFromFile(path: string, encoding: BufferEncoding = "utf8"
   return readFileAsync(path, {encoding})
 }
 
-export function chainJsonTransformers(breakOnChange: boolean = false, ...transformers: Array<(this: any, key: string, value: any) => any>) {
-  return function (this: any, key: string, value: any): any {
-    let newValue: any;
-    for (const transformer of transformers) {
-      newValue = transformer.call(this, key, value);
-      if (breakOnChange && newValue !== value) {
-        return newValue;
-      }
-      value = newValue;
-    }
-    return value;
-  }
-}
-
-export function metaObjectStripper(this: any, key: string, value: any): any {
-  if (value instanceof MetaFormat) {
-    return {
-      __rebind: MetaFormat.name,
-      name: value.name
-    };
-  }
-  return value;
-}
-
-export function metaObjectReviver(this: any, key: string, value: any): any {
-  if (typeof value === 'object' && value.hasOwnProperty('__rebind')) {
-    switch(value.__rebind) {
-      case MetaFormat.name:
-        return knowledgeBaseManager.getMetaFormat(value.name)
-    }
-  }
-  return value;
-}

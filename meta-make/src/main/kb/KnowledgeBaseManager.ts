@@ -7,6 +7,7 @@ import KnowledgeBaseModel from '../dto/KnowledgeBaseModel'
 import Long from "../format/Long";
 
 class KnowledgeBaseManager {
+  // region MetaFormats
   private __metaFormats: Array<MetaFormat> = [Essential, Basic, Long]
 
   public getMetaFormatList(): string[] {
@@ -17,10 +18,37 @@ class KnowledgeBaseManager {
     return [...this.__metaFormats]
   }
 
+  getMetaFormat(name: string): MetaFormat | undefined {
+    return this.__metaFormats[name];
+  }
+  // endregion
+
+  // region KnowledgeBases
   private __knowledgeBases: Array<KnowledgeBaseModel> = []
+
+  getKnowledgeBaseList(): KnowledgeBaseInfo[] {
+    return this.knowledgeBases.map((kb) => kb.info())
+  }
 
   public get knowledgeBases(): Array<KnowledgeBaseModel> {
     return [...this.__knowledgeBases]
+  }
+
+  getKnowledgeBase(id: string): KnowledgeBase | undefined {
+    return this.knowledgeBases.find((kb) => kb.id == id)
+  }
+
+  async setKnowledgeBase(kb: KnowledgeBase) {
+    const knownKB = this.__knowledgeBases.find(kkb => kkb.id === kb.id);
+    if (knownKB) {
+      Object.assign(knownKB, kb);
+      await knownKB.save();
+    }
+    else {
+      const newKB: KnowledgeBaseModel = new KnowledgeBaseModel(kb.id, kb.name, kb.path, kb.format, kb.changedOn);
+      this.__knowledgeBases.push(newKB);
+      await newKB.save();
+    }
   }
 
   public async loadKBs(path: string) {
@@ -34,18 +62,7 @@ class KnowledgeBaseManager {
       )
     })
   }
-
-  public async saveKBs(): Promise<void> {
-
-  }
-
-  getKnowledgeBaseList(): KnowledgeBaseInfo[] {
-    return this.knowledgeBases.map((kb) => kb.info())
-  }
-
-  getKnowledgeBase(id: string): KnowledgeBase | undefined {
-    return this.knowledgeBases.find((kb) => kb.id == id)
-  }
+  // endregion
 
   async init() {
     const kbIds = ['testkb001', 'testkb002', 'testkb003']
@@ -57,19 +74,6 @@ class KnowledgeBaseManager {
       })
   }
 
-  setKnowledgeBase(kb: KnowledgeBase) {
-    const knownKB = this.__knowledgeBases.find(kkb => kkb.id === kb.id);
-    if (knownKB) {
-      Object.assign(knownKB, kb);
-    }
-    else {
-      this.__knowledgeBases.push(new KnowledgeBaseModel(kb.id, kb.name, kb.path, kb.format, kb.changedOn));
-    }
-  }
-
-  getMetaFormat(name: string): MetaFormat | undefined {
-    return this.__metaFormats[name];
-  }
 }
 
 export default new KnowledgeBaseManager()
