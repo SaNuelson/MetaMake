@@ -5,9 +5,10 @@ import Modal from '../helpers/Modal'
 import MetaFormat from '../../../../common/dto/MetaFormat'
 import { useNavigate, useParams } from 'react-router-dom'
 import { MetaUrl } from '../../../../common/constants'
-import MetaProperty, { StructuredMetaProperty } from '../../../../common/dto/MetaProperty'
+import MetaProperty, { ListMetaProperty, StructuredMetaProperty } from "../../../../common/dto/MetaProperty";
 import { createMetaUrl } from '../../../../common/utils/url'
 import { SelectData } from 'tw-elements-react/dist/types/forms/Select/types'
+import MetaModel from "../../../../common/dto/MetaModel";
 
 export default function KnowledgeBaseEditor(): ReactElement {
   const [knownFormats, setKnownFormats] = useState([] as MetaFormat[])
@@ -72,11 +73,13 @@ export default function KnowledgeBaseEditor(): ReactElement {
         </div>
       </div>
       <hr className="h-px my-4 bg-gray-200 border-0 dark:bg-gray-700" />
-      <div>
-        {knowledgeBase &&
-          Object.entries(knowledgeBase.format.metaProps).map(([name, prop]) => (
-            <KnowledgeBaseEditorNode key={name} property={prop} />
-          ))}
+      <div className="flex justify-center">
+        <div className="block w-3/4 rounded-lg bg-white px-6 py-3 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] dark:bg-neutral-700" >
+          {knowledgeBase &&
+            Object.entries(knowledgeBase.format.metaProps).map(([name, prop]) => (
+              <KnowledgeBaseEditorNode key={name} property={prop} model={knowledgeBase.model} />
+            ))}
+        </div>
       </div>
       <hr className="h-px my-4 bg-gray-200 border-0 dark:bg-gray-700" />
       <div className="flex justify-around">
@@ -85,7 +88,7 @@ export default function KnowledgeBaseEditor(): ReactElement {
         </button>
         <button
           onClick={() => {
-            /*TODO*/
+            window.api.updateKnowledgeBase(knowledgeBase)
           }}
           className=""
         >
@@ -115,26 +118,63 @@ export default function KnowledgeBaseEditor(): ReactElement {
 }
 
 type NodeProps = {
-  property: MetaProperty
+  property: MetaProperty,
+  model: MetaModel
 }
 
-function KnowledgeBaseEditorNode({property} : NodeProps): ReactElement {
-  switch(property.type) {
-    case "object":
-      return (<div>
-        <ul>
-          {(property as StructuredMetaProperty).children.map((property, idx) =>
-            <li key={idx}>
-              {KnowledgeBaseEditorNode({property})}
-            </li>
-          )}
-        </ul>
-      </div>)
-    case "string":
-      return <TEInput label={property.name} type="text" />
-    case "email":
-      return <TEInput label={property.name} type="email" />
-    default:
-      return <p>"I dunno {property.name}."</p>
+function KnowledgeBaseEditorNode({property, model} : NodeProps): ReactElement {
+  if (property.type === "object") {
+    return (<div className="mt-8">
+      <label>{property.name}</label>
+      <ul className="ml-2">
+        {(property as StructuredMetaProperty).children.map((property, idx) =>
+          <li key={idx}>
+            {KnowledgeBaseEditorNode({property, model})}
+          </li>
+        )}
+      </ul>
+    </div>)
   }
+
+  if (property.type === "array") {
+    const listProperty = property as ListMetaProperty;
+    return (<div className="mt-8">
+      <label>{property.name}</label>
+      <ol className="ml-2">
+        <li key="1">
+          <TEInput
+            label={listProperty.name}
+            type={listProperty.itemType}
+            className="mt-6"
+            value={model.getValue(property)}
+            onChange={ev=>model.setValue(property, ev.target.value)}>
+
+            <small
+              id="emailHelp2"
+              className="absolute w-full text-neutral-500 dark:text-neutral-200"
+            >
+              {property.description}
+            </small>
+          </TEInput>
+        </li>
+      </ol>
+    </div>)
+  }
+
+  return (
+    <TEInput
+      label={property.name}
+      type={property.type}
+      className="mt-6"
+      value={model.getValue(property)}
+      onChange={ev=>model.setValue(property, ev.target.value)}>
+
+      <small
+        id="emailHelp2"
+        className="absolute w-full text-neutral-500 dark:text-neutral-200"
+      >
+        {property.description}
+      </small>
+    </TEInput>
+  );
 }

@@ -10,10 +10,13 @@ export type StringHandlingCallback = (value: string) => void
 export type EmptyCallback = () => void
 
 export interface MetaMakeAPI {
-  requestKnowledgeBase: (id: string) => Promise<KnowledgeBase>
   requestKnowledgeBaseList: () => Promise<KnowledgeBaseInfo[]>
+  requestKnowledgeBase: (id: string) => Promise<KnowledgeBase>
+  updateKnowledgeBase: (kb: KnowledgeBase) => void
+
   isContextIsolated: () => Promise<boolean>
   isDebugEnabled: () => Promise<boolean>
+
   requestDataPreview: () => Promise<DataInfo | null>
   requestMetaFormats: () => Promise<MetaFormat[]>
   requestMetaFormatList: () => Promise<string[]>
@@ -22,10 +25,13 @@ export interface MetaMakeAPI {
 
 // Custom APIs for renderer
 const api: MetaMakeAPI = {
+  requestKnowledgeBaseList: () => ipcRenderer.invoke(EventType.KnowledgeBaseListRequested),
+  requestKnowledgeBase: (id: string) => ipcRenderer.invoke(EventType.KnowledgeBaseRequested, id),
+  updateKnowledgeBase: (kb: KnowledgeBase) => ipcRenderer.invoke(EventType.KnowledgeBaseUpdated, kb),
+
   isContextIsolated: async () => true, // TODO
   isDebugEnabled: async () => true, // TODO
-  requestKnowledgeBase: (id: string) => ipcRenderer.invoke(EventType.KnowledgeBaseRequested, id),
-  requestKnowledgeBaseList: () => ipcRenderer.invoke(EventType.KnowledgeBaseListRequested),
+
   requestDataPreview: () => ipcRenderer.invoke(EventType.DataPreviewRequested),
   requestMetaFormats: () => ipcRenderer.invoke(EventType.MetaFormatsRequested),
   requestMetaFormatList: () => ipcRenderer.invoke(EventType.MetaFormatListRequested),

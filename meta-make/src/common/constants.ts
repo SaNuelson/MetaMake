@@ -6,10 +6,7 @@ export enum EventType {
   MetaFormatsRequested = 'MetaFormatsRequested',
   KnowledgeBaseListRequested = 'KnowledgeBaseListRequested',
   KnowledgeBaseRequested = 'KnowledgeBaseRequested',
-}
-
-export enum Config {
-  KBBasePath = 'kbBasePath'
+  KnowledgeBaseUpdated = 'KnowledgeBaseUpdated',
 }
 
 export enum MetaUrl {
@@ -24,3 +21,6 @@ export enum WindowType {
   KBEdit = "KnowledgeBaseEditor"
 }
 
+export const Config = {
+  kbPath: 'kbPath'
+} as const;

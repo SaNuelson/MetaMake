@@ -4,7 +4,7 @@ import './assets/index.css'
 import App from './App'
 import 'tw-elements-react/dist/css/tw-elements-react.min.css'
 import Restructurable from '../../common/dto/Restructurable'
-import InitDtos from '../../common/dto/Init'
+import InitDtos from './dto/Init'
 
 InitDtos()
 

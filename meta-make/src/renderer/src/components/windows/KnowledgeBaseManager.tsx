@@ -11,7 +11,9 @@ export default function KnowledgeBaseManager(): React.JSX.Element {
 
   useEffect(() => {
     window.api.requestKnowledgeBaseList().then((knowledgeBases: KnowledgeBaseInfo[]) => {
-      console.log(`KnowledgeBaseManager.setBases(${knowledgeBases})`)
+      console.groupCollapsed('KnowledgeBaseManager.setBases')
+      console.log(knowledgeBases)
+      console.groupEnd()
       setKnowledgeBaseList(knowledgeBases)
     })
   }, [])

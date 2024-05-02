@@ -1,6 +1,6 @@
 import Restructurable from './Restructurable'
 
-type PropertyType = 'string' | 'email' | 'number' | 'object'
+type PropertyType = 'string' | 'email' | 'number' | 'object' | 'array' | 'boolean'
 
 export default class MetaProperty extends Restructurable {
   readonly name: string
@@ -13,6 +13,11 @@ export default class MetaProperty extends Restructurable {
     this.description = description
     this.type = type
   }
+
+  isValid(value: any): boolean {
+    const valueType = typeof value;
+    return valueType === this.type;
+  }
 }
 
 export class StructuredMetaProperty extends MetaProperty {
@@ -22,8 +27,17 @@ export class StructuredMetaProperty extends MetaProperty {
     super(name, description, 'object')
     this.children = children
   }
+
+  isValid(values: any[]): boolean {
+    return values.every(value => typeof value === this.type);
+  }
 }
 
 export class ListMetaProperty extends MetaProperty {
-  
+  readonly itemType: PropertyType
+
+  constructor(name: string, description: string, itemType: PropertyType) {
+    super(name, description, 'array')
+    this.itemType = itemType
+  }
 }

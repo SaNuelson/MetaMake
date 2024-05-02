@@ -2,6 +2,7 @@ import { EventType } from '../common/constants'
 import DataManager from './data/DataManager'
 import { BrowserWindow, ipcMain, IpcMainInvokeEvent, IpcRendererEvent } from 'electron'
 import KnowledgeBaseManager from './kb/KnowledgeBaseManager'
+import { KnowledgeBase } from "../common/dto/KnowledgeBase";
 
 type MainElectronEventHandler = (event: IpcMainInvokeEvent, ...args: any[]) => Promise<any> | any
 type RendererElectronEventHandler = (event: IpcRendererEvent, ...args: any[]) => (Promise<any>) | (any);
@@ -14,7 +15,8 @@ export const indexMainEventHandlers: { [type in EventType]?: MainElectronEventHa
   [EventType.MetaFormatsRequested]: () => KnowledgeBaseManager.metaFormats,
   [EventType.MetaFormatListRequested]: () => KnowledgeBaseManager.getMetaFormatList(),
   [EventType.KnowledgeBaseListRequested]: () => KnowledgeBaseManager.getKnowledgeBaseList(),
-  [EventType.KnowledgeBaseRequested]: (_, id: string) => KnowledgeBaseManager.getKnowledgeBase(id)
+  [EventType.KnowledgeBaseRequested]: (_, id: string) => KnowledgeBaseManager.getKnowledgeBase(id),
+  [EventType.KnowledgeBaseUpdated]: (kb: KnowledgeBase) => KnowledgeBaseManager.setKnowledgeBase(kb)
 };
 
 

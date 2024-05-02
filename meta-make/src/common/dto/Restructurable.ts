@@ -17,18 +17,18 @@ export default class Restructurable {
   public static readonly from: symbol = Symbol('restructureFrom')
 
   public static restructure(obj: any): Restructurable | Object | any {
-    console.groupCollapsed(`${Restructurable.name}.${Restructurable.restructure.name}`, obj)
+    //console.groupCollapsed(`${Restructurable.name}.${Restructurable.restructure.name}`, obj)
     const restructured = Restructurable.__restructure(obj);
-    console.groupEnd()
+    //console.groupEnd()
     return restructured;
   }
 
   private static __restructure(obj: any): Restructurable | Object | any /*primitive*/ {
-    console.log(`.. known restructurables: ${Object.keys(this.__classDict)}`)
+    //console.log(`.. known restructurables: ${Object.keys(this.__classDict)}`)
 
     // primitive, keep as is
     if (typeof obj !== 'object') {
-      console.log('...restructure primitive of type', typeof obj)
+      //console.log('...restructure primitive of type', typeof obj)
       return obj
     }
 
@@ -45,15 +45,15 @@ export default class Restructurable {
 
         // custom restructuring process
         if (Restructurable.from in Clazz.prototype) {
-          console.log('...restructure via custom method')
+          //console.log('...restructure via custom method')
           let restructured: Restructurable = Clazz.prototype[Restructurable.from](obj)
           if (restructured) {
             return restructured
           }
-          console.log('......which failed (possibly by design).')
+          //console.log('......which failed (possibly by design).')
         }
 
-        console.log('...restructure recursively')
+        //console.log('...restructure recursively')
         let restructured = new Clazz()
         Object.assign(restructured, obj)
         for (const key of Object.keys(restructured)) {
@@ -66,7 +66,7 @@ export default class Restructurable {
 
     // JS built-in, may contain serialized items
     for (const [key, val] of Object.entries(obj)) {
-      console.log('...restructure built-in')
+      //console.log('...restructure built-in')
       obj[key] = Restructurable.restructure(val)
     }
     return obj
