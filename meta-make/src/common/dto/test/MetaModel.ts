@@ -17,7 +17,7 @@ describe('MetaModel, when constructed', () => {
   const outerStruct = new StructuredMetaProperty(
     "SP1",
     "Structured property 1",
-    [innerStruct]);
+    [innerStruct, dateProp]);
 
   const testFormat = new MetaFormat("Test", outerStruct);
 
