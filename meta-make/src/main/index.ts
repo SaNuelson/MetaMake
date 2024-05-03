@@ -7,8 +7,10 @@ import path from 'node:path'
 import { existsSync, mkdirSync } from 'fs'
 import MetaStore from "./data/MetaStore";
 import { Config } from "../common/constants";
+import { session } from 'electron';
+import * as os from "node:os";
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   InitDtos()
 
   const kbPath = path.join(app.getPath('userData'), 'kb/');
@@ -21,6 +23,13 @@ app.whenReady().then(() => {
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
+
+  // TODO: Check if extension exists
+  await session.defaultSession.loadExtension(path.join(
+    os.homedir(),
+    '/AppData/Local/Microsoft/Edge/User Data/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/5.1.0_0'
+  ),
+    { allowFileAccess: true })
 
   const mainWindow = createIndexWindow()
 

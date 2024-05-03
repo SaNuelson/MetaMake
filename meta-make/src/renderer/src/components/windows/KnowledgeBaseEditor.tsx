@@ -76,9 +76,7 @@ export default function KnowledgeBaseEditor(): ReactElement {
       <div className="flex justify-center">
         <div className="block w-3/4 rounded-lg bg-white px-6 py-3 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] dark:bg-neutral-700" >
           {knowledgeBase &&
-            Object.entries(knowledgeBase.format.metaProps).map(([name, prop]) => (
-              <KnowledgeBaseEditorNode key={name} property={prop} model={knowledgeBase.model} />
-            ))}
+            <KnowledgeBaseEditorNode property={knowledgeBase.format.metaProps} model={knowledgeBase.model} />}
         </div>
       </div>
       <hr className="h-px my-4 bg-gray-200 border-0 dark:bg-gray-700" />
@@ -88,8 +86,11 @@ export default function KnowledgeBaseEditor(): ReactElement {
         </button>
         <button
           onClick={() => {
+            if (!knowledgeBase)
+              throw new Error('Unable to save if no format selected.');
             window.api.updateKnowledgeBase(knowledgeBase)
           }}
+          disabled={!knowledgeBase}
           className=""
         >
           Save
@@ -123,6 +124,8 @@ type NodeProps = {
 }
 
 function KnowledgeBaseEditorNode({property, model} : NodeProps): ReactElement {
+  console.log("KnowledgeBaseEditorNode", property, model)
+
   if (property.type === "object") {
     return (<div className="mt-8">
       <label>{property.name}</label>
