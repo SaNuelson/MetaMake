@@ -3,12 +3,14 @@ import Restructurable from './Restructurable'
 type PropertyType = 'string' | 'email' | 'number' | 'object' | 'array' | 'boolean' | 'date'
 
 export default class MetaProperty extends Restructurable {
+  readonly id: number
   readonly name: string
   readonly description: string
   readonly type: PropertyType
 
-  constructor(name: string, description: string, type: PropertyType) {
+  constructor(id: number, name: string, description: string, type: PropertyType) {
     super()
+    this.id = id;
     this.name = name
     this.description = description
     this.type = type
@@ -23,8 +25,8 @@ export default class MetaProperty extends Restructurable {
 export class StructuredMetaProperty extends MetaProperty {
   readonly children: MetaProperty[]
 
-  constructor(name: string, description: string, children: MetaProperty[]) {
-    super(name, description, 'object')
+  constructor(id: number, name: string, description: string, children: MetaProperty[]) {
+    super(id, name, description, 'object')
     this.children = children
   }
 
@@ -36,8 +38,8 @@ export class StructuredMetaProperty extends MetaProperty {
 export class ListMetaProperty extends MetaProperty {
   readonly itemType: PropertyType
 
-  constructor(name: string, description: string, itemType: PropertyType) {
-    super(name, description, 'array')
+  constructor(id: number, name: string, description: string, itemType: PropertyType) {
+    super(id, name, description, 'array')
     this.itemType = itemType
   }
 }

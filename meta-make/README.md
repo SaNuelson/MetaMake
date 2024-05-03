@@ -32,5 +32,9 @@ $ npm run build:linux
 
 - [x] KBEditor::CreateMode, select first by default
 - [x] KBEditor::EditMode, select format KB being edited
+- [ ] KBEditor, ability to create KB & save new KBs
+  - [x] KB with set values get passed to backend
+  - [ ] KB is given a new unique ID
+  - [x] KB is saved to disk
 - [ ] KBEditor, ability to change KB & save changes
 - [ ]

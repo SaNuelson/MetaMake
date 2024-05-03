@@ -3,16 +3,17 @@ import MetaProperty, { StructuredMetaProperty } from '../../common/dto/MetaPrope
 
 const Long = new MetaFormat(
   'Long',
-  new StructuredMetaProperty('Long', 'Long meta format', [
-    new MetaProperty('Title', 'Name of the dataset', 'string'),
+  new StructuredMetaProperty(3001, 'Long', 'Long meta format', [
+    new MetaProperty(3002, 'Title', 'Name of the dataset', 'string'),
     new MetaProperty(
+      3003,
       'Description',
       'Short description about the contents of the dataset',
       'string'
     ),
-    new StructuredMetaProperty('Topic', 'Single topic of the dataset', [
-      new MetaProperty('Name', 'Name of the topic', 'string'),
-      new MetaProperty('Description', 'Description of the topic', 'string')
+    new StructuredMetaProperty(3004, 'Topic', 'Single topic of the dataset', [
+      new MetaProperty(3005, 'Name', 'Name of the topic', 'string'),
+      new MetaProperty(3006, 'Description', 'Description of the topic', 'string')
     ])
   ])
 )

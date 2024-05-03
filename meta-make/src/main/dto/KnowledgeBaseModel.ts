@@ -26,4 +26,8 @@ export default class KnowledgeBaseModel extends KnowledgeBase {
     const parsed: object = JSON.parse(json, this.kbModelReviver);
     return Restructurable.restructure(parsed) as KnowledgeBaseModel
   }
+
+  [Restructurable.from](obj: KnowledgeBaseModel): KnowledgeBaseModel {
+    return new KnowledgeBaseModel(obj.id, obj.name, obj.format, obj.model, obj.changedOn);
+  }
 }

@@ -9,19 +9,23 @@ export class KnowledgeBase extends Restructurable {
   public model: MetaModel
   public changedOn: Date
 
+
+  constructor(id: string, name: string, format: MetaFormat);
+  constructor(id: string, name: string, format: MetaFormat, model: MetaModel, changedOn: Date);
   constructor(
     id: string,
     name: string,
     format: MetaFormat,
-    changedOn: Date
+    model?: MetaModel,
+    changedOn?: Date
   ) {
     super()
     this.id = id
     this.name = name
     // TODO: Make sure name is usable as filename, and/or normalize it
     this.format = format
-    this.model = new MetaModel(format)
-    this.changedOn = changedOn
+    this.model = model ?? new MetaModel(format)
+    this.changedOn = changedOn ?? new Date()
   }
 
   info(): KnowledgeBaseInfo {
@@ -34,7 +38,7 @@ export class KnowledgeBase extends Restructurable {
   }
 
   static Empty(format: MetaFormat): KnowledgeBase {
-    return new KnowledgeBase("new", 'New KnowledgeBase', format, new Date())
+    return new KnowledgeBase("new", 'New KnowledgeBase', format, undefined, new Date())
   }
 }
 

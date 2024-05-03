@@ -3,6 +3,7 @@ import DataManager from './data/DataManager'
 import { BrowserWindow, ipcMain, IpcMainInvokeEvent, IpcRendererEvent } from 'electron'
 import KnowledgeBaseManager from './kb/KnowledgeBaseManager'
 import { KnowledgeBase } from "../common/dto/KnowledgeBase";
+import Restructurable from "../common/dto/Restructurable";
 
 type MainElectronEventHandler = (event: IpcMainInvokeEvent, ...args: any[]) => Promise<any> | any
 type RendererElectronEventHandler = (event: IpcRendererEvent, ...args: any[]) => (Promise<any>) | (any);
@@ -16,8 +17,15 @@ export const indexMainEventHandlers: { [type in EventType]?: MainElectronEventHa
   [EventType.MetaFormatListRequested]: () => KnowledgeBaseManager.getMetaFormatList(),
   [EventType.KnowledgeBaseListRequested]: () => KnowledgeBaseManager.getKnowledgeBaseList(),
   [EventType.KnowledgeBaseRequested]: (_, id: string) => KnowledgeBaseManager.getKnowledgeBase(id),
-  [EventType.KnowledgeBaseUpdated]: (kb: KnowledgeBase) => KnowledgeBaseManager.setKnowledgeBase(kb)
+  [EventType.KnowledgeBaseUpdated]: (_, kb: KnowledgeBase) => KnowledgeBaseManager.setKnowledgeBase(kb)
 };
+
+Object.entries(indexMainEventHandlers).forEach(([key, handler]) => {
+  indexMainEventHandlers[key] = function (event: Electron.IpcMainInvokeEvent, ...rawArgs: any[]) {
+    const args: any[] = rawArgs.map((rawArg) => Restructurable.restructure(rawArg))
+    return handler(event, ...args)
+  }
+})
 
 
 // EMITTING: MAIN -> RENDERER

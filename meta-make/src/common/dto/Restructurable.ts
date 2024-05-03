@@ -1,3 +1,5 @@
+
+const debug = true;
 export default class Restructurable {
   constructor(..._: any[]) {}
 
@@ -17,18 +19,21 @@ export default class Restructurable {
   public static readonly from: symbol = Symbol('restructureFrom')
 
   public static restructure(obj: any): Restructurable | Object | any {
-    //console.groupCollapsed(`${Restructurable.name}.${Restructurable.restructure.name}`, obj)
+    if (debug)
+      console.groupCollapsed(`${Restructurable.name}.${Restructurable.restructure.name}`, obj)
     const restructured = Restructurable.__restructure(obj);
-    //console.groupEnd()
+    if (debug)
+      console.log(`${Restructurable.name}.${Restructurable.restructure.name} end as`, restructured);
+    if(debug)
+      console.groupEnd()
     return restructured;
   }
 
   private static __restructure(obj: any): Restructurable | Object | any /*primitive*/ {
-    //console.log(`.. known restructurables: ${Object.keys(this.__classDict)}`)
-
     // primitive, keep as is
     if (typeof obj !== 'object') {
-      //console.log('...restructure primitive of type', typeof obj)
+      if (debug)
+        console.log('...restructure primitive of type', typeof obj)
       return obj
     }
 
@@ -43,30 +48,41 @@ export default class Restructurable {
       else {
         let Clazz = Restructurable.__classDict[obj.__className]
 
+        if (debug)
+          console.log('...restructure recursively')
+        for (const key of Object.keys(obj)) {
+          if (debug)
+            console.log(`    ...for key ${key}`)
+          obj[key] = Restructurable.restructure(obj[key])
+        }
+
         // custom restructuring process
         if (Restructurable.from in Clazz.prototype) {
-          //console.log('...restructure via custom method')
+          if (debug)
+            console.log('...restructure via custom method')
           let restructured: Restructurable = Clazz.prototype[Restructurable.from](obj)
           if (restructured) {
             return restructured
           }
-          //console.log('......which failed (possibly by design).')
+          if (debug)
+            console.log('    ...which failed (possibly by design).')
         }
 
-        //console.log('...restructure recursively')
+        if (debug)
+          console.log('...restructure via empty ctor and obj assign')
         let restructured = new Clazz()
         Object.assign(restructured, obj)
-        for (const key of Object.keys(restructured)) {
-          restructured[key] = Restructurable.restructure(restructured[key])
-        }
 
         return restructured
       }
     }
 
+    if (debug)
+      console.log('...restructure built-in')
     // JS built-in, may contain serialized items
     for (const [key, val] of Object.entries(obj)) {
-      //console.log('...restructure built-in')
+      if (debug)
+        console.log(`    ...for key ${key}`)
       obj[key] = Restructurable.restructure(val)
     }
     return obj

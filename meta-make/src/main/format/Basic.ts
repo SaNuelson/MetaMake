@@ -3,9 +3,9 @@ import MetaProperty, { StructuredMetaProperty } from '../../common/dto/MetaPrope
 
 const Basic = new MetaFormat(
   'Basic',
-  new StructuredMetaProperty('Basic', 'Basic meta format', [
-    new MetaProperty('Title', 'Name of the dataset', 'string'),
-    new MetaProperty('Description', 'Short description about the contents of the dataset', 'string')
+  new StructuredMetaProperty(1000, 'Basic', 'Basic meta format', [
+    new MetaProperty(1001, 'Title', 'Name of the dataset', 'string'),
+    new MetaProperty(1002, 'Description', 'Short description about the contents of the dataset', 'string')
   ])
 )
 

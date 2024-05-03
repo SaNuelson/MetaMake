@@ -45,7 +45,7 @@ class KnowledgeBaseManager {
       await knownKB.save();
     }
     else {
-      const newKB: KnowledgeBaseModel = new KnowledgeBaseModel(kb.id, kb.name, kb.path, kb.format, kb.changedOn);
+      const newKB: KnowledgeBaseModel = new KnowledgeBaseModel(kb.id, kb.name, kb.format);
       this.__knowledgeBases.push(newKB);
       await newKB.save();
     }
@@ -55,10 +55,10 @@ class KnowledgeBaseManager {
     const stream = papaStream(path)
     stream.on('data', (data: string[]) => {
       // TODO: validate
-      const [id, name, path, format, changedOnStr] = data
+      const [id, name, format, changedOnStr] = data
       const changedOn = new Date(Date.parse(changedOnStr))
       this.knowledgeBases.push(
-        new KnowledgeBaseModel(id, name, path, new MetaFormat(format, {}), changedOn)
+        new KnowledgeBaseModel(id, name, new MetaFormat(format, {}))
       )
     })
   }

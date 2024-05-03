@@ -124,7 +124,6 @@ type NodeProps = {
 }
 
 function KnowledgeBaseEditorNode({property, model} : NodeProps): ReactElement {
-  console.log("KnowledgeBaseEditorNode", property, model)
 
   if (property.type === "object") {
     return (<div className="mt-8">
