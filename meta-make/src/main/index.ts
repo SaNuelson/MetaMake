@@ -9,6 +9,7 @@ import MetaStore from "./data/MetaStore";
 import { Config } from "../common/constants";
 import { session } from 'electron';
 import * as os from "node:os";
+import knowledgeBaseManager from "./kb/KnowledgeBaseManager";
 
 app.whenReady().then(async () => {
   InitDtos()
@@ -17,6 +18,9 @@ app.whenReady().then(async () => {
   if (!existsSync(kbPath))
     mkdirSync(kbPath)
   MetaStore.set(Config.kbPath, kbPath);
+
+  console.log("KBIDs", MetaStore.getKnowledgeBases());
+  knowledgeBaseManager.loadKBs()
 
   electronApp.setAppUserModelId('com.electron.metamake')
 

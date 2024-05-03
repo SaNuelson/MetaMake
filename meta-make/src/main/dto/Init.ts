@@ -5,10 +5,11 @@ import MetaProperty, { StructuredMetaProperty } from '../../common/dto/MetaPrope
 import KnowledgeBaseModel from "./KnowledgeBaseModel";
 import MetaModel from "../../common/dto/MetaModel";
 
-export default function () {
+export default  function () {
   Restructurable.addClass(DataInfo)
 
   Restructurable.addClass(KnowledgeBaseModel, 'KnowledgeBase')
+  Restructurable.addClass(KnowledgeBaseModel)
 
   Restructurable.addClass(MetaFormat)
 

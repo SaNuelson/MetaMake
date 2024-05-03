@@ -38,7 +38,7 @@ export class KnowledgeBase extends Restructurable {
   }
 
   static Empty(format: MetaFormat): KnowledgeBase {
-    return new KnowledgeBase("new", 'New KnowledgeBase', format, undefined, new Date())
+    return new KnowledgeBase("new", 'New KnowledgeBase', format, new MetaModel(format), new Date())
   }
 }
 

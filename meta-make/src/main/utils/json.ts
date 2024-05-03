@@ -32,6 +32,7 @@ export function metaObjectReviver(this: any, _: string, value: any): any {
   if (typeof value === "object" && value.hasOwnProperty("__rebind")) {
     switch (value.__rebind) {
       case MetaFormat.name:
+        console.log("Rebind", value, knowledgeBaseManager.getMetaFormat(value.name));
         return knowledgeBaseManager.getMetaFormat(value.name);
     }
   }

@@ -22,7 +22,6 @@ export default function KnowledgeBaseEditor(): ReactElement {
     isComplete: isKnowledgeBaseLoaded
   } = useKnowledgeBase(kbId)
 
-  // @ts-ignore TODO
   const [activeFormat, setActiveFormat] = useState(undefined as MetaFormat | undefined)
 
   const [isModalShown, showModal] = useState(false)
@@ -64,7 +63,12 @@ export default function KnowledgeBaseEditor(): ReactElement {
     <div className="p-5">
       <div className="flex justify-center">
         <div className="relative mb-3 md:w-96">
-          <TEInput type="text" label="Knowledge base name" size="lg" className="mb-6" />
+          <TEInput
+            type="text"
+            label="Knowledge base name"
+            size="lg"
+            className="mb-6"
+            onChange={ev => {if (knowledgeBase) knowledgeBase.name = ev.target.value}}/>
           <TESelect
             label="Meta format"
             data={formatSelection}

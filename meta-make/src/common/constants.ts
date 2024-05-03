@@ -22,5 +22,6 @@ export enum WindowType {
 }
 
 export const Config = {
-  kbPath: 'kbPath'
+  kbPath: 'kbPath',
+  kbList: 'kbList'
 } as const;

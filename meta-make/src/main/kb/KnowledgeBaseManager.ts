@@ -1,22 +1,26 @@
 import { KnowledgeBase, KnowledgeBaseInfo } from '../../common/dto/KnowledgeBase'
-import { papaStream } from '../utils/io'
 import Essential from '../format/Essential'
 import MetaFormat from '../../common/dto/MetaFormat'
 import Basic from '../format/Basic'
 import KnowledgeBaseModel from '../dto/KnowledgeBaseModel'
-import Long from "../format/Long";
-import { randomUUID } from "node:crypto";
+import Long from '../format/Long'
+import { randomUUID } from 'node:crypto'
+import MetaStore from '../data/MetaStore'
 
 class KnowledgeBaseManager {
   // region MetaFormats
-  private __metaFormats: Array<MetaFormat> = [Essential, Basic, Long]
+  private __metaFormats: {[name: string]: MetaFormat} = {
+    [Essential.name]: Essential,
+    [Basic.name]: Basic,
+    [Long.name]: Long
+  }
 
   public getMetaFormatList(): string[] {
-    return this.__metaFormats.map((kb) => kb.name)
+    return Object.keys(this.__metaFormats);
   }
 
   public get metaFormats(): Array<MetaFormat> {
-    return [...this.__metaFormats]
+    return Object.values(this.__metaFormats)
   }
 
   getMetaFormat(name: string): MetaFormat | undefined {
@@ -40,30 +44,34 @@ class KnowledgeBaseManager {
   }
 
   async setKnowledgeBase(kb: KnowledgeBase): Promise<string> {
-    const knownKB = this.__knowledgeBases.find(kkb => kkb.id === kb.id);
-    if (knownKB) {
-      Object.assign(knownKB, kb);
-      await knownKB.save();
+    if (this.__knowledgeBases.some(kkb => kkb.id === kb.id)) {
+      await this.updateKnowledgeBase(kb);
     }
     else {
-      const newKB: KnowledgeBaseModel = new KnowledgeBaseModel(randomUUID(), kb.name, kb.format, kb.model, kb.changedOn);
-      this.__knowledgeBases.push(newKB);
-      await newKB.save();
+      await this.createKnowledgeBase(kb);
     }
 
     return kb.id;
   }
 
-  public async loadKBs(path: string) {
-    const stream = papaStream(path)
-    stream.on('data', (data: string[]) => {
-      // TODO: validate
-      const [id, name, format, changedOnStr] = data
-      const changedOn = new Date(Date.parse(changedOnStr))
-      this.knowledgeBases.push(
-        new KnowledgeBaseModel(id, name, new MetaFormat(format, {}))
-      )
-    })
+  private async updateKnowledgeBase(kb: KnowledgeBase) {
+    const knownKB = this.__knowledgeBases.find(kkb => kkb.id === kb.id);
+    if (!knownKB)
+      throw new Error(`KnowledgeBase not found: ${kb.id}`);
+    Object.assign(knownKB, kb);
+    await knownKB.save();
+  }
+
+  private async createKnowledgeBase(kb: KnowledgeBase) {
+    const newKB: KnowledgeBaseModel = new KnowledgeBaseModel(randomUUID(), kb.name, kb.format, kb.model, kb.changedOn);
+    this.__knowledgeBases.push(newKB);
+    await newKB.save();
+    MetaStore.addKnowledgeBase(newKB.id);
+  }
+
+  public async loadKBs() {
+    const kbIds = MetaStore.getKnowledgeBases()
+    this.__knowledgeBases = await Promise.all(kbIds.map((kbId) => KnowledgeBaseModel.load(kbId)))
   }
   // endregion
 }
