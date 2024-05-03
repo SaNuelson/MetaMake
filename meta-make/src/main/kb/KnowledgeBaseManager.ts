@@ -5,6 +5,7 @@ import MetaFormat from '../../common/dto/MetaFormat'
 import Basic from '../format/Basic'
 import KnowledgeBaseModel from '../dto/KnowledgeBaseModel'
 import Long from "../format/Long";
+import { randomUUID } from "node:crypto";
 
 class KnowledgeBaseManager {
   // region MetaFormats
@@ -38,17 +39,19 @@ class KnowledgeBaseManager {
     return this.knowledgeBases.find((kb) => kb.id == id)
   }
 
-  async setKnowledgeBase(kb: KnowledgeBase) {
+  async setKnowledgeBase(kb: KnowledgeBase): Promise<string> {
     const knownKB = this.__knowledgeBases.find(kkb => kkb.id === kb.id);
     if (knownKB) {
       Object.assign(knownKB, kb);
       await knownKB.save();
     }
     else {
-      const newKB: KnowledgeBaseModel = new KnowledgeBaseModel(kb.id, kb.name, kb.format);
+      const newKB: KnowledgeBaseModel = new KnowledgeBaseModel(randomUUID(), kb.name, kb.format, kb.model, kb.changedOn);
       this.__knowledgeBases.push(newKB);
       await newKB.save();
     }
+
+    return kb.id;
   }
 
   public async loadKBs(path: string) {

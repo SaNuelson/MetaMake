@@ -12,7 +12,7 @@ export type EmptyCallback = () => void
 export interface MetaMakeAPI {
   requestKnowledgeBaseList: () => Promise<KnowledgeBaseInfo[]>
   requestKnowledgeBase: (id: string) => Promise<KnowledgeBase>
-  updateKnowledgeBase: (kb: KnowledgeBase) => void
+  updateKnowledgeBase: (kb: KnowledgeBase) => string
 
   isContextIsolated: () => Promise<boolean>
   isDebugEnabled: () => Promise<boolean>

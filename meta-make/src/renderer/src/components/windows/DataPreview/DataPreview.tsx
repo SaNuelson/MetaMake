@@ -1,6 +1,6 @@
 import { ReactElement, useEffect, useState } from 'react'
-import { Table, TableItem, TableRow } from '../helpers/Table'
-import DataInfo from '../../../../common/dto/DataInfo'
+import { Table, TableItem, TableRow } from '../../helpers/Table'
+import DataInfo from '../../../../../common/dto/DataInfo'
 
 export default function DataPreview(): ReactElement {
   const [preview, setPreview] = useState(null as DataInfo | null)

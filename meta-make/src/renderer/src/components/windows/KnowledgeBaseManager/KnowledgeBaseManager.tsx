@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { KBButton, KBButtonLink } from '../helpers/Table'
-import { MetaUrl } from '../../../../common/constants'
-import { createMetaUrl } from '../../../../common/utils/url'
-import { KnowledgeBaseInfo } from '../../../../common/dto/KnowledgeBase'
+import { KBButton, KBButtonLink } from '../../helpers/Table'
+import { MetaUrl } from '../../../../../common/constants'
+import { createMetaUrl } from '../../../../../common/utils/url'
+import { KnowledgeBaseInfo } from '../../../../../common/dto/KnowledgeBase'
 
 export default function KnowledgeBaseManager(): React.JSX.Element {
   // @ts-ignore TODO

@@ -1,7 +1,7 @@
-import DataPreview from './components/windows/DataPreview'
+import DataPreview from './components/windows/DataPreview/DataPreview'
 import React from 'react'
-import KnowledgeBaseManager from './components/windows/KnowledgeBaseManager'
-import KnowledgeBaseEditor from './components/windows/KnowledgeBaseEditor'
+import KnowledgeBaseManager from './components/windows/KnowledgeBaseManager/KnowledgeBaseManager'
+import KnowledgeBaseEditor from './components/windows/KnowledgeBaseEditor/KnowledgeBaseEditor'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
 class App extends React.Component {
