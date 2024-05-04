@@ -12,7 +12,6 @@ import MetaProperty from '../../../../../common/dto/MetaProperty'
 import MetaFormatSelect from '../../common/MetaFormatSelect'
 
 export default function KnowledgeBaseEditor(): ReactElement {
-  console.log(window.location.href)
   const kbId = useParams()['kb']
 
   const {
