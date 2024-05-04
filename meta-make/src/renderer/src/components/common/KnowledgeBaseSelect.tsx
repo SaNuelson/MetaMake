@@ -58,9 +58,8 @@ export default function KnowledgeBaseSelect({ onKBSelected, onlyFormat, selected
     return (
       <TESelect
         label={"Knowledge base"}
-        placeholder={"None"}
-        data={[{}]}
-        value={undefined}
+        data={[{text:"None", value:1}]}
+        value={1}
         disabled={true}
         />
     )

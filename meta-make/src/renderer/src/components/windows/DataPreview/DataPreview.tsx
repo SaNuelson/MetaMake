@@ -32,7 +32,7 @@ export default function DataPreview(): ReactElement {
         </div>
       </div>
 
-      <div className="flex justify-start">
+      <div className="flex justify-center">
         <div className="w-3/8 p-2">
           <MetaFormatSelect onFormatSelected={setSelectedFormat} />
         </div>

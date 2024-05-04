@@ -59,14 +59,16 @@ export default function KnowledgeBaseManager(): React.JSX.Element {
       </div>
       <div className="float-left space-x-2">
         <KBButtonLink
-          title={'New...'}
+          title='New'
           href={createMetaUrl(MetaUrl.KnowledgeBaseCreate)}
         ></KBButtonLink>
-        <KBButton title={'Load...'}></KBButton>
+        <KBButton
+          title='Load'
+        ></KBButton>
       </div>
       <div className="float-right space-x-2">
         <KBButtonLink
-          title={'Edit'}
+          title='Edit'
           disabled={selectedKBIdx === undefined}
           href={createMetaUrl(MetaUrl.KnowledgeBase, knowledgeBaseList[selectedKBIdx ?? 0]?.id)}
         ></KBButtonLink>
