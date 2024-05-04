@@ -40,6 +40,10 @@ export class KnowledgeBase extends Restructurable {
   static Empty(format: MetaFormat): KnowledgeBase {
     return new KnowledgeBase("new", 'New KnowledgeBase', format, new MetaModel(format), new Date())
   }
+
+  [Restructurable.from](obj: KnowledgeBase): KnowledgeBase {
+    return new KnowledgeBase(obj.id, obj.name, obj.format, obj.model, obj.changedOn);
+  }
 }
 
 export type KnowledgeBaseInfo = {

@@ -7,6 +7,7 @@ import MetaModel from "../../../common/dto/MetaModel";
 
 export default function () {
   Restructurable.addClass(DataInfo)
+  Restructurable.addClass(KnowledgeBase)
   Restructurable.addClass(KnowledgeBase, 'KnowledgeBaseModel')
 
   Restructurable.addClass(MetaFormat)

@@ -8,10 +8,11 @@ import MetaModel from "../../../../../common/dto/MetaModel";
 
 type NodeProps = {
   property: MetaProperty,
-  model: MetaModel
+  model: MetaModel,
+  setProperty: (prop: MetaProperty, value: any) => void
 }
 
-export function KnowledgeBaseEditorNode({ property, model }: NodeProps): ReactElement {
+export function KnowledgeBaseEditorNode({ property, model, setProperty}: NodeProps): ReactElement {
 
   if (property.type === "object") {
     return (<div className="mt-8">
@@ -19,7 +20,7 @@ export function KnowledgeBaseEditorNode({ property, model }: NodeProps): ReactEl
       <ul className="ml-2">
         {(property as StructuredMetaProperty).children.map((property, idx) =>
           <li key={idx}>
-            {KnowledgeBaseEditorNode({ property, model })}
+            {KnowledgeBaseEditorNode({ property, model, setProperty})}
           </li>
         )}
       </ul>
@@ -37,7 +38,7 @@ export function KnowledgeBaseEditorNode({ property, model }: NodeProps): ReactEl
             type={listProperty.itemType}
             className="mt-6"
             value={model.getValue(property)}
-            onChange={ev => model.setValue(property, ev.target.value)}>
+            onChange={ev => setProperty(property, ev.target.value)}>
 
             <small
               id="emailHelp2"
@@ -57,7 +58,7 @@ export function KnowledgeBaseEditorNode({ property, model }: NodeProps): ReactEl
       type={property.type}
       className="mt-6"
       value={model.getValue(property)}
-      onChange={ev => model.setValue(property, ev.target.value)}>
+      onChange={ev => setProperty(property, ev.target.value)}>
 
       <small
         id="emailHelp2"

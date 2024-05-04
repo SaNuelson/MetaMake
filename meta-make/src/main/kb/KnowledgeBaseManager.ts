@@ -29,22 +29,22 @@ class KnowledgeBaseManager {
   // endregion
 
   // region KnowledgeBases
-  private __knowledgeBases: Array<KnowledgeBaseModel> = []
+  private __knowledgeBases: {[id: string]: KnowledgeBaseModel} = {}
 
   getKnowledgeBaseList(): KnowledgeBaseInfo[] {
-    return this.knowledgeBases.map((kb) => kb.info())
+    return Object.values(this.__knowledgeBases).map(kb => kb.info());
   }
 
   public get knowledgeBases(): Array<KnowledgeBaseModel> {
-    return [...this.__knowledgeBases]
+    return Object.values(this.__knowledgeBases);
   }
 
   getKnowledgeBase(id: string): KnowledgeBase | undefined {
-    return this.knowledgeBases.find((kb) => kb.id == id)
+    return this.__knowledgeBases[id];
   }
 
   async setKnowledgeBase(kb: KnowledgeBase): Promise<string> {
-    if (this.__knowledgeBases.some(kkb => kkb.id === kb.id)) {
+    if (this.__knowledgeBases[kb.id]) {
       await this.updateKnowledgeBase(kb);
     }
     else {
@@ -55,7 +55,7 @@ class KnowledgeBaseManager {
   }
 
   private async updateKnowledgeBase(kb: KnowledgeBase) {
-    const knownKB = this.__knowledgeBases.find(kkb => kkb.id === kb.id);
+    const knownKB = this.__knowledgeBases[kb.id];
     if (!knownKB)
       throw new Error(`KnowledgeBase not found: ${kb.id}`);
     Object.assign(knownKB, kb);
@@ -64,14 +64,18 @@ class KnowledgeBaseManager {
 
   private async createKnowledgeBase(kb: KnowledgeBase) {
     const newKB: KnowledgeBaseModel = new KnowledgeBaseModel(randomUUID(), kb.name, kb.format, kb.model, kb.changedOn);
-    this.__knowledgeBases.push(newKB);
+    this.__knowledgeBases[newKB.id] = newKB;
     await newKB.save();
     MetaStore.addKnowledgeBase(newKB.id);
   }
 
   public async loadKBs() {
     const kbIds = MetaStore.getKnowledgeBases()
-    this.__knowledgeBases = await Promise.all(kbIds.map((kbId) => KnowledgeBaseModel.load(kbId)))
+    const kbs = await Promise.all(kbIds.map((kbId) => KnowledgeBaseModel.load(kbId)));
+    this.__knowledgeBases = kbs.reduce((acc, kb) => {
+      acc[kb.id] = kb;
+      return acc;
+    }, {});
   }
   // endregion
 }

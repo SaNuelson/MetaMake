@@ -8,28 +8,38 @@ import InitDtos from './dto/Init'
 
 InitDtos()
 
-const contextIsolated = await window.rawApi.isContextIsolated()
-console.log("Context isolated?", contextIsolated);
-const debugEnabled = await window.rawApi.isDebugEnabled()
-console.log("Debug enabled?", debugEnabled);
+// Wait for preload to finish
+const preloadWaitInterval = setInterval(() => {
+  if (window.rawApi) {
+    clearInterval(preloadWaitInterval);
+    main()
+  }
+})
 
-if (contextIsolated) {
-  window.api = {} as any;
-  Object.keys(window.rawApi).forEach(key => {
-    window.api[key] = async (...args: any[]) => {
-      if(debugEnabled)
-        console.trace(`[RDRR -> MAIN] ${key}(${args})`);
-      const result = await window.rawApi[key](...args);
-      if(debugEnabled)
-        console.trace(`MAIN -> RDRR ${key}(...) => ${result}`);
+async function main() {
+  const contextIsolated = await window.rawApi.isContextIsolated()
+  console.log("Context isolated?", contextIsolated);
+  const debugEnabled = await window.rawApi.isDebugEnabled()
+  console.log("Debug enabled?", debugEnabled);
 
-      return Restructurable.restructure(result);
-    }
-  });
+  if (contextIsolated) {
+    window.api = {} as any;
+    Object.keys(window.rawApi).forEach(key => {
+      window.api[key] = async (...args: any[]) => {
+        if(debugEnabled)
+          console.trace(`[RDRR -> MAIN] ${key}(${args})`);
+        const result = await window.rawApi[key](...args);
+        if(debugEnabled)
+          console.trace(`MAIN -> RDRR ${key}(...) =>`, result);
+
+        return Restructurable.restructure(result);
+      }
+    });
+  }
+
+  ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  )
 }
-
-ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-)
