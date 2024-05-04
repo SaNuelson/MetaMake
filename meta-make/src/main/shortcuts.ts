@@ -6,7 +6,7 @@ import { MetaUrl } from "../common/constants";
 
 export function handleShortcut(window: BrowserWindow, input: Electron.Input): boolean {
   const url = window.webContents.getURL();
-  const [metaUrl, ...args] = parseMetaUrl(url);
+  const [metaUrl, ..._] = parseMetaUrl(url);
 
   switch(metaUrl) {
     case MetaUrl.Index:
@@ -35,13 +35,18 @@ function handleIndexShortcut(window: BrowserWindow, input: Electron.Input): bool
     return true;
   }
 
+  return false;
 }
 function handleKBManagerShortcut(window: BrowserWindow, input: Electron.Input): boolean {
   // ESC: Close window
   if (input.key.toLowerCase() == 'escape') {
     window.close()
+    return true;
   }
-}
-function handleKBEditorShortcut(window: BrowserWindow, input: Electron.Input): boolean {
 
+  return false;
+}
+
+function handleKBEditorShortcut(window: BrowserWindow, input: Electron.Input): boolean {
+  return false;
 }

@@ -1,11 +1,14 @@
-import { ReactElement } from 'react'
+import { ReactElement, useState } from "react";
 import { Table, TableItem, TableRow } from '../../helpers/Table'
 import MetaFormatSelect from '../../common/MetaFormatSelect'
 import KnowledgeBaseSelect from '../../common/KnowledgeBaseSelect'
 import { useDataPreview } from "../../hooks/use-data-preview";
+import MetaFormat from "../../../../../common/dto/MetaFormat";
 
 export default function DataPreview(): ReactElement {
   const {preview} = useDataPreview();
+  const [selectedFormat, setSelectedFormat] = useState<MetaFormat|undefined>();
+
 
   if (!preview) {
     return (
@@ -31,10 +34,10 @@ export default function DataPreview(): ReactElement {
 
       <div className="flex justify-start">
         <div className="w-3/8 p-2">
-          <MetaFormatSelect onFormatSelected={() => {}} />
+          <MetaFormatSelect onFormatSelected={setSelectedFormat} />
         </div>
         <div className="w-3/8 p-2">
-          <KnowledgeBaseSelect onKBSelected={() => {}} />
+          <KnowledgeBaseSelect onKBSelected={() => {}} onlyFormat={selectedFormat} />
         </div>
         <div className="w-1/8 p-2">
           <button

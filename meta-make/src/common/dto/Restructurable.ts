@@ -1,5 +1,5 @@
 
-const debug = true;
+const debug = false;
 export default class Restructurable {
   constructor(..._: any[]) {}
 

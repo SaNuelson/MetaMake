@@ -6,7 +6,7 @@ import { KnowledgeBaseInfo } from "../../../../common/dto/KnowledgeBase";
 import { useKnowledgeBaseInfos } from "../hooks/use-knowledge-base-infos";
 
 type Props = {
-  onKBSelected: (kbInfo: KnowledgeBaseInfo) => void,
+  onKBSelected: (kbInfo?: KnowledgeBaseInfo) => void,
   onlyFormat?: MetaFormat,
   selectedKB?: KnowledgeBaseInfo
 }
@@ -14,43 +14,76 @@ type Props = {
 export default function KnowledgeBaseSelect({ onKBSelected, onlyFormat, selectedKB } : Props): ReactElement {
 
   const { knowledgeBaseInfos, isComplete } = useKnowledgeBaseInfos(onlyFormat);
-  const [ activeKnowledgeBaseInfo, setActiveKnowledgeBaseInfo] = useState(undefined as KnowledgeBaseInfo | undefined)
+  const [ activeKnowledgeBaseInfo, setActiveKnowledgeBaseInfo] = useState<KnowledgeBaseInfo | undefined>();
 
   useEffect(() => {
     if (isComplete) {
-      onKBSelected(selectedKB ?? knowledgeBaseInfos[0]);
+      selectedKB ??= knowledgeBaseInfos[0];
+      onKBSelected(selectedKB);
+      setActiveKnowledgeBaseInfo(selectedKB);
     }
   }, [isComplete]);
-
-  if (!isComplete) {
-    return <TESelect
-      label="Knowledge base (loading...)"
-      data={[]}
-      disabled
-    />
-  }
 
   if (selectedKB && activeKnowledgeBaseInfo?.name !== selectedKB?.name) {
     setActiveKnowledgeBaseInfo(knowledgeBaseInfos.find(kbi => kbi.id === selectedKB?.id));
   }
 
-  const formatOptions: SelectData[] = knowledgeBaseInfos.map((kbi: KnowledgeBaseInfo, i: number) => ({
+  if (!knowledgeBaseInfos && activeKnowledgeBaseInfo) {
+    setActiveKnowledgeBaseInfo(undefined)
+  }
+
+  const formatOptions: SelectData[] = knowledgeBaseInfos.map(kbi => ({
     text: kbi.name,
     value: kbi.id,
-    defaultSelected: selectedKB ? selectedKB.name === kbi.name : i === 0
+    //disabled: onlyFormat && kbi.format !== onlyFormat.name
   }));
 
-  console.log(formatOptions);
+  console.log("KBSelect options", formatOptions, activeKnowledgeBaseInfo, selectedKB);
 
+  if (!isComplete) {
+    console.log("KBSelect incomplete version");
+    return (
+      <TESelect
+        label="Knowledge base"
+        placeholder={"Loading ..."}
+        data={[{}]}
+        value={undefined}
+        disabled={true}
+      />
+    )
+  }
+
+  if (!formatOptions.length) {
+    console.log("KBSelect no format version");
+    return (
+      <TESelect
+        label={"Knowledge base"}
+        placeholder={"None"}
+        data={[{}]}
+        value={undefined}
+        disabled={true}
+        />
+    )
+  }
+
+  console.log("KBSelect default version");
   return (
     <TESelect
       label="Knowledge base"
-      disabled={!isComplete}
+      disabled={!isComplete || !formatOptions.length}
       data={formatOptions}
-      multiple={false}
+      value={activeKnowledgeBaseInfo?.id ?? 0}
       onValueChange={(select) => {
-        const idx = ((select as SelectData).value as number) - 1
-        onKBSelected(knowledgeBaseInfos[idx]);
+        if (!select) {
+          setActiveKnowledgeBaseInfo(undefined);
+          onKBSelected();
+          return
+        }
+
+        const id = (select as SelectData).value;
+        const selectedKbi = knowledgeBaseInfos.find(kbi=>kbi.id===id);
+        setActiveKnowledgeBaseInfo(selectedKbi);
+        onKBSelected(selectedKbi!);
       }}
     />
   )

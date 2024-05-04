@@ -7,9 +7,9 @@ export default class DataSource {
   protected dataPath: PathLike
 
   protected previewRowCount: number = 5
-  protected __preview: DataInfo = null
+  protected __preview: DataInfo | undefined = undefined
 
-  public get preview(): DataInfo {
+  public get preview(): DataInfo | undefined {
     return this.__preview
   }
 
