@@ -3,7 +3,6 @@ export function pickMin<T>(arr: T[], select: (item: T) => any = x=> x): T {
     throw Error("Empty array");
 
   if (arr.length === 1) {
-    console.log("elngth");
     return arr[0];
   }
 

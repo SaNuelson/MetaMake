@@ -36,6 +36,5 @@ export function parseMetaUrl(url: string): [MetaUrl, ...string[]] {
 
   // pick solution with least args
   // i.e., in "/kb/create" there's no args
-  console.log(solutions, "->", pickMin(solutions, sol => sol.length));
   return pickMin(solutions, sol => sol.length);
 }

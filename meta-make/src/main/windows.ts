@@ -1,15 +1,20 @@
-import { BrowserWindow, Menu, shell } from 'electron'
+import { BrowserWindow, shell } from 'electron'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
-import { createMainNavigation } from './menu'
-import { attachIndexEventHandlers } from './events'
 import { MetaUrl } from '../common/constants'
 import { handleShortcut } from './shortcuts'
 import { createMetaUrl } from '../common/utils/url'
 
-export function createIndexWindow(): BrowserWindow {
-  // Create the browser window.
-  const mainWindow = new BrowserWindow({
+type WindowOptions = {
+  parent?: BrowserWindow
+  slug?: string
+}
+
+export function createWindow({ parent, slug }: WindowOptions): BrowserWindow {
+  const window = new BrowserWindow({
+    parent: parent,
+    modal: !!parent,
+
     width: 900,
     height: 670,
     show: false,
@@ -21,116 +26,43 @@ export function createIndexWindow(): BrowserWindow {
     }
   })
 
-  mainWindow.webContents.on('before-input-event', (event, input) => {
-    const shouldPreventDefault = handleShortcut(mainWindow, input)
+  if (parent) {
+    let pPos = parent.getPosition()
+    window.setPosition(pPos[0] + 40, pPos[1] + 40)
+  }
+
+  window.webContents.on('before-input-event', (event, input) => {
+    const shouldPreventDefault = handleShortcut(window, input)
     if (shouldPreventDefault) event.preventDefault()
   })
 
-  mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
+  window.on('ready-to-show', () => {
+    window.show()
   })
 
-  mainWindow.webContents.setWindowOpenHandler((details) => {
+  window.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
     return { action: 'deny' }
   })
 
-  // HMR for renderer base on electron-vite cli.
-  // Load the remote URL for development or the local html file for production.
+  slug ??= ''
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
+    window.loadURL(process.env['ELECTRON_RENDERER_URL'] + slug)
   } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+    window.loadFile(join(__dirname, '../renderer/index.html' + slug))
   }
 
-  const mainMenu = createMainNavigation(mainWindow)
-  Menu.setApplicationMenu(mainMenu)
+  return window
+}
 
-  attachIndexEventHandlers()
-
-  return mainWindow
+export function createIndexWindow(): BrowserWindow {
+  return createWindow({})
 }
 
 export function createKnowledgeBaseWindow(parent?: BrowserWindow) {
-  const kbWindow = new BrowserWindow({
-    parent: parent,
-    modal: !!parent,
-    width: 900,
-    height: 670,
-    show: false,
-    autoHideMenuBar: false,
-    webPreferences: {
-      preload: join(__dirname, '../preload/index.mjs'),
-      sandbox: false
-    }
-  })
-
-  if (parent) {
-    let pPos = parent.getPosition()
-    kbWindow.setPosition(pPos[0] + 40, pPos[1] + 40)
-  }
-
-  kbWindow.webContents.on('before-input-event', (event, input) => {
-    const shouldPreventDefault = handleShortcut(kbWindow, input)
-    if (shouldPreventDefault) event.preventDefault()
-  })
-
-  kbWindow.on('ready-to-show', () => {
-    kbWindow.show()
-  })
-
-  kbWindow.webContents.setWindowOpenHandler((details) => {
-    shell.openExternal(details.url)
-    return { action: 'deny' }
-  })
-
-  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    console.log('ELECTRON_RENDERER_URL', process.env['ELECTRON_RENDERER_URL'])
-    kbWindow.loadURL(process.env['ELECTRON_RENDERER_URL'] + '/kb')
-  } else {
-    kbWindow.loadFile(join(__dirname, '../renderer/index.html/kb'))
-  }
-
-  return kbWindow
+  return createWindow({ parent, slug: createMetaUrl(MetaUrl.KnowledgeBase) })
 }
 
 export function createKnowledgeBaseEditorWindow(parent?: BrowserWindow, kbId?: string) {
-  const kbWindow = new BrowserWindow({
-    parent: parent,
-    modal: !!parent,
-    width: 900,
-    height: 670,
-    show: false,
-    autoHideMenuBar: false,
-    webPreferences: {
-      preload: join(__dirname, '../preload/index.mjs'),
-      sandbox: false
-    }
-  })
-
-  if (parent) {
-    let pPos = parent.getPosition()
-    kbWindow.setPosition(pPos[0] + 40, pPos[1] + 40)
-  }
-
-  kbWindow.on('ready-to-show', () => {
-    kbWindow.show()
-  })
-
-  kbWindow.webContents.setWindowOpenHandler((details) => {
-    shell.openExternal(details.url)
-    return { action: 'deny' }
-  })
-
-  // @ts-ignore
-  const suffix = createMetaUrl(!!kbId ? MetaUrl.KnowledgeBase : MetaUrl.KnowledgeBaseCreate, kbId);
-
-  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    console.log('ELECTRON_RENDERER_URL', process.env['ELECTRON_RENDERER_URL'])
-    kbWindow.loadURL(process.env['ELECTRON_RENDERER_URL'] + suffix)
-  } else {
-    kbWindow.loadFile(join(__dirname, '../renderer/index.html' + suffix))
-  }
-
-  return kbWindow
+  return createWindow({ parent, slug: createMetaUrl(!!kbId ? MetaUrl.KnowledgeBase : MetaUrl.KnowledgeBaseCreate, kbId!)})
 }

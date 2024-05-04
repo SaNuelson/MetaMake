@@ -1,7 +1,6 @@
-import { app, BrowserWindow, globalShortcut } from 'electron'
+import { app, BrowserWindow, globalShortcut, Menu } from "electron";
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { createIndexWindow } from './windows'
-import initShortcuts from './shortcuts'
 import InitDtos from './dto/Init'
 import path from 'node:path'
 import { existsSync, mkdirSync } from 'fs'
@@ -10,6 +9,8 @@ import { Config } from "../common/constants";
 import { session } from 'electron';
 import * as os from "node:os";
 import knowledgeBaseManager from "./kb/KnowledgeBaseManager";
+import { attachIndexEventHandlers } from "./events";
+import { createMainNavigation } from "./menu";
 
 app.whenReady().then(async () => {
   InitDtos()
@@ -37,9 +38,9 @@ app.whenReady().then(async () => {
 
   const mainWindow = createIndexWindow()
 
-
-  // shortcuts
-  initShortcuts(mainWindow)
+  const mainMenu = createMainNavigation(mainWindow)
+  Menu.setApplicationMenu(mainMenu)
+  attachIndexEventHandlers()
 
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createIndexWindow()
