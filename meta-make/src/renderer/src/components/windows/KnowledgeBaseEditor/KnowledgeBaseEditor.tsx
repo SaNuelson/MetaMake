@@ -12,7 +12,7 @@ import MetaProperty from '../../../../../common/dto/MetaProperty'
 import MetaFormatSelect from '../../common/MetaFormatSelect'
 
 export default function KnowledgeBaseEditor(): ReactElement {
-  const kbId = useParams()['kb']
+  const kbId = useParams()['kb'];
 
   const {
     knowledgeBase,
@@ -24,26 +24,33 @@ export default function KnowledgeBaseEditor(): ReactElement {
   }
 
   function setKnowledgeBaseProp<T extends keyof KnowledgeBase>(key: T, val: KnowledgeBase[T]) {
-    const copy = copyKnowledgeBase(knowledgeBase!)
-    copy[key] = val
-    setKnowledgeBase(copy)
+    const copy = copyKnowledgeBase(knowledgeBase!);
+    copy[key] = val;
+    setKnowledgeBase(copy);
+    updateDocumentTitle()
   }
 
   function setModelProp(prop: MetaProperty, val: any) {
-    const copy = copyKnowledgeBase(knowledgeBase!)
-    copy.model.setValue(prop, val)
-    setKnowledgeBase(copy)
+    const copy = copyKnowledgeBase(knowledgeBase!);
+    copy.model.setValue(prop, val);
+    setKnowledgeBase(copy);
   }
 
   function setActiveFormat(format: MetaFormat) {
-    console.log('setActiveFormat', format.name)
-    setKnowledgeBase(KnowledgeBase.Empty(format))
+    console.log('setActiveFormat', format.name);
+    setKnowledgeBase(KnowledgeBase.Empty(format));
+    updateDocumentTitle();
+  }
+
+  function updateDocumentTitle() {
+    document.title = knowledgeBase ? `${knowledgeBase.name} - ${knowledgeBase.format.name}` : 'Knowledge Base Editor';
   }
 
   const [isModalShown, showModal] = useState(false)
 
   const isChanged = false
   const navigation = useNavigate()
+  updateDocumentTitle()
 
   return (
     <div className="p-5">

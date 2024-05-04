@@ -5,6 +5,8 @@ import { createMetaUrl } from '../../../../../common/utils/url'
 import { KnowledgeBaseInfo } from '../../../../../common/dto/KnowledgeBase'
 
 export default function KnowledgeBaseManager(): React.JSX.Element {
+  document.title = 'Knowledge Base Manager';
+
   // @ts-ignore TODO
   const [knowledgeBaseList, setKnowledgeBaseList] = useState([] as KnowledgeBaseInfo[])
   const [selectedKBIdx, setSelectedKBIdx] = useState(undefined as number | undefined)
