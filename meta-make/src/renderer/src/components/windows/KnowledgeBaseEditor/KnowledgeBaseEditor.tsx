@@ -1,78 +1,51 @@
 import { ReactElement, useState } from 'react'
-import { TEInput, TESelect } from 'tw-elements-react'
+import { TEInput } from 'tw-elements-react'
 import { KnowledgeBase } from '../../../../../common/dto/KnowledgeBase'
 import Modal from '../../helpers/Modal'
 import MetaFormat from '../../../../../common/dto/MetaFormat'
 import { useNavigate, useParams } from 'react-router-dom'
 import { MetaUrl } from '../../../../../common/constants'
 import { createMetaUrl } from '../../../../../common/utils/url'
-import { SelectData } from 'tw-elements-react/dist/types/forms/Select/types'
-import { useKnownFormats } from '../../hooks/use-known-formats'
 import { useKnowledgeBase } from '../../hooks/use-knowledge-base'
 import { KnowledgeBaseEditorNode } from './KnowledgeBaseEditorNode'
-import MetaProperty from "../../../../../common/dto/MetaProperty";
+import MetaProperty from '../../../../../common/dto/MetaProperty'
+import MetaFormatSelect from '../../common/MetaFormatSelect'
 
 export default function KnowledgeBaseEditor(): ReactElement {
-  console.log(window.location.href);
+  console.log(window.location.href)
   const kbId = useParams()['kb']
-  const editMode = kbId !== 'create'
-
-  const {
-    knownFormats,
-    isComplete: areFormatsLoaded
-  } = useKnownFormats();
 
   const {
     knowledgeBase,
-    setKnowledgeBase: setKnowledgeBase,
-    isComplete: isKnowledgeBaseLoaded
-  } = useKnowledgeBase(kbId);
+    setKnowledgeBase: setKnowledgeBase
+  } = useKnowledgeBase(kbId)
 
   function copyKnowledgeBase(kb: KnowledgeBase): KnowledgeBase {
-    return new KnowledgeBase(kb.id, kb.name, kb.format, kb.model, kb.changedOn);
+    return new KnowledgeBase(kb.id, kb.name, kb.format, kb.model, kb.changedOn)
   }
 
   function setKnowledgeBaseProp<T extends keyof KnowledgeBase>(key: T, val: KnowledgeBase[T]) {
-    const copy = copyKnowledgeBase(knowledgeBase!);
-    copy[key] = val;
-    setKnowledgeBase(copy);
+    const copy = copyKnowledgeBase(knowledgeBase!)
+    copy[key] = val
+    setKnowledgeBase(copy)
   }
 
   function setModelProp(prop: MetaProperty, val: any) {
-    const copy = copyKnowledgeBase(knowledgeBase!);
-    copy.model.setValue(prop, val);
-    setKnowledgeBase(copy);
+    const copy = copyKnowledgeBase(knowledgeBase!)
+    copy.model.setValue(prop, val)
+    setKnowledgeBase(copy)
   }
 
-  // @ts-ignore
-  const [activeFormat, setActiveFormat] = useState(undefined as MetaFormat | undefined)
+  function setActiveFormat(format: MetaFormat) {
+    console.log('setActiveFormat', format.name)
+    setKnowledgeBase(KnowledgeBase.Empty(format))
+  }
 
   const [isModalShown, showModal] = useState(false)
 
   const isChanged = false
   const navigation = useNavigate()
 
-  if (!isKnowledgeBaseLoaded) {
-    return <div>Loading knowledge base...</div>
-  }
-
-  if (!areFormatsLoaded) {
-    return <div>Loading meta formats...</div>
-  }
-
-  // Create mode, first run or changed format
-  if (!editMode && !knowledgeBase) {
-    setActiveFormat(knownFormats[0])
-    setKnowledgeBase(KnowledgeBase.Empty(knownFormats[0]))
-  }
-
-  const formatOptions: SelectData[] = knownFormats.map((f: MetaFormat, i: number) => ({
-    text: f.name,
-    value: i + 1,
-    defaultSelected: editMode ? f.name === knowledgeBase?.format.name : i === 0
-  }))
-
-  console.log("RERENDER")
   return (
     <div className="p-5">
       <div className="flex justify-center">
@@ -82,30 +55,26 @@ export default function KnowledgeBaseEditor(): ReactElement {
             label="Knowledge base name"
             size="lg"
             className="mb-6"
-            value={knowledgeBase?.name ?? ""}
-            onChange={ev => setKnowledgeBaseProp("name", ev.target.value)}/>
-          <TESelect
-            label="Meta format"
-            data={formatOptions}
-            multiple={false}
-            onValueChange={(select) => {
-              const idx = ((select as SelectData).value as number) - 1
-              setActiveFormat(knownFormats[idx])
-              // TODO: Lose unsaved changes modal
-              setKnowledgeBase(KnowledgeBase.Empty(knownFormats[idx]))
-            }}
+            value={knowledgeBase?.name ?? ''}
+            onChange={(ev) => setKnowledgeBaseProp('name', ev.target.value)}
+          />
+          <MetaFormatSelect
+            onFormatSelected={setActiveFormat}
+            selectedFormat={knowledgeBase?.format}
           />
         </div>
       </div>
       <hr className="h-px my-4 bg-gray-200 border-0 dark:bg-gray-700" />
       <div className="flex justify-center">
         <div className="block w-3/4 rounded-lg bg-white px-6 py-3 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] dark:bg-neutral-700">
-          {knowledgeBase && (
+          {knowledgeBase ? (
             <KnowledgeBaseEditorNode
               property={knowledgeBase.format.metaProps}
               model={knowledgeBase.model}
               setProperty={setModelProp}
             />
+          ) : (
+            <div>Loading meta formats...</div>
           )}
         </div>
       </div>

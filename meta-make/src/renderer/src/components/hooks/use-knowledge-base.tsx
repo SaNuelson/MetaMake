@@ -3,8 +3,7 @@ import { KnowledgeBase } from "../../../../common/dto/KnowledgeBase";
 
 type useKnowledgeBaseReturn = {
   knowledgeBase: KnowledgeBase | undefined,
-  setKnowledgeBase:  React.Dispatch<React.SetStateAction<KnowledgeBase | undefined>>,
-  isComplete: boolean
+  setKnowledgeBase:  React.Dispatch<React.SetStateAction<KnowledgeBase | undefined>>
 }
 
 /**
@@ -16,24 +15,20 @@ type useKnowledgeBaseReturn = {
  */
 export function useKnowledgeBase(kbId: string | undefined): useKnowledgeBaseReturn {
   const [knowledgeBase, setKnowledgeBase] = useState<KnowledgeBase | undefined>(undefined);
-  const [isComplete, setComplete] = useState<boolean>(false);
 
   useEffect(() => {
     if (!kbId) {
       throw new Error("Not in create, nor edit mode (kbId slug empty).");
-    } else if (kbId === "create") {
-      setComplete(true);
-    } else if (kbId) {
+    } else if (kbId && kbId !== 'create') {
       window.api.requestKnowledgeBase(kbId).then((kb: KnowledgeBase) => {
         console.groupCollapsed("KnowledgeBaseEditor.setKnowledgeBase");
         console.log(kb);
         console.groupEnd();
 
         setKnowledgeBase(kb);
-        setComplete(true);
       });
     }
   }, []);
 
-  return { knowledgeBase, setKnowledgeBase, isComplete };
+  return { knowledgeBase, setKnowledgeBase };
 }
