@@ -31,8 +31,11 @@ class KnowledgeBaseManager {
   // region KnowledgeBases
   private __knowledgeBases: {[id: string]: KnowledgeBaseModel} = {}
 
-  getKnowledgeBaseList(): KnowledgeBaseInfo[] {
-    return Object.values(this.__knowledgeBases).map(kb => kb.info());
+  getKnowledgeBaseList(formatName?: string): KnowledgeBaseInfo[] {
+    const kbs = Object.values(this.__knowledgeBases).map(kb => kb.info());
+    if (formatName)
+      return kbs.filter(kb => kb.format == formatName);
+    return kbs;
   }
 
   public get knowledgeBases(): Array<KnowledgeBaseModel> {
