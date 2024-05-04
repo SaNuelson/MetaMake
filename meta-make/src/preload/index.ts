@@ -17,7 +17,7 @@ export interface MetaMakeAPI {
   isContextIsolated: () => Promise<boolean>
   isDebugEnabled: () => Promise<boolean>
 
-  requestDataPreview: () => Promise<DataInfo | null>
+  requestDataPreview: () => Promise<DataInfo>
   requestMetaFormats: () => Promise<MetaFormat[]>
   requestMetaFormatList: () => Promise<string[]>
   listenDataChanged: (dataChangedCallback: EmptyCallback) => void

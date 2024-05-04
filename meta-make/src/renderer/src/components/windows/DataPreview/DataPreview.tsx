@@ -1,24 +1,13 @@
-import { ReactElement, useEffect, useState } from 'react'
+import { ReactElement } from 'react'
 import { Table, TableItem, TableRow } from '../../helpers/Table'
-import DataInfo from '../../../../../common/dto/DataInfo'
-import MetaFormatSelect from "../../common/MetaFormatSelect";
-import KnowledgeBaseSelect from "../../common/KnowledgeBaseSelect";
+import MetaFormatSelect from '../../common/MetaFormatSelect'
+import KnowledgeBaseSelect from '../../common/KnowledgeBaseSelect'
+import { useDataPreview } from "../../hooks/use-data-preview";
 
 export default function DataPreview(): ReactElement {
-  const [preview, setPreview] = useState(null as DataInfo | null)
+  const {preview} = useDataPreview();
 
-  useEffect(() => {
-    window.api.listenDataChanged(() =>
-      window.api.requestDataPreview().then((newPreviewDto: DataInfo | null) => {
-        console.log('DataPreview.setPreview()', newPreviewDto)
-        if (newPreviewDto !== null) {
-          setPreview(newPreviewDto)
-        }
-      })
-    )
-  })
-
-  if (preview === null) {
+  if (!preview) {
     return (
       <div>
         No data provided. Please load a data file using menu Data &rarr; Load data... (Ctrl+O)
@@ -28,27 +17,34 @@ export default function DataPreview(): ReactElement {
 
   const rowsData = [preview.header, ...preview.data]
     .map((row) => row.map((item, i) => <TableItem title={item} key={i} />))
-    .map((row, i) => <TableRow key={i}>{row}</TableRow>)
+    .map((row, i) => <TableRow key={i}>{row}</TableRow>);
+
   return (
     <div>
-      <div>
-        <Table hasHeader={!!preview.header}>{rowsData}</Table>
-        <p>(... {preview.rowCount - 5} additional rows)</p>
-        <p>Width: {preview.width}</p>
+      <div className="rounded-t-[15px] border-2 border-b-0 bg-gradient-to-b from-secondary-100 to-white m-2">
+        <div className="p-2">
+          <Table hasHeader={!!preview.header}>{rowsData}</Table>
+          <p className="text-right">(... {preview.rowCount - 5} additional rows)</p>
+          <p className="text-right">Width: {preview.width}</p>
+        </div>
       </div>
 
-      <MetaFormatSelect onFormatSelected={() => {
-      }} />
-
-      <KnowledgeBaseSelect onKBSelected={() => {
-      }} />
-
-      <button
-        type="button"
-        className="inline-block rounded bg-primary px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_#3b71ca] transition duration-150 ease-in-out hover:bg-primary-600 hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:bg-primary-600 focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:outline-none focus:ring-0 active:bg-primary-700 active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] dark:shadow-[0_4px_9px_-4px_rgba(59,113,202,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)]"
-      >
-        Process
-      </button>
+      <div className="flex justify-start">
+        <div className="w-3/8 p-2">
+          <MetaFormatSelect onFormatSelected={() => {}} />
+        </div>
+        <div className="w-3/8 p-2">
+          <KnowledgeBaseSelect onKBSelected={() => {}} />
+        </div>
+        <div className="w-1/8 p-2">
+          <button
+            type="button"
+            className="inline-block rounded bg-primary px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_#3b71ca] transition duration-150 ease-in-out hover:bg-primary-600 hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:bg-primary-600 focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:outline-none focus:ring-0 active:bg-primary-700 active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] dark:shadow-[0_4px_9px_-4px_rgba(59,113,202,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)]"
+          >
+            Process
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
