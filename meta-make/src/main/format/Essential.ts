@@ -4,20 +4,19 @@ import MetaProperty, { StructuredMetaProperty } from '../../common/dto/MetaPrope
 const Essential = new MetaFormat(
   'Essential',
   new StructuredMetaProperty(
-    2001,
     "Essential",
     "Essential meta format",
     [
-      new MetaProperty(2002, 'Title', 'Name of the dataset', 'string'),
+      new MetaProperty('Title', 'Name of the dataset', true, 'string'),
       new MetaProperty(
-        2003,
   'Description',
   'Short description about the contents of the dataset',
+  true,
   'string'
       ),
-      new StructuredMetaProperty(2004, 'Author', 'Creator of the dataset', [
-        new MetaProperty(2005, 'Name', 'Name of the author', 'string'),
-        new MetaProperty(2006, 'Email', 'Contact email', 'email')
+      new StructuredMetaProperty('Author', 'Creator of the dataset', [
+        new MetaProperty('Name', 'Name of the author', true, 'string'),
+        new MetaProperty('Email', 'Contact email', false, 'string', 'email')
       ])
     ]
   ))
