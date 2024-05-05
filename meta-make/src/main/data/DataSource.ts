@@ -29,4 +29,8 @@ export default class DataSource {
     console.log(`${this}::getPreview() => \n${this.preview}`)
     return this.preview
   }
+
+  getData(rowCount: number): Promise<Array<Array<string>>> {
+    return [];
+  }
 }

@@ -8,6 +8,8 @@ export enum EventType {
   KnowledgeBaseRequested = 'KnowledgeBaseRequested',
   KnowledgeBaseUpdated = 'KnowledgeBaseUpdated',
   KnowledgeBaseDeleted = 'KnowledgeBaseDeleted',
+  LoadDataModalRequested = 'LoadDataModalRequested',
+  DataProcessingRequested = 'DataProcessingRequested',
 }
 
 export enum MetaUrl {

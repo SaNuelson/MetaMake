@@ -4,6 +4,8 @@ import { BrowserWindow, ipcMain, IpcMainInvokeEvent, IpcRendererEvent } from 'el
 import KnowledgeBaseManager from './kb/KnowledgeBaseManager'
 import { KnowledgeBase } from "../common/dto/KnowledgeBase";
 import Restructurable from "../common/dto/Restructurable";
+import { loadLocalDataFile } from "./commands/storage";
+import generateMetadata from "./processing/generator";
 
 type MainElectronEventHandler = (event: IpcMainInvokeEvent, ...args: any[]) => Promise<any> | any
 type RendererElectronEventHandler = (event: IpcRendererEvent, ...args: any[]) => (Promise<any>) | (any);
@@ -13,8 +15,10 @@ const logLevel = 1;
 // HANDLING: RENDERER -> MAIN
 export const indexMainEventHandlers: { [type in EventType]?: MainElectronEventHandler} = {
   [EventType.DataPreviewRequested]: () => DataManager.dataSource?.getPreview(),
+  [EventType.DataProcessingRequested]: () => generateMetadata(),
   [EventType.MetaFormatsRequested]: () => KnowledgeBaseManager.metaFormats,
   [EventType.MetaFormatListRequested]: () => KnowledgeBaseManager.getMetaFormatList(),
+  [EventType.LoadDataModalRequested]: () => loadLocalDataFile(BrowserWindow.getFocusedWindow()!),
   [EventType.KnowledgeBaseListRequested]: (_, formatName?: string) => KnowledgeBaseManager.getKnowledgeBaseList(formatName),
   [EventType.KnowledgeBaseRequested]: (_, id: string) => KnowledgeBaseManager.getKnowledgeBase(id),
   [EventType.KnowledgeBaseUpdated]: (_, kb: KnowledgeBase) => KnowledgeBaseManager.setKnowledgeBase(kb),
@@ -55,11 +59,4 @@ export function attachIndexEventHandlers() {
       }
       ipcMain.handle(type, wrapped);
     });
-
-  // Object.entries(indexRendererEventHandlers)
-  //   .forEach(([type, callback]) => {
-  //     if (logLevel <= 0) {
-  //       ipcRenderer.
-  //     }
-  //   })
 }
