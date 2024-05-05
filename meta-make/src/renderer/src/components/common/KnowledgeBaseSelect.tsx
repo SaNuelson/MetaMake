@@ -35,7 +35,6 @@ export default function KnowledgeBaseSelect({ onKBSelected, onlyFormat, selected
   const formatOptions: SelectData[] = knowledgeBaseInfos.map(kbi => ({
     text: kbi.name,
     value: kbi.id,
-    //disabled: onlyFormat && kbi.format !== onlyFormat.name
   }));
 
   console.log("KBSelect options", formatOptions, activeKnowledgeBaseInfo, selectedKB);
@@ -58,7 +57,7 @@ export default function KnowledgeBaseSelect({ onKBSelected, onlyFormat, selected
     return (
       <TESelect
         label={"Knowledge base"}
-        data={[{text:"None", value:1}]}
+        data={[{text:"No KB for format", value:1}]}
         value={1}
         disabled={true}
         />

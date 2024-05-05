@@ -1,4 +1,4 @@
-import { BrowserWindow, shell } from 'electron'
+import { BrowserWindow, nativeImage, shell } from 'electron'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import { MetaUrl } from '../common/constants'
@@ -19,6 +19,7 @@ export function createWindow({ parent, slug }: WindowOptions): BrowserWindow {
     height: 670,
     show: false,
     autoHideMenuBar: false,
+    icon: join(__dirname, '../../resources/logo50.png'),
     webPreferences: {
       preload: join(__dirname, '../preload/index.mjs'),
       sandbox: false,
