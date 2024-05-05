@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { KBButton, KBButtonLink } from '../../helpers/Table'
 import { MetaUrl } from '../../../../../common/constants'
 import { createMetaUrl } from '../../../../../common/utils/url'
 import { KnowledgeBaseInfo } from '../../../../../common/dto/KnowledgeBase'
+import { Button, ButtonLink } from "../../common/Buttons";
 
 export default function KnowledgeBaseManager(): React.JSX.Element {
   document.title = 'Knowledge Base Manager'
@@ -23,8 +23,8 @@ export default function KnowledgeBaseManager(): React.JSX.Element {
   return (
     <div>
       <div className="flex flex-col">
-        <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div className="inline-block min-w-full py-2 sm:px-6 lg:px-8">
+        <div className="overflow-x-auto">
+          <div className="inline-block min-w-full py-2">
             <div className="overflow-hidden">
               <div className="rounded-t-[15px] border-2 border-b-0 bg-gradient-to-b from-secondary-100 to-white m-2">
                 <div className="p-2">
@@ -60,20 +60,20 @@ export default function KnowledgeBaseManager(): React.JSX.Element {
         </div>
         <div className="flex justify-around px-4">
           <div className="float-left space-x-2">
-            <KBButtonLink
-              title="New"
+            <ButtonLink
+              text="New"
               href={createMetaUrl(MetaUrl.KnowledgeBaseCreate)}
-            ></KBButtonLink>
-            <KBButton title="Load"></KBButton>
+            ></ButtonLink>
+            <Button text="Load"></Button>
           </div>
           <div className="float-right space-x-2">
-            <KBButtonLink
-              title="Edit"
+            <ButtonLink
+              text="Edit"
               disabled={selectedKBIdx === undefined}
               href={createMetaUrl(MetaUrl.KnowledgeBase, knowledgeBaseList[selectedKBIdx ?? 0]?.id)}
-            ></KBButtonLink>
-            <KBButton title={'Duplicate'}></KBButton>
-            <KBButton title={'Delete'}></KBButton>
+            ></ButtonLink>
+            <Button text={'Duplicate'}></Button>
+            <Button text={'Delete'}></Button>
           </div>
         </div>
       </div>

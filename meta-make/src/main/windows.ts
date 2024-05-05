@@ -1,4 +1,4 @@
-import { BrowserWindow, nativeImage, shell } from 'electron'
+import { BrowserWindow, shell } from 'electron'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import { MetaUrl } from '../common/constants'

@@ -1,4 +1,4 @@
-import { BrowserWindow, Menu } from 'electron'
+import { BrowserWindow, Menu, shell } from "electron";
 import { loadLocalDataFile } from './commands/storage'
 import { createKnowledgeBaseEditorWindow, createKnowledgeBaseWindow } from './windows'
 
@@ -13,6 +13,7 @@ export function createMainNavigation(window: BrowserWindow): Electron.Menu {
         },
         {
           label: 'Load meta...',
+          enabled: false,
           click: () => {}
         }
       ]
@@ -26,6 +27,7 @@ export function createMainNavigation(window: BrowserWindow): Electron.Menu {
         },
         {
           label: 'Load knowledge base...',
+          enabled: false,
           click: () => {}
         },
         {
@@ -39,6 +41,7 @@ export function createMainNavigation(window: BrowserWindow): Electron.Menu {
       submenu: [
         {
           label: 'Preferences',
+          enabled: false,
           click: () => {}
         }
       ]
@@ -48,14 +51,16 @@ export function createMainNavigation(window: BrowserWindow): Electron.Menu {
       submenu: [
         {
           label: 'Help',
+          enabled: false,
           click: () => {}
         },
         {
           label: 'Github',
-          click: () => {}
+          click: () => {shell.openExternal('https://github.com/SaNuelson/MetaMake')}
         },
         {
           label: 'Copyright',
+          enabled: false,
           click: () => {}
         }
       ]

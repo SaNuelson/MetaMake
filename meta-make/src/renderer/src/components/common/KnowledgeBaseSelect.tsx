@@ -9,9 +9,10 @@ type Props = {
   onKBSelected: (kbInfo?: KnowledgeBaseInfo) => void,
   onlyFormat?: MetaFormat,
   selectedKB?: KnowledgeBaseInfo
+  allowEmpty?: boolean
 }
 
-export default function KnowledgeBaseSelect({ onKBSelected, onlyFormat, selectedKB } : Props): ReactElement {
+export default function KnowledgeBaseSelect({ onKBSelected, onlyFormat, selectedKB, allowEmpty } : Props): ReactElement {
 
   const { knowledgeBaseInfos, isComplete } = useKnowledgeBaseInfos(onlyFormat);
   const [ activeKnowledgeBaseInfo, setActiveKnowledgeBaseInfo] = useState<KnowledgeBaseInfo | undefined>();
@@ -36,6 +37,9 @@ export default function KnowledgeBaseSelect({ onKBSelected, onlyFormat, selected
     text: kbi.name,
     value: kbi.id,
   }));
+  if (allowEmpty) {
+    formatOptions.unshift({ text: "None", value: -1 });
+  }
 
   console.log("KBSelect options", formatOptions, activeKnowledgeBaseInfo, selectedKB);
 
