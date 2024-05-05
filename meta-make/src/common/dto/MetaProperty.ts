@@ -1,19 +1,22 @@
 import Restructurable from './Restructurable'
 
-type PropertyType = 'string' | 'email' | 'number' | 'object' | 'array' | 'boolean' | 'date'
+type PropertyType = 'string' | 'number' | 'object' | 'array' | 'boolean' | 'date'
+type PropertySubType = 'email' | 'url'
 
 export default class MetaProperty extends Restructurable {
-  readonly id: number
   readonly name: string
   readonly description: string
+  readonly mandatory: boolean
   readonly type: PropertyType
+  readonly subType?: PropertySubType
 
-  constructor(id: number, name: string, description: string, type: PropertyType) {
+  constructor(name: string, description: string, mandatory: boolean, type: PropertyType, subType?: PropertySubType) {
     super()
-    this.id = id;
     this.name = name
     this.description = description
+    this.mandatory = mandatory
     this.type = type
+    this.subType = subType
   }
 
   isValid(value: any): boolean {
@@ -25,8 +28,8 @@ export default class MetaProperty extends Restructurable {
 export class StructuredMetaProperty extends MetaProperty {
   readonly children: MetaProperty[]
 
-  constructor(id: number, name: string, description: string, children: MetaProperty[]) {
-    super(id, name, description, 'object')
+  constructor(name: string, description: string, children: MetaProperty[]) {
+    super(name, description, true, 'object')
     this.children = children
   }
 
@@ -38,8 +41,8 @@ export class StructuredMetaProperty extends MetaProperty {
 export class ListMetaProperty extends MetaProperty {
   readonly itemType: PropertyType
 
-  constructor(id: number, name: string, description: string, itemType: PropertyType) {
-    super(id, name, description, 'array')
+  constructor(name: string, description: string, itemType: PropertyType) {
+    super(name, description, true, 'array')
     this.itemType = itemType
   }
 }
