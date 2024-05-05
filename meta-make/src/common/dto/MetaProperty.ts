@@ -34,7 +34,7 @@ export class StructuredMetaProperty extends MetaProperty {
   }
 
   isValid(values: any[]): boolean {
-    return values.every(value => typeof value === this.type);
+    throw new Error("Potentially undefined behavior");
   }
 }
 
@@ -44,5 +44,9 @@ export class ListMetaProperty extends MetaProperty {
   constructor(name: string, description: string, itemType: PropertyType) {
     super(name, description, true, 'array')
     this.itemType = itemType
+  }
+
+  isValid(values: any[]): boolean {
+    return values.every(value => typeof value === this.itemType);
   }
 }

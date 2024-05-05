@@ -6,7 +6,7 @@ import { papaStream } from '../utils/io'
 import DataInfo from '../../common/dto/DataInfo'
 
 export class LocalCsvDataSource extends DataSource {
-  private dataStream: Readable
+  private dataStream?: Readable
 
   constructor(filePath: string) {
     super(filePath)
@@ -27,6 +27,10 @@ export class LocalCsvDataSource extends DataSource {
   }
 
   private loadPreview(): void {
+    if (!this.dataStream) {
+      return;
+    }
+
     console.log(`${this}::preview()`)
     let headerRowCounter = 0
     const preview = [] as string[][]
@@ -45,7 +49,7 @@ export class LocalCsvDataSource extends DataSource {
 
   override toString(): string {
     if (isString(this.dataPath)) {
-      const fileName = this.dataPath.split(/[\\\/]/).slice(-1)[0]
+      //const fileName = this.dataPath.split(/[\\\/]/).slice(-1)[0]
       return `LocalCsvDataSource(file::${this.dataPath})`
     } else if (isURL(this.dataPath)) {
       return `LocalCsvDataSource(${this.dataPath})`
