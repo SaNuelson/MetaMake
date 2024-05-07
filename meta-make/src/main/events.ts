@@ -17,7 +17,8 @@ export const indexMainEventHandlers: { [type in EventType]?: MainElectronEventHa
   [EventType.MetaFormatListRequested]: () => KnowledgeBaseManager.getMetaFormatList(),
   [EventType.KnowledgeBaseListRequested]: (_, formatName?: string) => KnowledgeBaseManager.getKnowledgeBaseList(formatName),
   [EventType.KnowledgeBaseRequested]: (_, id: string) => KnowledgeBaseManager.getKnowledgeBase(id),
-  [EventType.KnowledgeBaseUpdated]: (_, kb: KnowledgeBase) => KnowledgeBaseManager.setKnowledgeBase(kb)
+  [EventType.KnowledgeBaseUpdated]: (_, kb: KnowledgeBase) => KnowledgeBaseManager.setKnowledgeBase(kb),
+  [EventType.KnowledgeBaseDeleted]: (_, kbId: string) => KnowledgeBaseManager.deleteKnowledgeBase(kbId)
 };
 
 Object.entries(indexMainEventHandlers).forEach(([key, handler]) => {

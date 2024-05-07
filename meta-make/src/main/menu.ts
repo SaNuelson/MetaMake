@@ -1,6 +1,10 @@
 import { BrowserWindow, Menu, shell } from "electron";
 import { loadLocalDataFile } from './commands/storage'
 import { createKnowledgeBaseEditorWindow, createKnowledgeBaseWindow } from './windows'
+import knowledgeBaseManager from "./kb/KnowledgeBaseManager";
+import MetaStore from "./data/MetaStore";
+import { Config } from "../common/constants";
+import { rmSync } from "node:fs";
 
 export function createMainNavigation(window: BrowserWindow): Electron.Menu {
   return Menu.buildFromTemplate([
@@ -43,6 +47,19 @@ export function createMainNavigation(window: BrowserWindow): Electron.Menu {
           label: 'Preferences',
           enabled: false,
           click: () => {}
+        }
+      ]
+    },
+    {
+      label: 'Debug',
+      submenu: [
+        {
+          label: 'Reset',
+          click: () => {
+            MetaStore.delete(Config.kbList);
+            knowledgeBaseManager.getKnowledgeBaseList().forEach(kbi => knowledgeBaseManager.deleteKnowledgeBase(kbi.id));
+            rmSync(MetaStore.get(Config.kbPath), {recursive: true});
+          }
         }
       ]
     },

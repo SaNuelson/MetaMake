@@ -27,6 +27,11 @@ class MetaElectronStore extends Store<MetaStore> {
     return this.get(Config.kbList, []);
   }
 
+  deleteKnowledgeBase(kbId: string) {
+    let list = this.get(Config.kbList, []);
+    list = list.filter(item => item !== kbId);
+    this.set(Config.kbList, list);
+  }
 }
 
 export default new MetaElectronStore({schema: metaStoreSchema});

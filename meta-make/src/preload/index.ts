@@ -10,6 +10,7 @@ export type StringHandlingCallback = (value: string) => void
 export type EmptyCallback = () => void
 
 export interface MetaMakeAPI {
+  deleteKnowledgeBase: (id: string) => Promise<void>
   requestKnowledgeBaseList: (formatName?: string) => Promise<KnowledgeBaseInfo[]>
   requestKnowledgeBase: (id: string) => Promise<KnowledgeBase>
   updateKnowledgeBase: (kb: KnowledgeBase) => Promise<string>
@@ -28,6 +29,7 @@ const api: MetaMakeAPI = {
   requestKnowledgeBaseList: (formatName?: string) => ipcRenderer.invoke(EventType.KnowledgeBaseListRequested, formatName),
   requestKnowledgeBase: (id: string) => ipcRenderer.invoke(EventType.KnowledgeBaseRequested, id),
   updateKnowledgeBase: (kb: KnowledgeBase) => ipcRenderer.invoke(EventType.KnowledgeBaseUpdated, kb),
+  deleteKnowledgeBase: (id: string) => ipcRenderer.invoke(EventType.KnowledgeBaseDeleted, id),
 
   isContextIsolated: async () => true, // TODO
   isDebugEnabled: async () => true, // TODO

@@ -7,6 +7,7 @@ export enum EventType {
   KnowledgeBaseListRequested = 'KnowledgeBaseListRequested',
   KnowledgeBaseRequested = 'KnowledgeBaseRequested',
   KnowledgeBaseUpdated = 'KnowledgeBaseUpdated',
+  KnowledgeBaseDeleted = 'KnowledgeBaseDeleted',
 }
 
 export enum MetaUrl {

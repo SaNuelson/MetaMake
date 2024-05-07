@@ -73,7 +73,12 @@ export default function KnowledgeBaseManager(): React.JSX.Element {
               href={createMetaUrl(MetaUrl.KnowledgeBase, knowledgeBaseList[selectedKBIdx ?? 0]?.id)}
             ></ButtonLink>
             <Button text={'Duplicate'}></Button>
-            <Button text={'Delete'}></Button>
+            {/* TODO: confirmation modal */}
+            <Button
+              text={'Delete'}
+              disabled={selectedKBIdx === undefined}
+              onClick={() => window.api.deleteKnowledgeBase(knowledgeBaseList[selectedKBIdx!].id)}
+            ></Button>
           </div>
         </div>
       </div>

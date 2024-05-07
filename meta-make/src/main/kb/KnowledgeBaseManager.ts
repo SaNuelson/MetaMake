@@ -72,6 +72,13 @@ class KnowledgeBaseManager {
     MetaStore.addKnowledgeBase(newKB.id);
   }
 
+  deleteKnowledgeBase(kbId: string) {
+    if (!this.__knowledgeBases[kbId])
+      console.error(`Trying to delete non-existent KnowledgeBase ${kbId}.`);
+    delete this.__knowledgeBases[kbId];
+    MetaStore.deleteKnowledgeBase(kbId);
+  }
+
   public async loadKBs() {
     const kbIds = MetaStore.getKnowledgeBases()
     const kbs = await Promise.all(kbIds.map((kbId) => KnowledgeBaseModel.load(kbId)));
