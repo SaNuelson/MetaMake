@@ -7,5 +7,10 @@
     "allowSyntheticDefaultImports": true,
     "lib": ["ES2021"],
     "module": "ES6"
+  },
+  "ts-node": {
+    "experimentalSpecifierResolution": "node",
+    "transpileOnly": true,
+    "esm": true,
   }
 }
