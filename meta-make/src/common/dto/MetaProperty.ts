@@ -3,50 +3,58 @@ import Restructurable from './Restructurable'
 type PropertyType = 'string' | 'number' | 'object' | 'array' | 'boolean' | 'date'
 type PropertySubType = 'email' | 'url'
 
+type Arity = {
+  min?: number,
+  max?: number
+}
+
+export const Mandatory: Arity = {min: 1, max: 1};
+export const Optional: Arity = {min: 0, max: 1};
+export const Any: Arity = {};
+export const Some: Arity = {min: 1};
+
 export default class MetaProperty extends Restructurable {
   readonly name: string
   readonly description: string
-  readonly mandatory: boolean
+
+  readonly arity: Arity
+
   readonly type: PropertyType
   readonly subType?: PropertySubType
 
-  constructor(name: string, description: string, mandatory: boolean, type: PropertyType, subType?: PropertySubType) {
+  constructor(name: string, description: string, arity: Arity, type: PropertyType, subType?: PropertySubType) {
     super()
     this.name = name
     this.description = description
-    this.mandatory = mandatory
+
+    this.arity = arity;
+
     this.type = type
     this.subType = subType
   }
 
-  isValid(value: any): boolean {
-    const valueType = typeof value;
-    return valueType === this.type;
+  isValidArity(...values: any[]): boolean {
+    return values.length >= (this.arity?.min ?? 0)
+      && (!this.arity.max || values.length <= this.arity.max!);
+  }
+
+  isValid(...values: any[]): boolean {
+    if (!this.isValidArity(...values))
+      return false;
+
+    return values.every(value => typeof value === this.type);
   }
 }
 
 export class StructuredMetaProperty extends MetaProperty {
   readonly children: MetaProperty[]
 
-  constructor(name: string, description: string, children: MetaProperty[]) {
-    super(name, description, true, 'object')
-    this.children = children
+  constructor(name: string, description: string, arity: Arity, children: MetaProperty[], subType?: PropertySubType) {
+    super(name, description, arity, 'object', subType);
+    this.children = children;
   }
 
-  isValid(values: any[]): boolean {
+  isValid(..._: any[]): boolean {
     throw new Error("Potentially undefined behavior");
-  }
-}
-
-export class ListMetaProperty extends MetaProperty {
-  readonly itemType: PropertyType
-
-  constructor(name: string, description: string, itemType: PropertyType) {
-    super(name, description, true, 'array')
-    this.itemType = itemType
-  }
-
-  isValid(values: any[]): boolean {
-    return values.every(value => typeof value === this.itemType);
   }
 }
