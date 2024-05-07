@@ -1,43 +1,42 @@
-import { strict as assert } from 'assert'
-import MetaModel from "../MetaModel";
+import MetaProperty, { Mandatory, Optional, Some, StructuredMetaProperty } from "../MetaProperty";
 import MetaFormat from "../MetaFormat";
-import MetaProperty, { ListMetaProperty, StructuredMetaProperty } from "../MetaProperty";
+import MetaModel from "../MetaModel";
+import { strict as assert } from 'node:assert'
 
 describe('MetaModel, when constructed', () => {
 
-  const numberProp = new MetaProperty("P1", "Number property", true, "number");
-  const stringProp = new MetaProperty("P2", "String property", true, "string");
-  const dateProp = new MetaProperty("P3", "Date property", true, "date");
-  const listProp = new ListMetaProperty("LP1", "List number properyt", "number");
+  const authorNameProp = new MetaProperty("Name", "", "string");
+  const authorAgeProp = new MetaProperty("Age", "", "number");
+  const authorsProp = new StructuredMetaProperty(
+    "Author",
+    "Author of the data",
+    [
+      {arity: Mandatory, property: authorNameProp},
+      {arity: Optional, property: authorAgeProp}
+    ]
+  )
 
-  const innerStruct = new StructuredMetaProperty(
-    "SP2",
-    "Structured property 2",
-    [numberProp, stringProp, listProp]);
+  const titleProp = new MetaProperty("Title", "", "string");
+  const keywordProp = new MetaProperty("Keyword", "", "string");
 
-  const outerStruct = new StructuredMetaProperty(
-    "SP1",
-    "Structured property 1",
-    [innerStruct, dateProp]);
+  const testFormatProps = new StructuredMetaProperty(
+    "Props",
+    "",
+    [
+      {arity: Mandatory, property: titleProp},
+      {arity: {min:3, max:10}, property: keywordProp},
+      {arity: Some, property: authorsProp}
+    ]
+  );
 
-  const testFormat = new MetaFormat("Test", outerStruct);
+  const testFormat = new MetaFormat("TestFormat", testFormatProps);
 
-  it('should properly flatten structured meta properties', () => {
-    const metaModel = new MetaModel(testFormat);
+  it("should be able to create & fill meta format", () => {
 
-    assert.doesNotThrow(() => metaModel.getValue(numberProp));
-    assert.equal(undefined, metaModel.getValue(numberProp));
-    assert.doesNotThrow(() => metaModel.setValue(numberProp, 123));
-    assert.equal(123, metaModel.getValue(numberProp));
+    const model = new MetaModel(testFormat);
+    assert.deepEqual([undefined], model.getValue("Author[0].Name"))
+    model.setValue("Author[0].Name", "Jack")
+    assert.deepEqual(["Jack"], model.getValue("Author[0].Name"))
+  })
 
-    assert.doesNotThrow(() => metaModel.getValue(listProp))
-    assert.deepEqual([], metaModel.getValue(listProp));
-    assert.doesNotThrow(() => metaModel.setValue(listProp, [1, 2, 3]));
-    assert.deepEqual([1, 2, 3], metaModel.getValue(listProp));
-
-    assert.doesNotThrow(() => metaModel.getValue(stringProp));
-    assert.doesNotThrow(() => metaModel.getValue(dateProp));
-    assert.throws(() => metaModel.getValue(innerStruct));
-    assert.throws(() => metaModel.getValue(outerStruct));
-  });
 });

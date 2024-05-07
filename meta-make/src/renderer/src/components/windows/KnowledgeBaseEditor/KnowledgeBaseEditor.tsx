@@ -8,7 +8,6 @@ import { MetaUrl } from '../../../../../common/constants'
 import { createMetaUrl } from '../../../../../common/utils/url'
 import { useKnowledgeBase } from '../../hooks/use-knowledge-base'
 import { KnowledgeBaseEditorNode } from './KnowledgeBaseEditorNode'
-import MetaProperty from '../../../../../common/dto/MetaProperty'
 import MetaFormatSelect from '../../common/MetaFormatSelect'
 
 export default function KnowledgeBaseEditor(): ReactElement {
@@ -30,9 +29,9 @@ export default function KnowledgeBaseEditor(): ReactElement {
     updateDocumentTitle()
   }
 
-  function setModelProp(prop: MetaProperty, val: any) {
+  function setModelProp(path: string, val: any) {
     const copy = copyKnowledgeBase(knowledgeBase!);
-    copy.model.setValue(prop, val);
+    copy.model.setValue(path, val);
     setKnowledgeBase(copy);
   }
 
@@ -76,6 +75,7 @@ export default function KnowledgeBaseEditor(): ReactElement {
           {knowledgeBase ? (
             <KnowledgeBaseEditorNode
               property={knowledgeBase.format.metaProps}
+              path=''
               model={knowledgeBase.model}
               setProperty={setModelProp}
             />

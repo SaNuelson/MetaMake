@@ -3,7 +3,7 @@ import DataInfo from '../../../common/dto/DataInfo'
 import { KnowledgeBase } from '../../../common/dto/KnowledgeBase'
 import MetaFormat from '../../../common/dto/MetaFormat'
 import MetaProperty, { StructuredMetaProperty } from '../../../common/dto/MetaProperty'
-import MetaModel from "../../../common/dto/MetaModel";
+import MetaModel, { MetaDatum, PrimitiveMetaDatum, StructuredMetaDatum } from "../../../common/dto/MetaModel";
 
 export default function () {
   Restructurable.addClass(DataInfo)
@@ -16,4 +16,7 @@ export default function () {
   Restructurable.addClass(StructuredMetaProperty)
 
   Restructurable.addClass(MetaModel)
+  Restructurable.addClass(MetaDatum)
+  Restructurable.addClass(PrimitiveMetaDatum)
+  Restructurable.addClass(StructuredMetaDatum)
 }

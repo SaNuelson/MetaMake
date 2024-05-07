@@ -1,121 +1,160 @@
-import Restructurable from "./Restructurable";
-import MetaProperty, { ListMetaProperty, StructuredMetaProperty } from "./MetaProperty";
 import MetaFormat from "./MetaFormat";
-
-type Primitive = undefined | string | number | Date | boolean;
-type PrimitiveMetaValue = {
-  value: Primitive;
-}
-type ListMetaValue = {
-  values: Primitive[];
-}
-type StructuredMetaValue = {
-  [key: string]: MetaValue;
-}
-type MetaValue = PrimitiveMetaValue | ListMetaValue | StructuredMetaValue;
+import MetaProperty, { Arity, Mandatory, StructuredMetaProperty } from "./MetaProperty";
+import Restructurable from "./Restructurable";
 
 export default class MetaModel extends Restructurable {
-  private metaFormat: MetaFormat;
-  private metaValues: MetaValue;
-  private metaPaths: Map<MetaProperty, MetaValue>;
+  metaFormat: MetaFormat;
+  root: MetaDatum;
 
   constructor(metaFormat: MetaFormat);
-  constructor(metaFormat: MetaFormat, metaValue?: MetaValue);
-  constructor(metaFormat: MetaFormat, metaValue?: MetaValue) {
+  constructor(metaFormat: MetaFormat, metaData: MetaDatum);
+  constructor(metaFormat: MetaFormat, metaData?: MetaDatum) {
     super();
-
-    if (metaValue) {
-      if (!validateMetaValue(metaFormat.metaProps, metaValue))
-        throw new Error("Invalid meta values");
-    }
-    else {
-      metaValue = createMetaValue(metaFormat.metaProps);
-    }
-
     this.metaFormat = metaFormat;
-    this.metaValues = metaValue;
-    this.metaPaths = createPropertyPaths(metaFormat.metaProps, metaValue);
+    this.root = metaData ?? createMetaDatum(metaFormat.metaProps);
   }
 
-  private hasMetaProperty(metaProperty: MetaProperty): boolean {
-    return this.metaPaths.has(metaProperty);
-  }
+  private walk(path: string): MetaDatum | MetaDatum[] {
+    console.log('MetaModel.walk', path);
 
-  getValue(metaProperty: ListMetaProperty): Array<Primitive> | undefined;
-  getValue(metaProperty: MetaProperty): Primitive | undefined;
-  getValue(metaProperty: MetaProperty): Primitive | Array<Primitive> | undefined {
-    if (!this.hasMetaProperty(metaProperty))
-      throw new Error(`Invalid MetaProperty "${metaProperty?.name}"`);
+    const parsedPath = parsePath(path);
 
-    const metaValue = this.metaPaths.get(metaProperty);
-    if (metaProperty instanceof StructuredMetaProperty) {
-      throw new Error("Cannot get structured meta property directly.");
-    }
-    else if (metaProperty instanceof ListMetaProperty) {
-      return (metaValue as ListMetaValue).values;
-    }
-    else {
-      return (metaValue as PrimitiveMetaValue).value;
-    }
-  }
+    let arity: Arity = Mandatory;
+    let prop: MetaProperty = this.metaFormat.metaProps;
+    let data: MetaDatum | MetaDatum[] = this.root;
 
-  setValue(metaProperty: MetaProperty, value: any) {
-    if (!this.hasMetaProperty(metaProperty))
-      throw new Error(`Invalid MetaProperty "${metaProperty?.name}"`);
+    for (const step of parsedPath) {
+      const isIndex = /^\d+$/.test(step);
+      if (isIndex) {
+        if (!Array.isArray(data)) {
+          throw new Error(`INDEX OF SCALAR DATA: Expected property of ${data.name}, got index ${step} instead.`);
+        }
 
-    if (!metaProperty.isValid(value))
-      throw new Error(`Invalid MetaDatum "${value}" for "${metaProperty.name}"`);
+        if (data.length <= +step) {
+          throw new Error(`INDEX OUT OF RANGE: Index ${step} out of range of property ${prop.name} with ${data.length} values.`);
+        }
 
-    const metaValue = this.metaPaths.get(metaProperty);
-    if (metaProperty instanceof StructuredMetaProperty) {
-      throw new Error("Cannot set structured meta property directly.");
-    }
-    else if (metaProperty instanceof ListMetaProperty) {
-      if (!Array.isArray(value))
-        throw new Error("Value has to be array for ListMetaProperty");
-
-      (metaValue as ListMetaValue).values = value;
-    }
-    else {
-      (metaValue as PrimitiveMetaValue).value = value;
-    }
-  }
-
-  [Restructurable.from](obj: MetaModel): MetaModel {
-    return new MetaModel(obj.metaFormat, obj.metaValues);
-  }
-}
-
-function createMetaValue(property: MetaProperty): MetaValue {
-  if (property instanceof StructuredMetaProperty) {
-    return Object.fromEntries(property.children.map(child => [child.name, createMetaValue(child)]));
-  }
-  else if (property instanceof ListMetaProperty) {
-    return {values: []};
-  }
-  else {
-    return {value: undefined};
-  }
-}
-
-function validateMetaValue(property: MetaProperty, value: MetaValue): boolean {
-  if (property instanceof StructuredMetaProperty) {
-    return property.children.every(child => validateMetaValue(child, value[child.name]));
-  }
-  else if (property instanceof ListMetaProperty) {
-    return (value as ListMetaValue).values.every(value => property.itemType === typeof value);
-  }
-  else {
-    return property.type === typeof (value as PrimitiveMetaValue).value;
-  }
-}
-
-function createPropertyPaths(property: MetaProperty, value: MetaValue, map: Map<MetaProperty, MetaValue> = new Map()): Map<MetaProperty, MetaValue> {
-  map.set(property, value);
-  if (property instanceof StructuredMetaProperty) {
-      for (const child of property.children) {
-          createPropertyPaths(child, value[child.name], map);
+        // MetaDatum[] -> StructMetaDatum | PrimMetaDatum
+        data = data[step];
       }
+      // !isIndex
+      else {
+        if (Array.isArray(data)) {
+          if (data.length > 1 || arity.max === undefined || arity.max > 1) {
+            throw new Error(`PROP OF ARRAY DATA: Expected index for array of length ${data.length}, got property ${prop.name} instead.`);
+          }
+
+          // Implicitly select single element
+          data = data[0];
+        }
+
+        if (!(prop instanceof StructuredMetaProperty)) {
+          throw new Error(`PROP OF SIMPLE PROP: Expected end of path, got ${step} instead.`);
+        }
+
+        if (!(data instanceof StructuredMetaDatum)) {
+          throw new Error(`PROP OF SIMPLE DATA: Expected property of ${data.name}, got ${prop.name} instead.`);
+        }
+
+        const childProp = prop.children[step]?.property;
+        if (!childProp) {
+          throw new Error(`UNK PROP CHILD: Expected property of ${prop.name}, got ${step}`);
+        }
+
+        arity = prop.children[step].arity;
+        prop = childProp;
+        data = data.data[step];
+      }
+    }
+
+    return data;
   }
-  return map;
+
+  getValue(path: string): any | any[] {
+    const data = this.walk(path);
+
+    if (Array.isArray(data)) {
+      if (data[0] instanceof StructuredMetaDatum) {
+        throw new Error(`GET ARRAY STRUCT DATA: Cannot get list of structured property at ${path}.`);
+      }
+
+      return data.map((pd: PrimitiveMetaDatum<any>) => pd.value);
+    }
+    else {
+      if (data instanceof StructuredMetaDatum) {
+        throw new Error(`GET SCALAR STRUCT DATA: Cannot get a structured property at ${path}.`);
+      }
+
+      return (data as PrimitiveMetaDatum<any>).value;
+    }
+  }
+
+  setValue(path: string, value: any) {
+    let data = this.walk(path);
+
+    if (Array.isArray(data)) {
+      // TODO: Only implicitly get first if mandatory or optional
+      if (data.length > 1) {
+        throw new Error(`Cannot set a list of properties at ${path}`);
+      }
+      data = data[0];
+    }
+
+    if (data instanceof StructuredMetaDatum) {
+      throw new Error(`Cannot set a structured property at ${path}.`);
+    }
+
+    (data as PrimitiveMetaDatum<any>).value = value;
+  }
+
+  [Restructurable.from](obj: MetaModel) {
+    return new MetaModel(obj.metaFormat, obj.root);
+  }
+}
+
+// TODO: Make into type/interface to avoid unnecessary restructuring
+export class MetaDatum extends Restructurable {
+  name: string;
+
+  constructor(name: string) {
+    super();
+    this.name = name;
+  }
+}
+export class PrimitiveMetaDatum<T extends number | string | boolean | Date> extends MetaDatum {
+  value?: T;
+
+  constructor(name: string, value?: T) {
+    super(name);
+    this.value = value;
+  }
+}
+export class StructuredMetaDatum extends MetaDatum {
+  data: {[name: string]: PrimitiveMetaDatum<any>[] | StructuredMetaDatum[]};
+
+  constructor(name: string, data: {[name: string]: MetaDatum[]}) {
+    super(name);
+    this.data = data;
+  }
+}
+
+// const pathNodePattern = /(\w+)|\[(\d+)]/g;
+function parsePath(path: string) {
+  // TODO: Validation and possibly fix regex
+
+  return path.split(/[.\[\]]+/g);
+}
+
+function createMetaDatum(property: MetaProperty): MetaDatum {
+  if (property instanceof StructuredMetaProperty) {
+    const values: {[p: string]: MetaDatum[]} = Object.fromEntries(
+      Object.values(property.children).map(
+        ({property}) => [property.name, [createMetaDatum(property)]]
+      )
+    );
+    return new StructuredMetaDatum(property.name, values);
+  }
+  else {
+    return new PrimitiveMetaDatum(property.name);
+  }
 }
