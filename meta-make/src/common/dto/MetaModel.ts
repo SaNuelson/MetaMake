@@ -14,7 +14,106 @@ export default class MetaModel extends Restructurable {
     this.root = metaData ?? createMetaDatum(metaFormat.metaProps);
   }
 
-  private walk(path: string): MetaDatum | MetaDatum[] {
+  /**
+   * Get MetaDatum at specified index. Run appropriate checks. Extend metadata array if arity allows.
+   * @param arity Arity of meta property to limit index.
+   * @param property Associated property of MetaDatum array elements.
+   * @param data Array of MetaDatum to select from (and/or expand if appropriate).
+   * @param index Index to select. Must be within arity and at most length of current data.
+   * @throws Error if index out of arity or out of existing length
+   */
+  private stepIndex(arity: Arity, property: MetaProperty, data: MetaDatum[], index: number): MetaDatum {
+    const minArity = (arity.min ?? 0);
+    const maxArity = (arity.max ?? Number.MAX_SAFE_INTEGER);
+
+    if (index < 0 || index >= maxArity) {
+      throw new Error(`INDEX OUT OF ARITY: Expected index in arity ${arity}, got ${index} instead.`);
+    }
+
+    if (index > data.length) {
+      throw new Error(`INDEX OUT OF RANGE: Expected index in range ${data.length} (inclusive in case of expansion), got ${data.length} instead.`);
+    }
+
+    if (index === data.length) {
+      data.push(createMetaDatum(property));
+    }
+
+    return data[index];
+  }
+
+  /**
+   * Get MetaDatum array of specified property name. Run appropriate checks.
+   * @param prop MetaProperty associated with the data MetaDatum
+   * @param data MetaDatum to select property from
+   * @param propName Name of the property to select MetaDatum array of.
+   * @throws Error If path shouldn't continue (MetaProperty isn't structured).
+   * @throws Error If data is malformed (MetaDatum isn't structured despite MetaProperty being).
+   * @throws Error If propName isn't known.
+   */
+  private stepProperty(prop: MetaProperty, data: MetaDatum, propName: string): [Arity, MetaProperty, MetaDatum[]] {
+    if (!(prop instanceof StructuredMetaProperty)) {
+      throw new Error(`PROP OF SIMPLE PROP: Expected end of path, got property ${propName} instead.`);
+    }
+
+    if (!(data instanceof StructuredMetaDatum)) {
+      throw new Error(`BAD DATA: MetaDatum ${data.name} is unstructured, but underlying property ${prop.name} is structured.`);
+    }
+
+    const childProp = prop.children[propName]?.property;
+    if (!childProp) {
+      throw new Error(`UNK PROP CHILD: Expected property of ${prop.name} (one of [${Object.keys(prop.children)}]), got ${propName} instead.`);
+    }
+
+    return [
+      prop.children[propName].arity,
+      childProp,
+      data.data[propName]
+    ];
+  }
+
+  /**
+   * Get arity, property and data at the provided step of path (either index or property).
+   * @param arity Arity of current prop / data.
+   * @param prop MetaProperty of data.
+   * @param data MetaDatum (or array of MetaDatum) in which to make next step.
+   * @param edge Next step in form of property name or index.
+   * @throws Error If step is an index but property is structured - property name is expected.
+   * @throws Error If step is an index but datum is not structured - end of path is expected.
+   * @throws Error If step is not an index but data is an array and there is no only datum - index is expected.
+   */
+  private step(arity: Arity, prop: MetaProperty, data: MetaDatum | MetaDatum[], edge: string): [Arity, MetaProperty, MetaDatum | MetaDatum[]] {
+    const isIndex = /^\d+$/.test(edge);
+    if (isIndex) {
+      if (!Array.isArray(data)) {
+        if (data instanceof StructuredMetaDatum)
+          throw new Error(`INDEX OF STRUCT DATA: Expected property of ${data.name} (one of [${Object.keys(data.data)}]), got index ${edge} instead.`);
+        else
+          throw new Error(`INDEX OF SCALAR DATA: Expected end of path, got index ${edge} instead.`);
+      }
+
+      data = this.stepIndex(arity, prop, data, +edge);
+    }
+    // !isIndex
+    else {
+      if (Array.isArray(data)) {
+        if (data.length > 1) {
+          throw new Error(`PROP OF ARRAY DATA: Expected index for array of length ${data.length}, got property ${prop.name} instead.`);
+        }
+        if (arity.max === undefined || arity.max > 1) {
+          throw new Error(`NO IMPLICIT FIRST: Expected index for array of length ${data.length}, got property ${prop.name} instead.`);
+        }
+
+        // Implicit first
+        data = data[0];
+      }
+
+      return this.stepProperty(prop, data, edge);
+    }
+
+    return [arity, prop, data];
+  }
+
+  private walk(path: string): [Arity, MetaProperty, MetaDatum | MetaDatum[]] {
     console.log('MetaModel.walk', path);
 
     const parsedPath = parsePath(path);
@@ -23,61 +122,25 @@ export default class MetaModel extends Restructurable {
     let prop: MetaProperty = this.metaFormat.metaProps;
     let data: MetaDatum | MetaDatum[] = this.root;
 
-    for (const step of parsedPath) {
-      const isIndex = /^\d+$/.test(step);
-      if (isIndex) {
-        if (!Array.isArray(data)) {
-          if (data instanceof StructuredMetaDatum)
-            throw new Error(`INDEX OF STRUCT DATA: Expected property of ${data.name} (one of [${Object.keys(data.data)}]), got index ${step} instead.`);
-          else
-            throw new Error(`INDEX OF SCALAR DATA: Expected end of path, got index ${step} instead.`);
-        }
-
-        if (data.length <= +step) {
-          throw new Error(`INDEX OUT OF RANGE: Expected index in range of ${data.length} for ${prop.name}, got ${step} instead.`);
-        }
-
-        // MetaDatum[] -> StructMetaDatum | PrimMetaDatum
-        data = data[step];
-      }
-      // !isIndex
-      else {
-        if (Array.isArray(data)) {
-          if (data.length > 1) {
-            throw new Error(`PROP OF ARRAY DATA: Expected index for array of length ${data.length}, got property ${prop.name} instead.`);
-          }
-          if (arity.max === undefined || arity.max > 1) {
-            throw new Error(`NO IMPLICIT FIRST: Expected index for array of length ${data.length}, got property ${prop.name} instead.`);
-          }
-
-          // Implicitly select single element
-          data = data[0];
-        }
-
-        if (!(prop instanceof StructuredMetaProperty)) {
-          throw new Error(`PROP OF SIMPLE PROP: Expected end of path, got property ${step} instead.`);
-        }
-
-        if (!(data instanceof StructuredMetaDatum)) {
-          throw new Error(`BAD DATA: MetaDatum ${data.name} is unstructured, but underlying property ${prop.name} is structured.`);
-        }
-
-        const childProp = prop.children[step]?.property;
-        if (!childProp) {
-          throw new Error(`UNK PROP CHILD: Expected property of ${prop.name} (one of [${Object.keys(prop.children)}]), got ${step} instead.`);
-        }
-
-        arity = prop.children[step].arity;
-        prop = childProp;
-        data = data.data[step];
-      }
+    for (const edge of parsedPath) {
+      [arity, prop, data] = this.step(arity, prop, data, edge);
     }
 
     return [arity, prop, data];
   }
 
-  getValue(path: string): any | any[] {
+  getData(path: string): [Arity, MetaProperty, MetaDatum | MetaDatum[]] {
     const [arity, prop, data] = this.walk(path);
+
+    if (Array.isArray(data) && data.length === 1 && arity.max === 1) {
+        return [arity, prop, data[0]];
+    }
+
+    return [arity, prop, data];
+  }
+
+  getValue(path: string): Primitive | Primitive[] {
+    const [arity, _, data] = this.walk(path);
 
     if (Array.isArray(data)) {
       if (data[0] instanceof StructuredMetaDatum) {
@@ -100,8 +163,8 @@ export default class MetaModel extends Restructurable {
     }
   }
 
-  setValue(path: string, value: any) {
-    let [arity, prop, data] = this.walk(path);
+  setValue(path: string, value: Primitive) {
+    let [_, __, data] = this.walk(path);
 
     if (Array.isArray(data)) {
       // TODO: Only implicitly get first if mandatory or optional
@@ -123,6 +186,8 @@ export default class MetaModel extends Restructurable {
   }
 }
 
+export type Primitive = number | string | boolean | Date;
+
 // TODO: Make into type/interface to avoid unnecessary restructuring
 export class MetaDatum extends Restructurable {
   name: string;
@@ -132,7 +197,7 @@ export class MetaDatum extends Restructurable {
     this.name = name;
   }
 }
-export class PrimitiveMetaDatum<T extends number | string | boolean | Date> extends MetaDatum {
+export class PrimitiveMetaDatum<T extends Primitive> extends MetaDatum {
   value?: T;
 
   constructor(name: string, value?: T) {

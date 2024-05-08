@@ -37,6 +37,10 @@ export default function KnowledgeBaseEditor(): ReactElement {
 
   function setActiveFormat(format: MetaFormat) {
     console.log('setActiveFormat', format.name);
+
+    if (format.name === knowledgeBase?.format.name)
+      return;
+
     setKnowledgeBase(KnowledgeBase.Empty(format));
     updateDocumentTitle();
   }
@@ -74,9 +78,8 @@ export default function KnowledgeBaseEditor(): ReactElement {
         <div className="block w-3/4 rounded-lg bg-white px-6 py-3 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] dark:bg-neutral-700">
           {knowledgeBase ? (
             <KnowledgeBaseEditorNode
-              property={knowledgeBase.format.metaProps}
-              path=''
               model={knowledgeBase.model}
+              path=''
               setProperty={setModelProp}
             />
           ) : (

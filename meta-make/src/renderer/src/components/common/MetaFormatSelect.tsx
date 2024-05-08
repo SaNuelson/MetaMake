@@ -37,8 +37,6 @@ export default function MetaFormatSelect({ onFormatSelected, selectedFormat } : 
     defaultSelected: selectedFormat ? f.name === selectedFormat?.name : i === 0
   }));
 
-  console.log(formatOptions);
-
   return (
     <TESelect
       label="Meta format"

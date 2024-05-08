@@ -17,7 +17,7 @@ const Long = new MetaFormat(
       )
     },
     {
-      arity: Mandatory,
+      arity: { min: 2 },
       property: new StructuredMetaProperty('Topic', 'Single topic of the dataset', [
         {
           arity: Mandatory,

@@ -34,9 +34,15 @@ describe('MetaModel, when constructed', () => {
   it("should be able to create & fill meta format", () => {
 
     const model = new MetaModel(testFormat);
-    assert.deepEqual([undefined], model.getValue("Author[0].Name"))
+    assert.deepEqual(model.getValue("Author[0].Name"), undefined)
     model.setValue("Author[0].Name", "Jack")
-    assert.deepEqual(["Jack"], model.getValue("Author[0].Name"))
+    assert.deepEqual(model.getValue("Author[0].Name"), "Jack")
+
+    assert.deepEqual(model.getValue("Author[1].Age"), undefined)
+    model.setValue("Author[1].Name", "Jill")
+    assert.deepEqual(model.getValue("Author[1].Name"), "Jill")
+    model.setValue("Author[1].Age", 32)
+    assert.deepEqual(model.getValue("Author[1].Age"), 32)
   })
 
 });

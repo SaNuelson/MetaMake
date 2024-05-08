@@ -16,7 +16,8 @@ const activeCss = 'inline-block rounded bg-primary uppercase leading-normal text
 const disabledCss = 'inline-block rounded bg-secondary uppercase leading-normal text-white shadow-[0_4px_9px_-4px_#a7b2c4] transition duration-150 ease-in-out pointer-events-none ';
 
 interface Props {
-  text: string;
+  text?: string;
+  className?: string
   disabled?: boolean
   sm?: boolean
   md?: boolean
@@ -27,14 +28,14 @@ interface ButtonLinkProps extends Props, React.DetailedHTMLProps<React.AnchorHTM
   href: string
 }
 
-export function ButtonLink({ text, disabled, href, sm, md, lg, ...linkProps }: ButtonLinkProps) {
+export function ButtonLink({ text, className, disabled, href, sm, md, lg, children, ...linkProps }: ButtonLinkProps) {
   return (
     <a
       href={href}
-      className={getSizeCss(sm, md, lg) + (disabled ? disabledCss : activeCss)}
+      className={getSizeCss(sm, md, lg) + (disabled ? disabledCss : activeCss) + (className ?? '')}
       {...linkProps}
     >
-      {text}
+      {children ?? text ?? 'NOTEXT'}
     </a>
   )
 }
@@ -42,15 +43,15 @@ export function ButtonLink({ text, disabled, href, sm, md, lg, ...linkProps }: B
 interface ButtonProps extends Props, React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement> {
 }
 
-export function Button({ text, disabled, sm, md, lg, ...buttonProps }: ButtonProps) {
+export function Button({ text, className, disabled, sm, md, lg, children, ...buttonProps }: ButtonProps) {
   return (
     <button
       type="button"
-      className={getSizeCss(sm, md, lg) + (disabled ? disabledCss : activeCss)}
+      className={getSizeCss(sm, md, lg) + (disabled ? disabledCss : activeCss) + (className ?? '')}
       disabled={disabled}
       {...buttonProps}
     >
-      {text}
+      {children ?? text ?? 'NOTEXT'}
     </button>
   )
 }
