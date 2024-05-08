@@ -27,11 +27,14 @@ export default class MetaModel extends Restructurable {
       const isIndex = /^\d+$/.test(step);
       if (isIndex) {
         if (!Array.isArray(data)) {
-          throw new Error(`INDEX OF SCALAR DATA: Expected property of ${data.name}, got index ${step} instead.`);
+          if (data instanceof StructuredMetaDatum)
+            throw new Error(`INDEX OF STRUCT DATA: Expected property of ${data.name} (one of [${Object.keys(data.data)}]), got index ${step} instead.`);
+          else
+            throw new Error(`INDEX OF SCALAR DATA: Expected end of path, got index ${step} instead.`);
         }
 
         if (data.length <= +step) {
-          throw new Error(`INDEX OUT OF RANGE: Index ${step} out of range of property ${prop.name} with ${data.length} values.`);
+          throw new Error(`INDEX OUT OF RANGE: Expected index in range of ${data.length} for ${prop.name}, got ${step} instead.`);
         }
 
         // MetaDatum[] -> StructMetaDatum | PrimMetaDatum
@@ -40,8 +43,11 @@ export default class MetaModel extends Restructurable {
       // !isIndex
       else {
         if (Array.isArray(data)) {
-          if (data.length > 1 || arity.max === undefined || arity.max > 1) {
+          if (data.length > 1) {
             throw new Error(`PROP OF ARRAY DATA: Expected index for array of length ${data.length}, got property ${prop.name} instead.`);
+          }
+          if (arity.max === undefined || arity.max > 1) {
+            throw new Error(`NO IMPLICIT FIRST: Expected index for array of length ${data.length}, got property ${prop.name} instead.`);
           }
 
           // Implicitly select single element
@@ -49,16 +55,16 @@ export default class MetaModel extends Restructurable {
         }
 
         if (!(prop instanceof StructuredMetaProperty)) {
-          throw new Error(`PROP OF SIMPLE PROP: Expected end of path, got ${step} instead.`);
+          throw new Error(`PROP OF SIMPLE PROP: Expected end of path, got property ${step} instead.`);
         }
 
         if (!(data instanceof StructuredMetaDatum)) {
-          throw new Error(`PROP OF SIMPLE DATA: Expected property of ${data.name}, got ${prop.name} instead.`);
+          throw new Error(`BAD DATA: MetaDatum ${data.name} is unstructured, but underlying property ${prop.name} is structured.`);
         }
 
         const childProp = prop.children[step]?.property;
         if (!childProp) {
-          throw new Error(`UNK PROP CHILD: Expected property of ${prop.name}, got ${step}`);
+          throw new Error(`UNK PROP CHILD: Expected property of ${prop.name} (one of [${Object.keys(prop.children)}]), got ${step} instead.`);
         }
 
         arity = prop.children[step].arity;
@@ -67,15 +73,20 @@ export default class MetaModel extends Restructurable {
       }
     }
 
-    return data;
+    return [arity, prop, data];
   }
 
   getValue(path: string): any | any[] {
-    const data = this.walk(path);
+    const [arity, prop, data] = this.walk(path);
 
     if (Array.isArray(data)) {
       if (data[0] instanceof StructuredMetaDatum) {
         throw new Error(`GET ARRAY STRUCT DATA: Cannot get list of structured property at ${path}.`);
+      }
+
+      // Implicit first
+      if (data.length === 1 && arity.max === 1) {
+        return (data[0] as PrimitiveMetaDatum<any>).value;
       }
 
       return data.map((pd: PrimitiveMetaDatum<any>) => pd.value);
@@ -90,7 +101,7 @@ export default class MetaModel extends Restructurable {
   }
 
   setValue(path: string, value: any) {
-    let data = this.walk(path);
+    let [arity, prop, data] = this.walk(path);
 
     if (Array.isArray(data)) {
       // TODO: Only implicitly get first if mandatory or optional
@@ -142,7 +153,7 @@ export class StructuredMetaDatum extends MetaDatum {
 function parsePath(path: string) {
   // TODO: Validation and possibly fix regex
 
-  return path.split(/[.\[\]]+/g);
+  return path.split(/[.\[\]]/g).filter(x=>x);
 }
 
 function createMetaDatum(property: MetaProperty): MetaDatum {
