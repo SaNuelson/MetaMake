@@ -15,7 +15,7 @@ const logLevel = 1;
 // HANDLING: RENDERER -> MAIN
 export const indexMainEventHandlers: { [type in EventType]?: MainElectronEventHandler} = {
   [EventType.DataPreviewRequested]: () => DataManager.dataSource?.getPreview(),
-  [EventType.DataProcessingRequested]: () => generateMetadata(),
+  [EventType.DataProcessingRequested]: (_, formatName: string, kbId: string) => generateMetadata(formatName, kbId),
   [EventType.MetaFormatsRequested]: () => KnowledgeBaseManager.metaFormats,
   [EventType.MetaFormatListRequested]: () => KnowledgeBaseManager.getMetaFormatList(),
   [EventType.LoadDataModalRequested]: () => loadLocalDataFile(BrowserWindow.getFocusedWindow()!),

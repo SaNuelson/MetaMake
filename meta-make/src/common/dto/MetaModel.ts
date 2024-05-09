@@ -113,6 +113,13 @@ export default class MetaModel extends Restructurable {
     return [arity, prop, data];
   }
 
+  /**
+   * Get model data on specified path.
+   * @param path Path consisting of property names (delimited by dots) and indexes (wrapped in square brackets).
+   * @example
+   * const result = model.walk(".Authors[1].Degrees[1].AwardedBy");
+   * // result === [Mandatory: Arity, AwardedByProperty: MetaProperty, AwardedByValues: string[]]
+   */
   private walk(path: string): [Arity, MetaProperty, MetaDatum | MetaDatum[]] {
     console.log('MetaModel.walk', path);
 
@@ -129,6 +136,13 @@ export default class MetaModel extends Restructurable {
     return [arity, prop, data];
   }
 
+  /**
+   * Get model data on specified path. Additionally, implicitly selects only metadata where appropriate.
+   * @param path Path consisting of property names (delimited by dots) and indexes (wrapped in square brackets).
+   * @example
+   * const result = model.getData(".Authors[1].Degrees[1].AwardedBy");
+   * // result === [Mandatory: Arity, AwardedByProperty: MetaProperty, AwardedByValue: string]
+   */
   getData(path: string): [Arity, MetaProperty, MetaDatum | MetaDatum[]] {
     const [arity, prop, data] = this.walk(path);
 
@@ -139,6 +153,14 @@ export default class MetaModel extends Restructurable {
     return [arity, prop, data];
   }
 
+  /**
+   * Get metadata on specified path.
+   * @param path Path consisting of property names (delimited by dots) and indexes (wrapped in square brackets).
+   * @returns
+   * @example
+   * const result = model.getValue(".Authors[1].Degrees[1].AwardedBy");
+   * // result === AwardedByValue: string
+   */
   getValue(path: string): Primitive | Primitive[] {
     const [arity, _, data] = this.walk(path);
 
@@ -163,6 +185,14 @@ export default class MetaModel extends Restructurable {
     }
   }
 
+  /**
+   * Set metadata on specified path.
+   * @param path Path consisting of property names (delimited by dots) and indexes (wrapped in square brackets).
+   * @param value Primitive value (non-object) to fill the property.
+   * @example
+   * const result = model.setValue(".Authors[1].Degrees[1].AwardedBy", "CUNI");
+   * // result === AwardedByValue: string
+   */
   setValue(path: string, value: Primitive) {
     let [_, __, data] = this.walk(path);
 

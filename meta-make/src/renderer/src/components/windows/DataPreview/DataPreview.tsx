@@ -6,10 +6,12 @@ import { useDataPreview } from '../../hooks/use-data-preview'
 import MetaFormat from '../../../../../common/dto/MetaFormat'
 import icon from '../../../../../../resources/logo.svg';
 import { Button } from "../../common/Buttons";
+import { KnowledgeBaseInfo } from "../../../../../common/dto/KnowledgeBase";
 
 export default function DataPreview(): ReactElement {
   const { preview } = useDataPreview()
   const [selectedFormat, setSelectedFormat] = useState<MetaFormat | undefined>()
+  const [selectedKbInfo, setSelectedKbInfo] = useState<KnowledgeBaseInfo | undefined>()
 
   if (!preview) {
     return (
@@ -45,12 +47,12 @@ export default function DataPreview(): ReactElement {
           <MetaFormatSelect onFormatSelected={setSelectedFormat} />
         </div>
         <div className="w-3/8 p-2">
-          <KnowledgeBaseSelect onKBSelected={() => {}} onlyFormat={selectedFormat} allowEmpty={true} />
+          <KnowledgeBaseSelect onKBSelected={setSelectedKbInfo} onlyFormat={selectedFormat} allowEmpty={true} />
         </div>
         <div className="w-1/8 p-2">
           <Button
             text='Process'
-            onClick={window.api.requestProcessing}
+            onClick={() => window.api.requestProcessing(selectedFormat!.name, selectedKbInfo?.id)}
           />
         </div>
       </div>

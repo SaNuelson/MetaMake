@@ -11,7 +11,7 @@ export type EmptyCallback = () => void
 
 export interface MetaMakeAPI {
   deleteKnowledgeBase: (id: string) => Promise<void>
-  requestProcessing: () => Promise<void>
+  requestProcessing: (formatName: string, kbId?: string) => Promise<void>
   requestLoadDataModal: () => Promise<void>
   requestKnowledgeBaseList: (formatName?: string) => Promise<KnowledgeBaseInfo[]>
   requestKnowledgeBase: (id: string) => Promise<KnowledgeBase>
@@ -28,7 +28,7 @@ export interface MetaMakeAPI {
 
 // Custom APIs for renderer
 const api: MetaMakeAPI = {
-  requestProcessing: () => ipcRenderer.invoke(EventType.DataProcessingRequested),
+  requestProcessing: (formatName: string, kbId?: string) => ipcRenderer.invoke(EventType.DataProcessingRequested, formatName, kbId),
   requestLoadDataModal: () => ipcRenderer.invoke(EventType.LoadDataModalRequested),
 
   requestKnowledgeBaseList: (formatName?: string) => ipcRenderer.invoke(EventType.KnowledgeBaseListRequested, formatName),
