@@ -1,5 +1,5 @@
 import MetaFormat from "./MetaFormat";
-import MetaProperty, { Arity, Mandatory, StructuredMetaProperty } from "./MetaProperty";
+import MetaProperty, { ArityBounds, MandatoryArity, StructuredMetaProperty } from "./MetaProperty";
 import Restructurable from "./Restructurable";
 
 export default class MetaModel extends Restructurable {
@@ -22,7 +22,7 @@ export default class MetaModel extends Restructurable {
    * @param index Index to select. Must be within arity and at most length of current data.
    * @throws Error if index out of arity or out of existing length
    */
-  private stepIndex(arity: Arity, property: MetaProperty, data: MetaDatum[], index: number): MetaDatum {
+  private stepIndex(arity: ArityBounds, property: MetaProperty, data: MetaDatum[], index: number): MetaDatum {
     const minArity = (arity.min ?? 0);
     const maxArity = (arity.max ?? Number.MAX_SAFE_INTEGER);
 
@@ -50,7 +50,7 @@ export default class MetaModel extends Restructurable {
    * @throws Error If data is malformed (MetaDatum isn't structured despite MetaProperty being).
    * @throws Error If propName isn't known.
    */
-  private stepProperty(prop: MetaProperty, data: MetaDatum, propName: string): [Arity, MetaProperty, MetaDatum[]] {
+  private stepProperty(prop: MetaProperty, data: MetaDatum, propName: string): [ArityBounds, MetaProperty, MetaDatum[]] {
     if (!(prop instanceof StructuredMetaProperty)) {
       throw new Error(`PROP OF SIMPLE PROP: Expected end of path, got property ${propName} instead.`);
     }
@@ -81,7 +81,7 @@ export default class MetaModel extends Restructurable {
    * @throws Error If step is an index but datum is not structured - end of path is expected.
    * @throws Error If step is not an index but data is an array and there is no only datum - index is expected.
    */
-  private step(arity: Arity, prop: MetaProperty, data: MetaDatum | MetaDatum[], edge: string): [Arity, MetaProperty, MetaDatum | MetaDatum[]] {
+  private step(arity: ArityBounds, prop: MetaProperty, data: MetaDatum | MetaDatum[], edge: string): [ArityBounds, MetaProperty, MetaDatum | MetaDatum[]] {
     const isIndex = /^\d+$/.test(edge);
     if (isIndex) {
       if (!Array.isArray(data)) {
@@ -120,12 +120,12 @@ export default class MetaModel extends Restructurable {
    * const result = model.walk(".Authors[1].Degrees[1].AwardedBy");
    * // result === [Mandatory: Arity, AwardedByProperty: MetaProperty, AwardedByValues: string[]]
    */
-  private walk(path: string): [Arity, MetaProperty, MetaDatum | MetaDatum[]] {
+  private walk(path: string): [ArityBounds, MetaProperty, MetaDatum | MetaDatum[]] {
     console.log('MetaModel.walk', path);
 
     const parsedPath = parsePath(path);
 
-    let arity: Arity = Mandatory;
+    let arity: ArityBounds = MandatoryArity;
     let prop: MetaProperty = this.metaFormat.metaProps;
     let data: MetaDatum | MetaDatum[] = this.root;
 
@@ -143,7 +143,7 @@ export default class MetaModel extends Restructurable {
    * const result = model.getData(".Authors[1].Degrees[1].AwardedBy");
    * // result === [Mandatory: Arity, AwardedByProperty: MetaProperty, AwardedByValue: string]
    */
-  getData(path: string): [Arity, MetaProperty, MetaDatum | MetaDatum[]] {
+  getData(path: string): [ArityBounds, MetaProperty, MetaDatum | MetaDatum[]] {
     const [arity, prop, data] = this.walk(path);
 
     if (Array.isArray(data) && data.length === 1 && arity.max === 1) {
@@ -209,6 +209,42 @@ export default class MetaModel extends Restructurable {
     }
 
     (data as PrimitiveMetaDatum<any>).value = value;
+  }
+
+  *test() {
+    yield 1;
+    yield 2;
+    yield 3;
+  }
+
+  *preOrderTraversal(path: string = "",
+                     arity: ArityBounds = MandatoryArity,
+                     metaProperty: MetaProperty = this.metaFormat.metaProps,
+                     metaDatum: MetaDatum = this.root): Generator<[string, ArityBounds, MetaProperty, MetaDatum]> {
+    console.log("POTrav", path, arity, metaProperty, metaDatum);
+    if (!metaDatum)
+      return;
+
+    yield [path, arity, metaProperty, metaDatum];
+
+    const isDataStructured = metaDatum instanceof StructuredMetaDatum;
+    const isPropStructured = metaProperty instanceof StructuredMetaProperty;
+
+    if (isDataStructured !== isPropStructured) {
+      throw new Error(`BAD DATA: MetaDatum ${metaDatum.name} is structurally inconsistent with underlying property ${metaProperty.name}.`);
+    }
+
+    if (isDataStructured && isPropStructured) {
+      for (const key in metaDatum.data) {
+        const childPath = `${path}.${key}`;
+        const {arity: childArity, property: childMetaProperty} = metaProperty.children[key];
+        const childMetaData = metaDatum.data[key];
+
+        for (const childMetaDatum of childMetaData) {
+          yield* this.preOrderTraversal(childPath, childArity, childMetaProperty, childMetaDatum);
+        }
+      }
+    }
   }
 
   [Restructurable.from](obj: MetaModel) {

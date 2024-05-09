@@ -3,20 +3,24 @@ import Restructurable from './Restructurable'
 type PropertyType = 'string' | 'number' | 'object' | 'array' | 'boolean' | 'date'
 type PropertySubType = 'email' | 'url'
 
-export interface Arity {
+export interface ArityBounds {
   min?: number
   max?: number
 }
 
+export interface Arity extends ArityBounds {
+  current: number;
+}
+
 export interface MetaChild {
-  arity: Arity
+  arity: ArityBounds
   property: MetaProperty
 }
 
-export const Mandatory: Arity = {min: 1, max: 1};
-export const Optional: Arity = {min: 0, max: 1};
-export const Any: Arity = {};
-export const Some: Arity = {min: 1};
+export const MandatoryArity: ArityBounds = {min: 1, max: 1};
+export const OptionalArity: ArityBounds = {min: 0, max: 1};
+export const UnboundedArity: ArityBounds = {};
+export const Some: ArityBounds = {min: 1};
 
 export default class MetaProperty extends Restructurable {
   readonly name: string

@@ -1,7 +1,8 @@
-import MetaProperty, { Mandatory, Optional, Some, StructuredMetaProperty } from "../MetaProperty";
+import MetaProperty, { MandatoryArity, OptionalArity, Some, StructuredMetaProperty } from "../MetaProperty";
 import MetaFormat from "../MetaFormat";
 import MetaModel from "../MetaModel";
 import { strict as assert } from 'node:assert'
+import Essential from "../../../main/format/Essential";
 
 describe('MetaModel, when constructed', () => {
 
@@ -11,8 +12,8 @@ describe('MetaModel, when constructed', () => {
     "Author",
     "Author of the data",
     [
-      {arity: Mandatory, property: authorNameProp},
-      {arity: Optional, property: authorAgeProp}
+      {arity: MandatoryArity, property: authorNameProp},
+      {arity: OptionalArity, property: authorAgeProp}
     ]
   )
 
@@ -23,7 +24,7 @@ describe('MetaModel, when constructed', () => {
     "Props",
     "",
     [
-      {arity: Mandatory, property: titleProp},
+      {arity: MandatoryArity, property: titleProp},
       {arity: {min:3, max:10}, property: keywordProp},
       {arity: Some, property: authorsProp}
     ]
@@ -34,6 +35,7 @@ describe('MetaModel, when constructed', () => {
   it("should be able to create & fill meta format", () => {
 
     const model = new MetaModel(testFormat);
+
     assert.deepEqual(model.getValue("Author[0].Name"), undefined)
     model.setValue("Author[0].Name", "Jack")
     assert.deepEqual(model.getValue("Author[0].Name"), "Jack")
@@ -44,5 +46,4 @@ describe('MetaModel, when constructed', () => {
     model.setValue("Author[1].Age", 32)
     assert.deepEqual(model.getValue("Author[1].Age"), 32)
   })
-
 });
