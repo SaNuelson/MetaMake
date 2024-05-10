@@ -29,13 +29,6 @@ app.whenReady().then(async () => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // TODO: Check if extension exists
-  await session.defaultSession.loadExtension(path.join(
-    os.homedir(),
-    '/AppData/Local/Microsoft/Edge/User Data/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/5.1.0_0'
-  ),
-    { allowFileAccess: true })
-
   const mainWindow = createIndexWindow()
 
   const mainMenu = createMainNavigation(mainWindow)

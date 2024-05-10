@@ -7,11 +7,16 @@ import MetaFormat from '../../../../../common/dto/MetaFormat'
 import icon from '../../../../../../resources/logo.svg';
 import { Button } from "../../common/Buttons";
 import { KnowledgeBaseInfo } from "../../../../../common/dto/KnowledgeBase";
+import { useNavigate } from "react-router-dom";
+import { createMetaUrl } from "../../../../../common/utils/url";
+import { MetaUrl } from "../../../../../common/constants";
 
 export default function DataPreview(): ReactElement {
   const { preview } = useDataPreview()
   const [selectedFormat, setSelectedFormat] = useState<MetaFormat | undefined>()
   const [selectedKbInfo, setSelectedKbInfo] = useState<KnowledgeBaseInfo | undefined>()
+
+  const navigation = useNavigate()
 
   if (!preview) {
     return (
@@ -52,7 +57,9 @@ export default function DataPreview(): ReactElement {
         <div className="w-1/8 p-2">
           <Button
             text='Process'
-            onClick={() => window.api.requestProcessing(selectedFormat!.name, selectedKbInfo?.id)}
+            onClick={() =>
+              window.api.requestProcessing(selectedFormat!.name, selectedKbInfo?.id)
+              .then(()=>navigation(createMetaUrl(MetaUrl.MetaBase)))}
           />
         </div>
       </div>

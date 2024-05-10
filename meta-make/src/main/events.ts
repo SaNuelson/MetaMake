@@ -6,6 +6,8 @@ import { KnowledgeBase } from "../common/dto/KnowledgeBase";
 import Restructurable from "../common/dto/Restructurable";
 import { loadLocalDataFile } from "./commands/storage";
 import generateMetadata from "./processing/generator";
+import MetaBaseManager from "./kb/MetaBaseManager";
+import metaBaseManager from "./kb/MetaBaseManager";
 
 type MainElectronEventHandler = (event: IpcMainInvokeEvent, ...args: any[]) => Promise<any> | any
 type RendererElectronEventHandler = (event: IpcRendererEvent, ...args: any[]) => (Promise<any>) | (any);
@@ -14,15 +16,35 @@ const logLevel = 1;
 
 // HANDLING: RENDERER -> MAIN
 export const indexMainEventHandlers: { [type in EventType]?: MainElectronEventHandler} = {
-  [EventType.DataPreviewRequested]: () => DataManager.dataSource?.getPreview(),
-  [EventType.DataProcessingRequested]: (_, formatName: string, kbId: string) => generateMetadata(formatName, kbId),
-  [EventType.MetaFormatsRequested]: () => KnowledgeBaseManager.metaFormats,
-  [EventType.MetaFormatListRequested]: () => KnowledgeBaseManager.getMetaFormatList(),
+  // region GET STATE
+  [EventType.CheckDataProcessed]: () => MetaBaseManager.processed,
+  // endregion
+
+  //region GET DATA
   [EventType.LoadDataModalRequested]: () => loadLocalDataFile(BrowserWindow.getFocusedWindow()!),
+  [EventType.DataPreviewRequested]: () => DataManager.dataSource?.getPreview(),
+
+  [EventType.MetaFormatListRequested]: () => KnowledgeBaseManager.getMetaFormatList(),
+  [EventType.MetaFormatsRequested]: () => KnowledgeBaseManager.metaFormats,
+
   [EventType.KnowledgeBaseListRequested]: (_, formatName?: string) => KnowledgeBaseManager.getKnowledgeBaseList(formatName),
   [EventType.KnowledgeBaseRequested]: (_, id: string) => KnowledgeBaseManager.getKnowledgeBase(id),
+
+  [EventType.MetaBaseRequested]: () => MetaBaseManager.models,
+  //endregion
+
+  //region SET
   [EventType.KnowledgeBaseUpdated]: (_, kb: KnowledgeBase) => KnowledgeBaseManager.setKnowledgeBase(kb),
-  [EventType.KnowledgeBaseDeleted]: (_, kbId: string) => KnowledgeBaseManager.deleteKnowledgeBase(kbId)
+  [EventType.KnowledgeBaseDeleted]: (_, kbId: string) => KnowledgeBaseManager.deleteKnowledgeBase(kbId),
+  //endregion
+
+  //region CALL
+  [EventType.DataProcessingRequested]: (_, formatName: string, kbId?: string) => {
+    if (kbId)
+      return metaBaseManager.fromKnowledgeBase(KnowledgeBaseManager.getKnowledgeBase(kbId)!)
+    return metaBaseManager.fromMetaFormat(KnowledgeBaseManager.getMetaFormat(formatName)!)
+  },
+  //endregion
 };
 
 Object.entries(indexMainEventHandlers).forEach(([key, handler]) => {

@@ -1,21 +1,39 @@
 export enum EventType {
+  // region GET STATE
+  MetaBaseRequested = 'MetaBaseRequested',
+  CheckDataProcessed = 'CheckDataProcessed',
+  // endregion
+
+  //region GET DATA
   DataPreviewRequested = 'DataPreviewRequested',
-  DataChanged = 'DataChanged',
-  DataLoaded = 'DataLoaded',
   MetaFormatListRequested = 'MetaFormatListRequested',
   MetaFormatsRequested = 'MetaFormatsRequested',
   KnowledgeBaseListRequested = 'KnowledgeBaseListRequested',
   KnowledgeBaseRequested = 'KnowledgeBaseRequested',
+  LoadDataModalRequested = 'LoadDataModalRequested',
+  //endregion
+
+  //region SET
   KnowledgeBaseUpdated = 'KnowledgeBaseUpdated',
   KnowledgeBaseDeleted = 'KnowledgeBaseDeleted',
-  LoadDataModalRequested = 'LoadDataModalRequested',
+  //endregion
+
+  //region CALL
   DataProcessingRequested = 'DataProcessingRequested',
+  //endregion
+
+  //region LISTEN
+  DataChanged = 'DataChanged',
+  DataLoaded = 'DataLoaded',
+  DataProcessed = 'DataProcessed',
+  //endregion
 }
 
 export enum MetaUrl {
   Index = "/",
   KnowledgeBase = "/kb/{}",
-  KnowledgeBaseCreate = "/kb/create"
+  KnowledgeBaseCreate = "/kb/create",
+  MetaBase = "/mb/"
 }
 
 export enum WindowType {

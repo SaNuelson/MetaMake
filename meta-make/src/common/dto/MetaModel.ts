@@ -221,7 +221,6 @@ export default class MetaModel extends Restructurable {
                      arity: ArityBounds = MandatoryArity,
                      metaProperty: MetaProperty = this.metaFormat.metaProps,
                      metaDatum: MetaDatum = this.root): Generator<[string, ArityBounds, MetaProperty, MetaDatum]> {
-    console.log("POTrav", path, arity, metaProperty, metaDatum);
     if (!metaDatum)
       return;
 

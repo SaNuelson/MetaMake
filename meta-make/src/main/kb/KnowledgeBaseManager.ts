@@ -6,10 +6,12 @@ import KnowledgeBaseModel from '../dto/KnowledgeBaseModel'
 import Long from '../format/Long'
 import { randomUUID } from 'node:crypto'
 import MetaStore from '../data/MetaStore'
+import TitleOnly from "../format/TitleOnly";
 
 class KnowledgeBaseManager {
   // region MetaFormats
   private __metaFormats: {[name: string]: MetaFormat} = {
+    [TitleOnly.name]: TitleOnly,
     [Essential.name]: Essential,
     [Basic.name]: Basic,
     [Long.name]: Long
