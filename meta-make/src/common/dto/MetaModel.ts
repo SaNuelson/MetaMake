@@ -11,7 +11,9 @@ export default class MetaModel extends Restructurable {
   constructor(metaFormat: MetaFormat, metaData?: MetaDatum) {
     super();
     this.metaFormat = metaFormat;
-    this.root = metaData ?? createMetaDatum(metaFormat.metaProps);
+    this.root = metaData
+      ? copyMetaDatum(metaFormat.metaProps, metaData)
+      : createMetaDatum(metaFormat.metaProps);
   }
 
   /**
@@ -299,3 +301,28 @@ function createMetaDatum(property: MetaProperty): MetaDatum {
     return new PrimitiveMetaDatum(property.name);
   }
 }
+
+function copyMetaDatum(property: MetaProperty, value: MetaDatum): MetaDatum {
+  if (property instanceof StructuredMetaProperty) {
+    if (!(value instanceof StructuredMetaDatum)) {
+      throw new Error(`Property ${property.name} is structured, value ${value.name} is not.`);
+    }
+
+    const copyData = Object.fromEntries(
+      Object.entries(value.data)
+        .map(([subPropName, subValues]) => {
+          const subProperty = property.children[subPropName].property;
+          const subCopies = subValues.map(subValue => copyMetaDatum(subProperty, subValue));
+          return [subPropName, subCopies];
+        })
+    )
+    return new StructuredMetaDatum(property.name, copyData);
+  }
+  else {
+    if (!(value instanceof PrimitiveMetaDatum)) {
+      throw new Error(`Property ${property.name} is not structured, value ${value.name} is.`);
+    }
+    return new PrimitiveMetaDatum(property.name, value.value);
+  }
+}
+
