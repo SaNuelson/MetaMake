@@ -20,14 +20,22 @@ export class ThreadController {
     return thread;
   }
 
-  public async send(body: string): Promise<string> {
-    console.log(`ChatGPT << ${body}`)
-
-    let run = await openAi.beta.threads.runs.createAndPoll(
+  public async addMessage(body: string) {
+    console.log(`ChatGPT <<\n${body}`)
+    await openAi.beta.threads.messages.create(
       this.thread.id,
       {
-        assistant_id: "asst_JHpCvOu6Pr8XuoNfHLCJwonW", //assistant_id: "asst_lLg0nzhnP9mSEZlNI4UXa4CL",
-        instructions: body
+        role: "user",
+        content: body
+      }
+    );
+  }
+
+  public async getResponse() {
+    const run = await openAi.beta.threads.runs.createAndPoll(
+      this.thread.id,
+      {
+        assistant_id: "asst_lLg0nzhnP9mSEZlNI4UXa4CL"
       }
     )
 

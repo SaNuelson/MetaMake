@@ -27,10 +27,10 @@ async function main() {
     Object.keys(window.rawApi).forEach(key => {
       window.api[key] = async (...args: any[]) => {
         if(debugEnabled)
-          console.trace(`[RDRR -> MAIN] ${key}(${args})`);
+          console.trace('[RDRR -> MAIN] ', key, '(', ...args, ')');
         const result = await window.rawApi[key](...args);
         if(debugEnabled)
-          console.trace(`MAIN -> RDRR ${key}(...) =>`, result);
+          console.trace('[RDRR <- MAIN] ', key,  '(', ...args, ') => ', result);
 
         return Restructurable.restructure(result);
       }

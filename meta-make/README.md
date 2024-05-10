@@ -38,3 +38,8 @@ $ npm run build:linux
   - [x] KB is saved to disk
 - [x] KBEditor, ability to change KB & save changes
 - [ ]
+
+### Buglist
+
+- [ ] Main window -> New KB -> Back doesn't work
+- [ ] Refresh KB in main window after loading data

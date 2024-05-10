@@ -1,5 +1,4 @@
 import DataManager from "../data/DataManager";
-import { Catalogue } from '../dcr/core/Catalogue.js';
 import {KnowledgeBase} from "../../common/dto/KnowledgeBase";
 import KnowledgeBaseManager from "../kb/KnowledgeBaseManager";
 import { ThreadController } from "./openaiconnector";
@@ -24,33 +23,31 @@ export default async function generateMetadata(formatName: string, kbId?: string
 
   const connector = await ThreadController.Create();
 
-  const initialResponse = await connector.send(`
-  Here is the first 20 rows of the CSV data about which you will be later asked to make educated guesses:
+  await connector.addMessage(`Here is a sample of the data - the first 20 rows of the CSV:
   \`\`\`csv
   ${data.slice(0, 20).join('  \n')}
   \`\`\`
-  If the instructions are clear and you understand the data, respond with JSON: {"processed": true}.
-  Otherwise, respond with {"processed": false, "reason": "Description of the error" }.
+  Answer the following questions using format:
+  {
+      value: "Your guess here" (or null if your guess is the question can't be answered),
+      confidence: "How confident your guess is from 0.0 to 1.0"
+      process: "Your thought process behind the assumption."
+  }
   `);
-
-  await connector.send(`Can you send me the current date and time on a JSON?`);
-
-  await connector.send(`What was my previous message about? Respond in JSON {"prev_message_content": "Description"`);
 
   for (const [path, arity, prop, data] of kb.model.preOrderTraversal()) {
     if (prop instanceof StructuredMetaProperty) {
       continue;
     }
 
-    const response = await connector.send(`
-    Property name: ${prop.name}
-    Property description: ${prop.description}
-    Provide your best guess for this metadatum as a JSON in format:
-    {
-      value: "Your guess here",
-      confidence: "How confident your guess is from 0.0 to 1.0"
-      process: "Your thought process on how you arrived to this guess."
-    }`);
+    // TODO: Remove
+    await new Promise(res => setTimeout(res, 500));
+    newModel.setValue(path, `$ChatGPT val for {prop.name}`);
+    continue;
+
+    await connector.addMessage(`Provide your best guess in form of mentioned JSON for metadata ${prop.name} (${prop.description}):`);
+
+    const response = await connector.getResponse();
 
     try {
       const guess: GuessResponse = JSON.parse(response);

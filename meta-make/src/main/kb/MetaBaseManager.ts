@@ -1,6 +1,5 @@
 import { KnowledgeBase } from "../../common/dto/KnowledgeBase";
 import MetaFormat from "../../common/dto/MetaFormat";
-import MetaModel from "../../common/dto/MetaModel";
 import generateMetadata from "../processing/generator";
 import { broadcastToWindows } from "../events";
 import { EventType } from "../../common/constants";
@@ -77,7 +76,7 @@ class MetaBaseManager {
   private async startProcessing() {
     const chatGptModel = await generateMetadata(this.format.name);
 
-    this._models!.push(chatGptModel);
+    this._models!.push([chatGptModel, {name: "ChatGPT", label: "ChatGPT"}]);
     this._processed = true;
     broadcastToWindows(EventType.DataProcessed);
   }
