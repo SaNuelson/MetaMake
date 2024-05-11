@@ -122,10 +122,10 @@ export default class MetaModel extends Restructurable {
    * const result = model.walk(".Authors[1].Degrees[1].AwardedBy");
    * // result === [Mandatory: Arity, AwardedByProperty: MetaProperty, AwardedByValues: string[]]
    */
-  private walk(path: string): [ArityBounds, MetaProperty, MetaDatum | MetaDatum[]] {
+  private walk(path: string | string[]): [ArityBounds, MetaProperty, MetaDatum | MetaDatum[]] {
     console.log('MetaModel.walk', path);
 
-    const parsedPath = parsePath(path);
+    const parsedPath = Array.isArray(path) ? path : parsePath(path);
 
     let arity: ArityBounds = MandatoryArity;
     let prop: MetaProperty = this.metaFormat.metaProps;
@@ -213,10 +213,51 @@ export default class MetaModel extends Restructurable {
     (data as PrimitiveMetaDatum<any>).value = value;
   }
 
-  *test() {
-    yield 1;
-    yield 2;
-    yield 3;
+  addValue(path: string) {
+    let [arity, prop, data] = this.walk(path);
+
+    if (!Array.isArray(data)) {
+      throw new Error(`Cennot add a value to non-list property ${path}`);
+    }
+
+    if (arity.max && data.length >= arity.max) {
+      throw new Error(`Cannot add a value, maximum arity of ${arity.max} reached.`);
+    }
+
+    data.push(createMetaDatum(prop));
+  }
+
+  deleteValue(path: string) {
+    const parsedPath = parsePath(path);
+    const lastEdge = parsedPath.pop();
+    let [arity, prop, data] = this.walk(parsedPath);
+
+    if (!lastEdge) {
+      throw new Error(`Cannot delete root.`);
+    }
+
+    if (data instanceof PrimitiveMetaDatum) {
+      throw new Error(`Wrong path, expected end at ${data.name}, was followed by ${lastEdge}`);
+    }
+
+    if (!isNaN(+lastEdge)) {
+      if (!Array.isArray(data)) {
+        throw new Error(`Wrong path, expected list before end, got ${data.name}`);
+      }
+
+      if (data.length <= 0) {
+        throw new Error(`Cannot remove from empty list of ${prop.name}.`);
+      }
+
+      if (arity.min && data.length <= arity.min) {
+        throw new Error(`Cannot remove from list of ${prop.name}, already at minimum arity.`);
+      }
+
+      data.splice(+lastEdge, 1);
+      return;
+    }
+
+    delete (data as StructuredMetaDatum).data[lastEdge];
   }
 
   *preOrderTraversal(path: string = "",
@@ -290,9 +331,18 @@ function parsePath(path: string) {
 
 function createMetaDatum(property: MetaProperty): MetaDatum {
   if (property instanceof StructuredMetaProperty) {
-    const values: {[p: string]: MetaDatum[]} = Object.fromEntries(
-      Object.values(property.children).map(
-        ({property}) => [property.name, [createMetaDatum(property)]]
+    // Instantiate StructuredMetaDatum child metadata
+    const values: {[p: string]: MetaDatum[]} =
+      Object.fromEntries(
+        Object.values(property.children)
+          .map(({arity, property}) =>
+            [
+              property.name,
+              // Instantiate according to minimal arity (unless optional, which is instantiated regardless)
+              // [createMetaDatum(property)]
+              [... new Array(arity.min ?? (arity.max === 1 ? 1 : 0))]
+                .map(() => createMetaDatum(property))
+            ]
       )
     );
     return new StructuredMetaDatum(property.name, values);

@@ -33,6 +33,21 @@ export default function KnowledgeBaseEditor(): ReactElement {
     const copy = copyKnowledgeBase(knowledgeBase!);
     copy.model.setValue(path, val);
     setKnowledgeBase(copy);
+    console.log("setModelProp(", path, ",", val, ") ", knowledgeBase, " -->", copy);
+  }
+
+  function extendModelProp(path: string) {
+    const copy = copyKnowledgeBase(knowledgeBase!);
+    copy.model.addValue(path);
+    setKnowledgeBase(copy);
+    console.log("extendModelProp(", path, ") ", knowledgeBase, " -->", copy);
+  }
+
+  function deleteModelProp(path: string) {
+    const copy = copyKnowledgeBase(knowledgeBase!);
+    copy.model.deleteValue(path);
+    setKnowledgeBase(copy);
+    console.log("deleteModelProp(", path, ") ", knowledgeBase, " -->", copy);
   }
 
   function setActiveFormat(format: MetaFormat) {
@@ -56,8 +71,8 @@ export default function KnowledgeBaseEditor(): ReactElement {
   updateDocumentTitle()
 
   return (
-    <div className="p-5">
-      <div className="flex justify-center">
+    <div>
+      <div className="flex justify-center pt-6 min-h-[10vh] bg-gradient-to-t from-white to-gray-100">
         <div className="relative mb-3 md:w-96">
           <TEInput
             type="text"
@@ -75,12 +90,14 @@ export default function KnowledgeBaseEditor(): ReactElement {
       </div>
       <hr className="h-px my-4 bg-gray-200 border-0 dark:bg-gray-700" />
       <div className="flex justify-center">
-        <div className="block w-3/4 rounded-lg bg-white px-6 py-3 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] dark:bg-neutral-700">
+        <div className="block w-3/4 rounded-lg bg-white px-6 py-3">
           {knowledgeBase ? (
             <KnowledgeBaseEditorNode
               model={knowledgeBase.model}
               path=''
               setProperty={setModelProp}
+              extendProperty={extendModelProp}
+              deleteProperty={deleteModelProp}
             />
           ) : (
             <div>Loading meta formats...</div>

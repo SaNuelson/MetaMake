@@ -17,6 +17,14 @@ const Long = new MetaFormat(
       )
     },
     {
+      arity: { min: 3 },
+      property: new MetaProperty(
+        'Keyword',
+        'Single-word keyword describing the content of the dataset',
+        'string'
+      )
+    },
+    {
       arity: { min: 2 },
       property: new StructuredMetaProperty('Topic', 'Single topic of the dataset', [
         {

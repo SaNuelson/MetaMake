@@ -7,6 +7,7 @@ import Long from '../format/Long'
 import { randomUUID } from 'node:crypto'
 import MetaStore from '../data/MetaStore'
 import TitleOnly from "../format/TitleOnly";
+import DcatApCz from "../format/DcatApCz";
 
 class KnowledgeBaseManager {
   // region MetaFormats
@@ -14,7 +15,8 @@ class KnowledgeBaseManager {
     [TitleOnly.name]: TitleOnly,
     [Essential.name]: Essential,
     [Basic.name]: Basic,
-    [Long.name]: Long
+    [Long.name]: Long,
+    [DcatApCz.name]: DcatApCz
   }
 
   public getMetaFormatList(): string[] {

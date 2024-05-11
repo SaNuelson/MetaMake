@@ -1,24 +1,11 @@
 import { ReactElement, useState } from "react";
 import { MetaModelEditorNode } from "./MetaModelEditorNode";
 import MetaModel from "../../../../../common/dto/MetaModel";
-import { MetaBase } from "../../../../../common/dto/MetaModelSource";
-import Essential from "../../../../../main/format/Essential";
-import { KnowledgeBase } from "../../../../../common/dto/KnowledgeBase";
+import { useMetaBase } from "../../hooks/use-meta-base";
 
 export default function MetaModelEditor(): ReactElement {
-  const metaBase: MetaBase = [
-    [new MetaModel(Essential), {name: "Alpha", label: "A"}],
-    [new MetaModel(Essential), {name: "Beta", label: "B"}]
-  ]
-  const alpha = metaBase[0][0];
-  alpha.setValue(".Title", "Alpha Data");
-  alpha.setValue(".Description", "Alpha Description");
-  const beta = metaBase[1][0];
-  beta.setValue(".Title", "Beta Data");
-  beta.setValue(".Description", "Beta Description");
 
-  const isComplete = true;
-  //const { metaBase, isComplete } = useMetaBase();
+  const { metaBase, isComplete } = useMetaBase();
   const [ finalModel, setFinalModel] = useState<MetaModel|undefined>(undefined);
 
   function copyModel(model: MetaModel): MetaModel {
