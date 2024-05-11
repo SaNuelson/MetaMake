@@ -1,4 +1,4 @@
-import MetaProperty, { MandatoryArity, OptionalArity, Some, StructuredMetaProperty } from "../MetaProperty";
+import MetaProperty, { MandatoryArity, OptionalArity, OneOrMoreArity, StructuredMetaProperty } from "../MetaProperty";
 import MetaFormat from "../MetaFormat";
 import MetaModel from "../MetaModel";
 import { strict as assert } from 'node:assert'
@@ -26,7 +26,7 @@ describe('MetaModel, when constructed', () => {
     [
       {arity: MandatoryArity, property: titleProp},
       {arity: {min:3, max:10}, property: keywordProp},
-      {arity: Some, property: authorsProp}
+      {arity: OneOrMoreArity, property: authorsProp}
     ]
   );
 
