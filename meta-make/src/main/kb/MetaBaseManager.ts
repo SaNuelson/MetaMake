@@ -3,7 +3,8 @@ import MetaFormat from "../../common/dto/MetaFormat";
 import generateMetadata from "../processing/generator";
 import { broadcastToWindows } from "../events";
 import { EventType } from "../../common/constants";
-import { MetaBase } from "../../common/dto/MetaModelSource";
+import MetaModelSource, { MetaBase } from "../../common/dto/MetaModelSource";
+import MetaModel from "../../common/dto/MetaModel";
 
 class MetaBaseManager {
 
@@ -14,11 +15,22 @@ class MetaBaseManager {
     return this._format!;
   }
 
-  private _models?: MetaBase;
-  get models(): MetaBase {
+  private _models?: [MetaModel, MetaModelSource][];
+  get models(): [MetaModel, MetaModelSource][] {
     if (!this._active)
       throw new Error("Inactive MetaBaseManager");
-    return [...this._models!];
+    return this._models!;
+  }
+
+  get metaBase(): MetaBase {
+    if (!this._active || !this._models || !this._format) {
+      throw new Error("No active metabase.");
+    }
+
+    return {
+      format: this._format,
+      models: this._models
+    }
   }
 
   private _active: boolean = false;

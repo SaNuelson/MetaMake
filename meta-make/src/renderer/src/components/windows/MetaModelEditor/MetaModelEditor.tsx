@@ -25,11 +25,11 @@ export default function MetaModelEditor(): ReactElement {
   }
 
   if (!finalModel)
-    setFinalModel(new MetaModel(metaBase[0][0].metaFormat));
+    setFinalModel(new MetaModel(metaBase!.format));
 
   return (
     <div>
-      <MetaModelEditorNode model={finalModel!} path=''  metaBase={metaBase} setProperty={setModelProp}/>
+      <MetaModelEditorNode model={finalModel!} path=''  metaBase={metaBase!} setProperty={setModelProp}/>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import MetaModel from "./MetaModel";
+import MetaFormat from "./MetaFormat";
 
 
 export default interface MetaModelSource {
@@ -6,4 +7,7 @@ export default interface MetaModelSource {
   label: string
 }
 
-export type MetaBase = [MetaModel, MetaModelSource][]
+export type MetaBase = {
+  format: MetaFormat,
+  models: [MetaModel, MetaModelSource][]
+}

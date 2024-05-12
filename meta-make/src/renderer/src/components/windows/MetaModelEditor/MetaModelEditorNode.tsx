@@ -62,13 +62,13 @@ export function MetaModelEditorNode({ model, metaBase, path, setProperty}: NodeP
   }
 
   const value = data.value;
-  const alternatives: any[] = metaBase.map(([model, source]) => model.getValue(path));
+  const alternatives: any[] = metaBase.models.map(([model, source]) => model.getValue(path));
   console.log("KBEditNode[primitive]", model, path, arity, property, data, value, alternatives, alternatives.map(((alt, i) => ({name: alt, value: i+1}))));
 
   return PrimitiveModelEditorNode({
     property: property,
     value: data.value,
-    alternatives: metaBase.map(([model, source]) => ({source, value: model.getValue(path)})),
+    alternatives: metaBase.models.map(([model, source]) => ({source, value: model.getValue(path)})),
     setValue: (value) => setProperty(path, value)
   });
 }

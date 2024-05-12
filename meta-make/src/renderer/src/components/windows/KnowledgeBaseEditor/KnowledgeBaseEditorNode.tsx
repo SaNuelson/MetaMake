@@ -5,7 +5,7 @@ import MetaModel, { PrimitiveMetaDatum } from '../../../../../common/dto/MetaMod
 import { Button } from '../../common/Buttons'
 import { IoCloseOutline } from 'react-icons/io5'
 import { SlArrowDown, SlArrowUp } from 'react-icons/sl'
-import { VscAdd } from "react-icons/vsc";
+import { VscAdd } from 'react-icons/vsc'
 
 type NodeProps = {
   model: MetaModel
@@ -15,7 +15,13 @@ type NodeProps = {
   deleteProperty: (path: string) => void
 }
 
-export function KnowledgeBaseEditorNode({ model, path, setProperty, extendProperty, deleteProperty }: NodeProps): ReactElement {
+export function KnowledgeBaseEditorNode({
+  model,
+  path,
+  setProperty,
+  extendProperty,
+  deleteProperty
+}: NodeProps): ReactElement {
   console.log(model, path)
   const [arity, property, data] = model.getData(path)
   console.log('+', arity, property, data)
@@ -23,23 +29,33 @@ export function KnowledgeBaseEditorNode({ model, path, setProperty, extendProper
   if (Array.isArray(data)) {
     console.log('KBEditNode[array]', model, path, arity, property, data)
 
-    const canAdd = !arity.max || data.length < arity.max;
-    const canDelete = !arity.min || arity.min < data.length;
+    const canAdd = !arity.max || data.length < arity.max
+    const canDelete = !arity.min || arity.min < data.length
 
     return (
       <div className="mt-8">
-        <label>{property.name}</label>
+        <label>
+          {property.name} ({arity.min ?? 0}..{arity.max ?? 'N'})
+        </label>
+        <br />
+        <small className="w-full text-neutral-500 dark:text-neutral-200">
+          {property.description}
+        </small>
         <ul className="ml-2">
           {data.map((item, idx) => (
             <li key={idx}>
               <div className="flex my-4">
                 <div className="flex-1 flex flex-col justify-center">
-                  {KnowledgeBaseEditorNode({ model, path: `${path}[${idx}]`, setProperty, extendProperty, deleteProperty })}
+                  {KnowledgeBaseEditorNode({
+                    model,
+                    path: `${path}[${idx}]`,
+                    setProperty,
+                    extendProperty,
+                    deleteProperty
+                  })}
                 </div>
                 <div className="flex flex-col justify-center mx-2">
-                  <Button
-                    sm
-                    rounded="top">
+                  <Button sm rounded="top">
                     <SlArrowUp />
                   </Button>
                   <Button
@@ -50,9 +66,7 @@ export function KnowledgeBaseEditorNode({ model, path, setProperty, extendProper
                   >
                     <IoCloseOutline />
                   </Button>
-                  <Button
-                    sm
-                    rounded="bottom">
+                  <Button sm rounded="bottom">
                     <SlArrowDown />
                   </Button>
                 </div>
@@ -79,24 +93,21 @@ export function KnowledgeBaseEditorNode({ model, path, setProperty, extendProper
   if (property.type === 'object') {
     console.log('KBEditNode[object]', model, path, arity, property, data)
     return (
-      <div
-        className="block w-full my-2 rounded-lg bg-white px-4 py-6 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]"
-      >
+      <div className="block w-full my-2 rounded-lg bg-white px-4 py-6 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
         <ul className="ml-2">
-          {Object.values((property as StructuredMetaProperty).children).map(({ property }, idx, arr) => (
-            <li
-              key={idx}
-              className={idx < arr.length - 1 ? 'mb-6' : ''}
-            >
-              {KnowledgeBaseEditorNode({
-                model,
-                path: [path, property.name].join('.'),
-                setProperty,
-                extendProperty,
-                deleteProperty
-              })}
-            </li>
-          ))}
+          {Object.values((property as StructuredMetaProperty).children).map(
+            ({ property }, idx, arr) => (
+              <li key={idx} className={idx < arr.length - 1 ? 'mb-6' : ''}>
+                {KnowledgeBaseEditorNode({
+                  model,
+                  path: [path, property.name].join('.'),
+                  setProperty,
+                  extendProperty,
+                  deleteProperty
+                })}
+              </li>
+            )
+          )}
         </ul>
       </div>
     )
@@ -106,6 +117,8 @@ export function KnowledgeBaseEditorNode({ model, path, setProperty, extendProper
     throw new Error('Malformed data: Property structured, datum is not.')
   }
 
+  const isInArray = !arity.max || arity.max > 1
+  console.log("is in array", isInArray, arity.max);
   const value = data.value
   console.log('KBEditNode[primitive]', model, path, arity, property, data, value)
 
@@ -116,9 +129,11 @@ export function KnowledgeBaseEditorNode({ model, path, setProperty, extendProper
       value={value ?? ''}
       onChange={(ev) => setProperty(path, ev.target.value)}
     >
-      <small id="emailHelp2" className="absolute w-full text-neutral-500 dark:text-neutral-200">
-        {property.description}
-      </small>
+      {!isInArray && (
+        <small className="absolute w-full text-neutral-500 dark:text-neutral-200">
+          {property.description}
+        </small>
+      )}
     </TEInput>
   )
 }

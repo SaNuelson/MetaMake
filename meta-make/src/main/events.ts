@@ -30,7 +30,7 @@ export const indexMainEventHandlers: { [type in EventType]?: MainElectronEventHa
   [EventType.KnowledgeBaseListRequested]: (_, formatName?: string) => KnowledgeBaseManager.getKnowledgeBaseList(formatName),
   [EventType.KnowledgeBaseRequested]: (_, id: string) => KnowledgeBaseManager.getKnowledgeBase(id),
 
-  [EventType.MetaBaseRequested]: () => MetaBaseManager.models,
+  [EventType.MetaBaseRequested]: () => MetaBaseManager.metaBase,
   //endregion
 
   //region SET
