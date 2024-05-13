@@ -1,6 +1,5 @@
-import { ReactElement, useState } from "react";
-import MetaProperty, { ArityBounds, StructuredMetaProperty } from "../../../../../common/dto/MetaProperty";
-import { TEInput } from 'tw-elements-react'
+import { ReactElement } from "react";
+import MetaProperty, { StructuredMetaProperty } from "../../../../../common/dto/MetaProperty";
 import MetaModel, { PrimitiveMetaDatum } from '../../../../../common/dto/MetaModel'
 import { Button } from '../../common/Buttons'
 import { IoCloseOutline } from 'react-icons/io5'
@@ -145,34 +144,13 @@ function PrimitiveNode(
     value: any,
     setValue: (path: string, value: any) => void
   }) {
-  const [isInputActive, setInputActive] = useState(false);
-
   return (
     <Input
       label={property.name}
       type={property.type}
       value={value ?? ''}
-      onFocus={() => {setInputActive(true); return true;}}
-      onBlur={() => {setInputActive(false); return true;}}
       onChange={(ev) => setValue(path, ev.target.value)}
-      tooltip={showDescription && property.description}
+      tooltip={showDescription ? property.description : undefined}
     />
-  )
-
-  return (
-    <TEInput
-      label={property.name}
-      type={property.type}
-      value={value ?? ''}
-      onFocus={() => {setInputActive(true); return true;}}
-      onBlur={() => {setInputActive(false); return true;}}
-      onChange={(ev) => setValue(path, ev.target.value)}
-    >
-      {showDescription && (
-        <small className={"absolute w-full  dark:text-neutral-200 transition-all" + (isInputActive ? " text-primary-500 bg-white" : " h-0 bg-transparent text-transparent")}>
-          {property.description}
-        </small>
-      )}
-    </TEInput>
-  )
+  );
 }

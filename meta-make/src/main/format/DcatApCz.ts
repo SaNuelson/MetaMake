@@ -1,11 +1,8 @@
 import MetaProperty, {
-  UnboundedArity,
-  MandatoryArity,
-  OptionalArity,
-  OneOrMoreArity,
   StructuredMetaProperty
 } from '../../common/dto/MetaProperty'
 import MetaFormat from '../../common/dto/MetaFormat'
+import { MandatoryArity, OneOrMoreArity, OptionalArity, UnboundedArity } from "../../common/dto/ArityBounds";
 
 // region 3.5 Třída: Datová služba
 const DatovaSluzba = new StructuredMetaProperty(

@@ -37,7 +37,10 @@ $ npm run build:linux
   - [x] KB is given a new unique ID
   - [x] KB is saved to disk
 - [x] KBEditor, ability to change KB & save changes
-- [ ]
+- [ ] Extend MetaFormat for array of exporters
+- [ ] Extend MetaBase to support varied helper model formats
+  - [ ] Extend MetaBase to pass processed models to later generators
+- [ ] Extend MetaProperty with conditionals
 
 ### Buglist
 

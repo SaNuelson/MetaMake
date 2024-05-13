@@ -70,7 +70,7 @@ export function Input({ label, tooltip, onFocus, onBlur, ...rest }: InputProps) 
       {tooltip &&
         <small className={'transition-all duration-300 pt-2 pl-2 ease-linear block ' +
           (isActive
-            ? 'max-h-36 text-secondary-800 bg-primary-50'
+            ? 'max-h-36 text-secondary-800'
             : 'max-h-0 text-transparent invisible')}
         >
           {tooltip}

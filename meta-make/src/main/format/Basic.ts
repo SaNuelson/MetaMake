@@ -1,5 +1,6 @@
 import MetaFormat from '../../common/dto/MetaFormat'
-import MetaProperty, { MandatoryArity, StructuredMetaProperty } from "../../common/dto/MetaProperty";
+import MetaProperty, { StructuredMetaProperty } from "../../common/dto/MetaProperty";
+import { MandatoryArity } from "../../common/dto/ArityBounds";
 
 const Basic = new MetaFormat(
   'Basic',

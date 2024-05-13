@@ -1,6 +1,7 @@
 import MetaFormat from "./MetaFormat";
-import MetaProperty, { ArityBounds, MandatoryArity, StructuredMetaProperty } from "./MetaProperty";
+import MetaProperty, { StructuredMetaProperty } from "./MetaProperty";
 import Restructurable from "./Restructurable";
+import { ArityBounds, MandatoryArity } from "./ArityBounds";
 
 export default class MetaModel extends Restructurable {
   metaFormat: MetaFormat;
