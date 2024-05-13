@@ -339,8 +339,7 @@ function createMetaDatum(property: MetaProperty): MetaDatum {
             [
               property.name,
               // Instantiate according to minimal arity (unless optional, which is instantiated regardless)
-              // [createMetaDatum(property)]
-              [... new Array(arity.min ?? (arity.max === 1 ? 1 : 0))]
+              [... new Array((arity.max && arity.max <= 1) ? arity.max : arity.min)]
                 .map(() => createMetaDatum(property))
             ]
       )

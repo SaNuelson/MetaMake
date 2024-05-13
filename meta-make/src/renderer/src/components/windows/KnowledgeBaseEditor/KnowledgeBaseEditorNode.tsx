@@ -1,11 +1,12 @@
-import { ReactElement } from 'react'
-import { StructuredMetaProperty } from '../../../../../common/dto/MetaProperty'
+import { ReactElement, useState } from "react";
+import MetaProperty, { ArityBounds, StructuredMetaProperty } from "../../../../../common/dto/MetaProperty";
 import { TEInput } from 'tw-elements-react'
 import MetaModel, { PrimitiveMetaDatum } from '../../../../../common/dto/MetaModel'
 import { Button } from '../../common/Buttons'
 import { IoCloseOutline } from 'react-icons/io5'
 import { SlArrowDown, SlArrowUp } from 'react-icons/sl'
 import { VscAdd } from 'react-icons/vsc'
+import { Input } from "../../common/Inputs";
 
 type NodeProps = {
   model: MetaModel
@@ -34,6 +35,7 @@ export function KnowledgeBaseEditorNode({
 
     return (
       <div className="mt-8">
+        <hr className="h-px my-4 bg-gray-200 border-0 dark:bg-gray-700" />
         <label>
           {property.name} ({arity.min ?? 0}..{arity.max ?? 'N'})
         </label>
@@ -118,19 +120,56 @@ export function KnowledgeBaseEditorNode({
   }
 
   const isInArray = !arity.max || arity.max > 1
-  console.log("is in array", isInArray, arity.max);
-  const value = data.value
-  console.log('KBEditNode[primitive]', model, path, arity, property, data, value)
+
+  return (
+    <PrimitiveNode
+      showDescription={!isInArray}
+      property={property}
+      path={path}
+      value={data.value}
+      setValue={setProperty} />
+  );
+}
+
+function PrimitiveNode(
+  {
+    showDescription,
+    property,
+    path,
+    value,
+    setValue
+  } : {
+    showDescription: boolean,
+    property: MetaProperty,
+    path: string,
+    value: any,
+    setValue: (path: string, value: any) => void
+  }) {
+  const [isInputActive, setInputActive] = useState(false);
+
+  return (
+    <Input
+      label={property.name}
+      type={property.type}
+      value={value ?? ''}
+      onFocus={() => {setInputActive(true); return true;}}
+      onBlur={() => {setInputActive(false); return true;}}
+      onChange={(ev) => setValue(path, ev.target.value)}
+      tooltip={showDescription && property.description}
+    />
+  )
 
   return (
     <TEInput
       label={property.name}
       type={property.type}
       value={value ?? ''}
-      onChange={(ev) => setProperty(path, ev.target.value)}
+      onFocus={() => {setInputActive(true); return true;}}
+      onBlur={() => {setInputActive(false); return true;}}
+      onChange={(ev) => setValue(path, ev.target.value)}
     >
-      {!isInArray && (
-        <small className="absolute w-full text-neutral-500 dark:text-neutral-200">
+      {showDescription && (
+        <small className={"absolute w-full  dark:text-neutral-200 transition-all" + (isInputActive ? " text-primary-500 bg-white" : " h-0 bg-transparent text-transparent")}>
           {property.description}
         </small>
       )}
