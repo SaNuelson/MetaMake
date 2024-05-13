@@ -26,12 +26,14 @@ export default function KnowledgeBaseEditor(): ReactElement {
     const copy = copyKnowledgeBase(knowledgeBase!);
     copy[key] = val;
     setKnowledgeBase(copy);
+    setIsChanged(true);
     updateDocumentTitle()
   }
 
   function setModelProp(path: string, val: any) {
     const copy = copyKnowledgeBase(knowledgeBase!);
     copy.model.setValue(path, val);
+    setIsChanged(true);
     setKnowledgeBase(copy);
     console.log("setModelProp(", path, ",", val, ") ", knowledgeBase, " -->", copy);
   }
@@ -39,6 +41,7 @@ export default function KnowledgeBaseEditor(): ReactElement {
   function extendModelProp(path: string) {
     const copy = copyKnowledgeBase(knowledgeBase!);
     copy.model.addValue(path);
+    setIsChanged(true);
     setKnowledgeBase(copy);
     console.log("extendModelProp(", path, ") ", knowledgeBase, " -->", copy);
   }
@@ -46,6 +49,7 @@ export default function KnowledgeBaseEditor(): ReactElement {
   function deleteModelProp(path: string) {
     const copy = copyKnowledgeBase(knowledgeBase!);
     copy.model.deleteValue(path);
+    setIsChanged(true);
     setKnowledgeBase(copy);
     console.log("deleteModelProp(", path, ") ", knowledgeBase, " -->", copy);
   }
@@ -61,13 +65,13 @@ export default function KnowledgeBaseEditor(): ReactElement {
   }
 
   function updateDocumentTitle() {
-    document.title = knowledgeBase ? `${knowledgeBase.name} - ${knowledgeBase.format.name}` : 'Knowledge Base Editor';
+    document.title = knowledgeBase ? `${knowledgeBase.name} - ${knowledgeBase.format.name}${isChanged ? '*' : ''}` : 'Knowledge Base Editor';
   }
 
-  const [isModalShown, showModal] = useState(false)
-
-  const isChanged = false
+  const [isModalShown, setIsModalShown] = useState(false)
+  const [isChanged, setIsChanged] = useState(false)
   const navigation = useNavigate()
+
   updateDocumentTitle()
 
   return (
@@ -106,7 +110,7 @@ export default function KnowledgeBaseEditor(): ReactElement {
       </div>
       <hr className="h-px my-4 bg-gray-200 border-0 dark:bg-gray-700" />
       <div className="flex justify-around">
-        <button onClick={() => (isChanged ? showModal(true) : navigation(-1))} className="">
+        <button onClick={() => (isChanged ? setIsModalShown(true) : navigation(-1))} className="">
           Back
         </button>
         <button
@@ -124,6 +128,7 @@ export default function KnowledgeBaseEditor(): ReactElement {
       <Modal
         title="Discard changes?"
         isShown={isModalShown}
+        setIsShown={setIsModalShown}
         hasCloseButton={true}
         buttonConfig={[
           {
@@ -136,7 +141,7 @@ export default function KnowledgeBaseEditor(): ReactElement {
           { text: 'No', onClick: () => true }
         ]}
       >
-        This knowledge base is not saved. Are you sure you want to go back and discard+
+        This knowledge base is not saved. Are you sure you want to go back and discard?
       </Modal>
     </div>
   )

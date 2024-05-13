@@ -17,6 +17,7 @@ type ModalButtonConfig = {
 type Props = {
   title?: string
   isShown?: boolean
+  setIsShown: (isShown: boolean) => void
 
   hasCloseButton?: boolean
   onClose?: () => boolean
@@ -29,17 +30,16 @@ type Props = {
 export default function Modal({
   title = "Modal",
   isShown = false,
+  setIsShown,
   hasCloseButton = true,
   onClose = () => true,
   children = [],
   buttonConfig = [{text: "OK", onClick: () => true}]
 }: Props): React.JSX.Element {
 
-  const [showModal, setShowModal] = useState(isShown);
-
   return (
     <div>
-      <TEModal show={showModal} setShow={setShowModal}>
+      <TEModal show={isShown} setShow={setIsShown}>
         <TEModalDialog>
           <TEModalContent>
             <TEModalHeader>
@@ -50,7 +50,7 @@ export default function Modal({
                 <button
                   type="button"
                   className="box-content rounded-none border-none hover:no-underline hover:opacity-75 focus:opacity-100 focus:shadow-none focus:outline-none"
-                  onClick={() => onClose() || setShowModal(false)}
+                  onClick={() => onClose() || setIsShown(false)}
                   aria-label="Close"
                 >
                   <svg
@@ -77,7 +77,7 @@ export default function Modal({
                   <button
                     type="button"
                     className="inline-block rounded bg-primary-100 px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-primary-700 transition duration-150 ease-in-out hover:bg-primary-accent-100 focus:bg-primary-accent-100 focus:outline-none focus:ring-0 active:bg-primary-accent-200"
-                    onClick={() => cfg.onClick() && setShowModal(false)}
+                    onClick={() => cfg.onClick() && setIsShown(false)}
                   >
                     {cfg.text}
                   </button>
