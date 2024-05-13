@@ -95,6 +95,13 @@ export function KnowledgeBaseEditorNode({
     console.log('KBEditNode[object]', model, path, arity, property, data)
     return (
       <div className="block w-full my-2 rounded-lg bg-white px-4 py-6 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
+        <label>
+          {property.name} ({arity.min ?? 0}..{arity.max ?? 'N'})
+        </label>
+        <br />
+        <small className="w-full text-neutral-500 dark:text-neutral-200">
+          {property.description}
+        </small>
         <ul className="ml-2">
           {Object.values((property as StructuredMetaProperty).children).map(
             ({ property }, idx, arr) => (
@@ -126,8 +133,9 @@ export function KnowledgeBaseEditorNode({
       property={property}
       path={path}
       value={data.value}
-      setValue={setProperty} />
-  );
+      setValue={setProperty}
+    />
+  )
 }
 
 function PrimitiveNode(

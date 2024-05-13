@@ -41,6 +41,7 @@ $ npm run build:linux
 - [ ] Extend MetaBase to support varied helper model formats
   - [ ] Extend MetaBase to pass processed models to later generators
 - [ ] Extend MetaProperty with conditionals
+- [ ] Extend MetaProperty with linked data versions (i.e., codebooks)
 
 ### Buglist
 

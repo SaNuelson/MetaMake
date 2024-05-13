@@ -40,9 +40,17 @@ export interface InputProps extends React.DetailedHTMLProps<React.InputHTMLAttri
   tooltip?: string
 }
 
-export function Input({ label, tooltip, onFocus, onBlur, ...rest }: InputProps) {
+export function Input({ label, tooltip, type, ...rest }: InputProps) {
   const id = useId();
   const [isActive, setIsActive] = useState(false);
+
+  function onFocus() {
+    setIsActive(true);
+  }
+
+  function onBlur() {
+    setIsActive(false);
+  }
 
   const isLabelCentered = !isActive && !rest.value;
   return (
@@ -63,8 +71,9 @@ export function Input({ label, tooltip, onFocus, onBlur, ...rest }: InputProps) 
           (isActive
             ? 'outline-primary-500'
             : 'outline-primary-200')}
-        onFocus={joinEventHandlers(() => setIsActive(true), onFocus)}
-        onBlur={joinEventHandlers(() => setIsActive(false), onBlur)}
+        onFocus={joinEventHandlers(onFocus, rest.onFocus)}
+        onBlur={joinEventHandlers(onBlur, rest.onBlur)}
+        type={!isLabelCentered ? type : 'text'}
         {...rest}
       />
       {tooltip &&
