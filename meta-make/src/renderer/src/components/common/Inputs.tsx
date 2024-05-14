@@ -17,11 +17,7 @@ export interface OptionData {
   value: string | number | undefined
 }
 
-interface SelectProps
-  extends React.DetailedHTMLProps<
-    React.SelectHTMLAttributes<HTMLSelectElement>,
-    HTMLSelectElement
-  > {
+interface SelectProps extends React.DetailedHTMLProps<React.SelectHTMLAttributes<HTMLSelectElement>, HTMLSelectElement> {
   data: OptionData[]
 }
 
@@ -37,11 +33,13 @@ export function Select({ data, ...rest }: SelectProps) {
 
 export interface InputProps extends React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> {
   label?: string,
-  tooltip?: string
+  tooltip?: string,
+  data?: OptionData[]
 }
 
-export function Input({ label, tooltip, type, ...rest }: InputProps) {
-  const id = useId();
+export function Input({ label, tooltip, type, className, data, ...rest }: InputProps) {
+  const inputId = useId();
+  const datalistId = useId();
   const [isActive, setIsActive] = useState(false);
 
   function onFocus() {
@@ -54,9 +52,9 @@ export function Input({ label, tooltip, type, ...rest }: InputProps) {
 
   const isLabelCentered = !isActive && !rest.value;
   return (
-    <div>
+    <div className={className}>
       {label &&
-        <label htmlFor={id} className={'absolute select-none cursor-text px-2 transition-all ' +
+        <label htmlFor={inputId} className={'absolute select-none cursor-text px-2 transition-all ' +
           (isLabelCentered
             ? 'translate-y-2'
             : 'translate-x-1 -translate-y-[calc(100%+0.25rem)] text-sm rounded-t ')}
@@ -65,7 +63,7 @@ export function Input({ label, tooltip, type, ...rest }: InputProps) {
         </label>
       }
       <input
-        id={id}
+        id={inputId}
         placeholder=''
         className={'w-full p-1.5 rounded bg-primary-50 ' +
           (isActive
@@ -74,6 +72,7 @@ export function Input({ label, tooltip, type, ...rest }: InputProps) {
         onFocus={joinEventHandlers(onFocus, rest.onFocus)}
         onBlur={joinEventHandlers(onBlur, rest.onBlur)}
         type={!isLabelCentered ? type : 'text'}
+        list={data && datalistId}
         {...rest}
       />
       {tooltip &&
@@ -84,6 +83,11 @@ export function Input({ label, tooltip, type, ...rest }: InputProps) {
         >
           {tooltip}
         </small>
+      }
+      {data &&
+        <datalist id={datalistId}>
+          {data.map(({text, value}) => <option value={value}>{text}</option>)}
+        </datalist>
       }
     </div>
   )

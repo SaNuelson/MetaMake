@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { MetaBase } from "../../../../common/dto/MetaModelSource";
 
 type UseMetaBasewReturn = {
-  metaBase: MetaBase | undefined,
-  isComplete: boolean
+  metaBase: MetaBase | undefined
 }
 
 export function useMetaBase(): UseMetaBasewReturn {
@@ -13,16 +12,28 @@ export function useMetaBase(): UseMetaBasewReturn {
   useEffect(() => {
     // Check if processed before, or wait to be processed after
     window.api.checkDataProcessed()
-      .then(isProcessed => isProcessed && setIsDataProcessed(true))
+      .then(isProcessed => {
+        if (isProcessed) {
+          console.log("Data processed before first check.");
+          setIsDataProcessed(true)
+        }
+      })
     window.api.listenDataProcessed(() => {
+      console.log("Data processed on callback");
       setIsDataProcessed(true);
     })
   }, []);
 
   useEffect(() => {
+    if (!isDataProcessed)
+      return;
+
     window.api.requestMetaBase()
-      .then(setMetaBase);
+      .then(base => {
+        console.log("MetaBase retrieved", base);
+        setMetaBase(base)
+      });
   }, [isDataProcessed]);
 
-  return { metaBase, isComplete: isDataProcessed };
+  return { metaBase };
 }

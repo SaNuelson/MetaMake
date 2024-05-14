@@ -47,13 +47,13 @@ export function KnowledgeBaseEditorNode({
             <li key={idx}>
               <div className="flex my-4">
                 <div className="flex-1 flex flex-col justify-center">
-                  {KnowledgeBaseEditorNode({
-                    model,
-                    path: `${path}[${idx}]`,
-                    setProperty,
-                    extendProperty,
-                    deleteProperty
-                  })}
+                  <KnowledgeBaseEditorNode
+                    model={model}
+                    path={`${path}[${idx}]`}
+                    setProperty={setProperty}
+                    extendProperty={extendProperty}
+                    deleteProperty={deleteProperty}
+                  />
                 </div>
                 <div className="flex flex-col justify-center mx-2">
                   <Button sm rounded="top">
@@ -106,13 +106,13 @@ export function KnowledgeBaseEditorNode({
           {Object.values((property as StructuredMetaProperty).children).map(
             ({ property }, idx, arr) => (
               <li key={idx} className={idx < arr.length - 1 ? 'mb-6' : ''}>
-                {KnowledgeBaseEditorNode({
-                  model,
-                  path: [path, property.name].join('.'),
-                  setProperty,
-                  extendProperty,
-                  deleteProperty
-                })}
+                <KnowledgeBaseEditorNode
+                  model={model}
+                  path={[path, property.name].join('.')}
+                  setProperty={setProperty}
+                  extendProperty={extendProperty}
+                  deleteProperty={deleteProperty}
+                />
               </li>
             )
           )}
