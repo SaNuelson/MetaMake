@@ -1,6 +1,7 @@
 import Restructurable from './Restructurable'
 import { ArityBounds, isValidArity } from "./ArityBounds";
-import { CodebookEntry } from "../../main/format/fetchers/dcat.js";
+
+import { CodebookEntry } from "./CodebookEntry.js";
 
 type PropertyType = 'string' | 'number' | 'object' | 'array' | 'boolean' | 'date';
 type PropertySubType = 'email' | 'url' | 'fileType' | 'mediaType' | 'conformsTo' | 'frequency' | 'dataTheme' | 'spatial' | 'geographical' | 'eurovoc' |'enum';

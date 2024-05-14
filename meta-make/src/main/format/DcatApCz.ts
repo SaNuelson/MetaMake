@@ -9,8 +9,9 @@ import {
   OptionalArity,
   UnboundedArity
 } from '../../common/dto/ArityBounds'
-import { CodebookEntry, getEuCodebook } from './fetchers/dcat.js'
+import { getEuCodebook } from './fetchers/dcat.js'
 import MetaStore from '../data/MetaStore.js'
+import { CodebookEntry } from "../../common/dto/CodebookEntry.js";
 
 const ThemeCodebook: CodebookEntry[] = await MetaStore.getCached(
   async () => getEuCodebook('http://publications.europa.eu/resource/authority/data-theme', 'cs'),

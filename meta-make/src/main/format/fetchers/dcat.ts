@@ -1,13 +1,9 @@
-import $rdf, { Namespace } from "rdflib";
-import { promisify } from "util";
-import { Literal } from "rdflib/lib/tf-types.js";
+import $rdf, { Namespace } from 'rdflib'
+import { promisify } from 'util'
+import { Literal } from 'rdflib/lib/tf-types.js'
+import { CodebookEntry } from '../../../common/dto/CodebookEntry.js'
 
-export interface CodebookEntry {
-  uri: string
-  label: string
-}
-
-const parseRdf = promisify($rdf.parse);
+const parseRdf = promisify($rdf.parse)
 
 const applicationRdfXml = "application/rdf+xml";
 
