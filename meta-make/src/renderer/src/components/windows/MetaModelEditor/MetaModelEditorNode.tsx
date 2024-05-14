@@ -1,11 +1,9 @@
-import { ReactElement, useState } from "react";
+import { ReactElement } from "react";
 import MetaProperty, { EnumMetaProperty, StructuredMetaProperty } from "../../../../../common/dto/MetaProperty";
 import MetaModel, { Primitive, PrimitiveMetaDatum } from "../../../../../common/dto/MetaModel";
 import { Button } from "../../common/Buttons";
 import { IoCloseOutline } from "react-icons/io5";
 import MetaModelSource, { MetaBase } from "../../../../../common/dto/MetaModelSource";
-import { TEInput, TESelect } from "tw-elements-react";
-import { SelectData } from "tw-elements-react/dist/types/forms/Select/types";
 import { SlArrowDown, SlArrowUp } from "react-icons/sl";
 import { VscAdd } from "react-icons/vsc";
 import { Input, OptionData, Select } from "../../common/Inputs.js";

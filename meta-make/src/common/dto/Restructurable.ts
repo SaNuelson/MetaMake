@@ -31,7 +31,7 @@ export default class Restructurable {
 
   private static __restructure(obj: any): Restructurable | Object | any /*primitive*/ {
     // primitive, keep as is
-    if (typeof obj !== 'object') {
+    if (typeof obj !== 'object' || obj === null) {
       if (debug)
         console.log('...restructure primitive of type', typeof obj)
       return obj
