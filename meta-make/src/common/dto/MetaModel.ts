@@ -124,8 +124,6 @@ export default class MetaModel extends Restructurable {
    * // result === [Mandatory: Arity, AwardedByProperty: MetaProperty, AwardedByValues: string[]]
    */
   private walk(path: string | string[]): [ArityBounds, MetaProperty, MetaDatum | MetaDatum[]] {
-    console.log('MetaModel.walk', path);
-
     const parsedPath = Array.isArray(path) ? path : parsePath(path);
 
     let arity: ArityBounds = MandatoryArity;

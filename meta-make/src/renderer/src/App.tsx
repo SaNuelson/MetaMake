@@ -7,10 +7,6 @@ import MetaModelEditor from "./components/windows/MetaModelEditor/MetaModelEdito
 
 class App extends React.Component {
   render(): React.JSX.Element {
-    const queryParameters = new URLSearchParams(window.location.search)
-    const knowledgeBase = queryParameters.get('kb')
-    console.log(`"${knowledgeBase}"`)
-
     return (
       <BrowserRouter>
         <Routes>

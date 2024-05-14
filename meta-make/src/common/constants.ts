@@ -48,5 +48,14 @@ export enum WindowType {
 
 export const Config = {
   kbPath: 'kbPath',
-  kbList: 'kbList'
+  kbList: 'kbList',
+  logLevel: 'logLevel'
 } as const;
+
+export enum LogLevel {
+  Error = 0,
+  Warning = 1,
+  Log = 2,
+  Verbose = 3,
+  Diagnostic = 4,
+}

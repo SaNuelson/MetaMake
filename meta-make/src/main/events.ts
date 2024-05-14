@@ -1,4 +1,4 @@
-import { EventType } from '../common/constants'
+import { EventType, LogLevel } from "../common/constants";
 import DataManager from './data/DataManager'
 import { BrowserWindow, ipcMain, IpcMainInvokeEvent, IpcRendererEvent } from 'electron'
 import KnowledgeBaseManager from './kb/KnowledgeBaseManager'
@@ -8,11 +8,10 @@ import {loadLocalDataFile, saveMetaModelFile} from "./commands/storage";
 import generateMetadata from "./processing/generator";
 import MetaBaseManager from "./kb/MetaBaseManager";
 import metaBaseManager from "./kb/MetaBaseManager";
+import MetaStore from "./data/MetaStore.js";
 
 type MainElectronEventHandler = (event: IpcMainInvokeEvent, ...args: any[]) => Promise<any> | any
 type RendererElectronEventHandler = (event: IpcRendererEvent, ...args: any[]) => (Promise<any>) | (any);
-
-const logLevel = 1;
 
 // HANDLING: RENDERER -> MAIN
 export const indexMainEventHandlers: { [type in EventType]?: MainElectronEventHandler} = {
@@ -62,7 +61,7 @@ export const indexRendererEventHandlers: { [type in EventType]?: RendererElectro
 }
 
 export function broadcastToWindows(eventType: string, ...args: any[]) {
-  if (logLevel > 0) {
+  if (MetaStore.logLevel >= LogLevel.Log) {
     console.log(`Broadcast MAIN -> WINDOWs (${eventType})`);
   }
   BrowserWindow.getAllWindows().forEach(window => window.webContents.send(eventType, ...args));
@@ -71,7 +70,7 @@ export function broadcastToWindows(eventType: string, ...args: any[]) {
 export function attachIndexEventHandlers() {
   Object.entries(indexMainEventHandlers)
     .forEach(([type, callback]) => {
-      if (logLevel <= 0) {
+      if (MetaStore.logLevel < LogLevel.Log) {
         ipcMain.handle(type, callback);
         return;
       }

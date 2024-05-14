@@ -18,8 +18,8 @@ const preloadWaitInterval = setInterval(() => {
 
 async function main() {
   const contextIsolated = await window.rawApi.isContextIsolated()
-  console.log("Context isolated?", contextIsolated);
   const debugEnabled = await window.rawApi.isDebugEnabled()
+  console.log("Context isolated?", contextIsolated);
   console.log("Debug enabled?", debugEnabled);
 
   if (contextIsolated) {

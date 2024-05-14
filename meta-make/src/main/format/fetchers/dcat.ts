@@ -2,7 +2,6 @@ import $rdf, {BlankNode, Namespace} from "rdflib";
 import { promisify } from "util";
 import { Literal } from "rdflib/lib/tf-types.js";
 import {JsonLdSerializer} from "jsonld-streaming-serializer";
-import { createWriteStream } from "node:fs";
 import { CodebookEntry } from "../../../common/dto/CodebookEntry.js";
 
 const parseRdf = promisify($rdf.parse);

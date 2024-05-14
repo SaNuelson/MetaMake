@@ -1,5 +1,7 @@
 import OpenAI from 'openai'
 import { TextContentBlock } from "openai/resources/beta/threads";
+import MetaStore from "../data/MetaStore.js";
+import { LogLevel } from "../../common/constants.js";
 
 const openAi = new OpenAI()
 
@@ -21,7 +23,8 @@ export class ThreadController {
   }
 
   public async addMessage(body: string) {
-    console.log(`ChatGPT <<\n${body}`)
+    if (MetaStore.logLevel >= LogLevel.Verbose)
+      console.log(`ChatGPT <<\n${body}`)
     await openAi.beta.threads.messages.create(
       this.thread.id,
       {
@@ -43,7 +46,8 @@ export class ThreadController {
       const messages = await openAi.beta.threads.messages.list(run.thread_id);
       const response = (messages.data[0].content[0] as TextContentBlock).text.value;
 
-      console.log(`ChatGPT >> ${response}`);
+      if (MetaStore.logLevel >= LogLevel.Verbose)
+        console.log(`ChatGPT >> ${response}`);
 
       return response;
     }

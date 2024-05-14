@@ -28,9 +28,9 @@ export async function selectSaveFileDialog(
   const res = await dialog.showSaveDialog(window, options)
 
   if (res.canceled) {
-    throw new Error('User canceled operation.')
+    throw new Error('User canceled operation.');
   }
-  console.log(res.filePath)
+
   return res.filePath
 }
 

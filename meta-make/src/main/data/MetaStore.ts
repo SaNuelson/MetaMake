@@ -4,6 +4,7 @@ import { Config } from "../../common/constants";
 interface MetaStore {
   [Config.kbPath]: string;
   [Config.kbList]: Array<string>;
+  [Config.logLevel]: number;
   [funcCallCache]: {[fname: string]: [Date, any]}
 }
 
@@ -15,6 +16,10 @@ const metaStoreSchema: Schema<MetaStore>  = {
   },
   [Config.kbList]: {
     type: "array"
+  },
+  [Config.logLevel]: {
+    type: "number",
+    default: 0
   },
   [funcCallCache]: {
     type: "object"
@@ -44,6 +49,10 @@ class MetaElectronStore extends Store<MetaStore> {
     let list = this.get(Config.kbList, []);
     list = list.filter(item => item !== kbId);
     this.set(Config.kbList, list);
+  }
+
+  get logLevel() {
+    return this.get(Config.logLevel);
   }
 
   async getCached<T>(computeFunc: () => Promise<T>, minutesToLive?: number, handle?: string): Promise<T> {

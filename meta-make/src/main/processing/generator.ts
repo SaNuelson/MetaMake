@@ -4,6 +4,8 @@ import KnowledgeBaseManager from "../kb/KnowledgeBaseManager";
 import { ThreadController } from "./openaiconnector";
 import MetaModel from "../../common/dto/MetaModel";
 import { StructuredMetaProperty } from "../../common/dto/MetaProperty";
+import MetaStore from "../data/MetaStore.js";
+import { LogLevel } from "../../common/constants.js";
 
 interface GuessResponse {
   value: string,
@@ -41,7 +43,6 @@ export default async function generateMetadata(formatName: string, kbId?: string
     }
 
     // TODO: Remove
-    await new Promise(res => setTimeout(res, 500));
     newModel.setValue(path, `ChatGPT val for ${prop.name}`);
     continue;
 
@@ -60,6 +61,7 @@ export default async function generateMetadata(formatName: string, kbId?: string
     }
   }
 
-  console.log("chatGPT generateMetadata() finished.");
+  if (MetaStore.logLevel >= LogLevel.Log)
+    console.log("chatGPT generateMetadata() finished.");
   return newModel;
 }

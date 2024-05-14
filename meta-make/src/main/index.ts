@@ -5,7 +5,7 @@ import InitDtos from './dto/Init'
 import path from 'node:path'
 import { existsSync, mkdirSync } from 'fs'
 import MetaStore from "./data/MetaStore";
-import { Config } from "../common/constants";
+import { Config, LogLevel } from "../common/constants";
 import { session } from 'electron';
 import * as os from "node:os";
 import knowledgeBaseManager from "./kb/KnowledgeBaseManager";
@@ -19,8 +19,10 @@ app.whenReady().then(async () => {
   if (!existsSync(kbPath))
     mkdirSync(kbPath)
   MetaStore.set(Config.kbPath, kbPath);
+  MetaStore.set(Config.logLevel, LogLevel.Verbose)
 
-  console.log("KBIDs", MetaStore.getKnowledgeBases());
+  if (MetaStore.logLevel >= LogLevel.Log)
+    console.log("Known KB IDs: ", MetaStore.getKnowledgeBases());
   knowledgeBaseManager.loadKBs()
 
   electronApp.setAppUserModelId('com.electron.metamake')
