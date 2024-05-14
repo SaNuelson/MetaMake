@@ -6,6 +6,7 @@ import { EventType } from '../common/constants'
 import MetaFormat from '../common/dto/MetaFormat'
 import { KnowledgeBase, KnowledgeBaseInfo } from '../common/dto/KnowledgeBase'
 import { MetaBase } from "../common/dto/MetaModelSource";
+import MetaModel from "../common/dto/MetaModel.js";
 
 export type StringHandlingCallback = (value: string) => void
 export type EmptyCallback = () => void
@@ -28,6 +29,7 @@ export interface MetaMakeAPI {
   //region SET
   updateKnowledgeBase: (kb: KnowledgeBase) => Promise<string>
   deleteKnowledgeBase: (id: string) => Promise<void>
+  requestSaveMetaModel: (model: MetaModel) => Promise<void>
   //endregion
 
   //region CALL
@@ -42,9 +44,6 @@ export interface MetaMakeAPI {
 
   isContextIsolated: () => Promise<boolean>
   isDebugEnabled: () => Promise<boolean>
-
-
-
 }
 
 // Custom APIs for renderer
@@ -66,6 +65,7 @@ const api: MetaMakeAPI = {
   //region SET
   updateKnowledgeBase: (kb: KnowledgeBase) => ipcRenderer.invoke(EventType.KnowledgeBaseUpdated, kb),
   deleteKnowledgeBase: (id: string) => ipcRenderer.invoke(EventType.KnowledgeBaseDeleted, id),
+  requestSaveMetaModel: (model: MetaModel) => ipcRenderer.invoke(EventType.SaveMetaModelRequested, model),
   //endregion
 
   //region CALL

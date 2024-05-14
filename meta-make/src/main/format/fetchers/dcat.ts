@@ -1,9 +1,11 @@
-import $rdf, { Namespace } from 'rdflib'
-import { promisify } from 'util'
-import { Literal } from 'rdflib/lib/tf-types.js'
-import { CodebookEntry } from '../../../common/dto/CodebookEntry.js'
+import $rdf, {BlankNode, Namespace} from "rdflib";
+import { promisify } from "util";
+import { Literal } from "rdflib/lib/tf-types.js";
+import {JsonLdSerializer} from "jsonld-streaming-serializer";
+import { createWriteStream } from "node:fs";
+import { CodebookEntry } from "../../../common/dto/CodebookEntry.js";
 
-const parseRdf = promisify($rdf.parse)
+const parseRdf = promisify($rdf.parse);
 
 const applicationRdfXml = "application/rdf+xml";
 
@@ -40,4 +42,29 @@ export async function getEuCodebook(url: string, language: string): Promise<Code
     codebook.push({uri: entryIri, label: langLabel});
   }
   return codebook;
+}
+
+const dct = Namespace("http://purl.org/dc/terms/")
+
+export function exportDCAT(model): string {
+  const store = $rdf.graph();
+
+  const datovaSada = new BlankNode()
+  const titlePredicate = dct("title")
+  const titleValue = model.getValue(".Title")
+  store.add(datovaSada, titlePredicate, titleValue)
+
+
+  const jsonldSerializer = new JsonLdSerializer({space: '  '})
+
+  jsonldSerializer.pipe(process.stdout);
+  for (let statement of store.statements) {
+
+    jsonldSerializer.write(statement);
+  }
+  jsonldSerializer.end()
+
+
+
+
 }

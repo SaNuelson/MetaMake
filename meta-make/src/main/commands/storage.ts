@@ -1,5 +1,8 @@
 import { BrowserWindow, dialog } from 'electron'
 import DataManager from '../data/DataManager'
+import {writeTextToFile} from "../utils/io.js";
+import {exportDCAT} from "../format/fetchers/dcat.js";
+import MetaModel from "../../common/dto/MetaModel.js";
 
 export async function selectFilesDialog(
   window: BrowserWindow,
@@ -18,6 +21,19 @@ export async function selectFilesDialog(
   return res.filePaths
 }
 
+export async function selectSaveFileDialog(
+  window: BrowserWindow,
+  options: Electron.SaveDialogOptions = {}
+): Promise<string> {
+  const res = await dialog.showSaveDialog(window, options)
+
+  if (res.canceled) {
+    throw new Error('User canceled operation.')
+  }
+  console.log(res.filePath)
+  return res.filePath
+}
+
 export async function loadLocalDataFile(window: BrowserWindow): Promise<boolean> {
   try {
     const paths = await selectFilesDialog(window, {
@@ -30,6 +46,19 @@ export async function loadLocalDataFile(window: BrowserWindow): Promise<boolean>
   catch(e) {
     return false;
   }
+}
+
+export async function saveMetaModelFile(window: BrowserWindow, model: MetaModel) {
+  try {
+    const path = await selectSaveFileDialog(window, {
+      title: 'Save MetaData File'
+    });
+    writeTextToFile(path, exportDCAT(model))
+  }
+  catch (e: any) {
+    console.error(`Failed to save model of ${model.metaFormat.name}: ${e.message}`);
+  }
+
 }
 
 export async function loadLocalKBFile(window: BrowserWindow): Promise<boolean> {

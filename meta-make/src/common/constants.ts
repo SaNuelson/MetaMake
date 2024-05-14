@@ -6,16 +6,20 @@ export enum EventType {
 
   //region GET DATA
   DataPreviewRequested = 'DataPreviewRequested',
+
   MetaFormatListRequested = 'MetaFormatListRequested',
   MetaFormatsRequested = 'MetaFormatsRequested',
+
   KnowledgeBaseListRequested = 'KnowledgeBaseListRequested',
   KnowledgeBaseRequested = 'KnowledgeBaseRequested',
+
   LoadDataModalRequested = 'LoadDataModalRequested',
   //endregion
 
   //region SET
   KnowledgeBaseUpdated = 'KnowledgeBaseUpdated',
   KnowledgeBaseDeleted = 'KnowledgeBaseDeleted',
+  SaveMetaModelRequested = 'SaveMetaModelRequested',
   //endregion
 
   //region CALL

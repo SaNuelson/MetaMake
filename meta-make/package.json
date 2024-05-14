@@ -29,6 +29,7 @@
     "dotenv": "^16.4.5",
     "electron-settings": "^4.0.2",
     "electron-store": "^9.0.0",
+    "jsonld-streaming-serializer": "^2.1.0",
     "openai": "^4.40.2",
     "papaparse": "^5.4.1",
     "rdflib": "^2.2.35",

@@ -4,7 +4,7 @@ import { BrowserWindow, ipcMain, IpcMainInvokeEvent, IpcRendererEvent } from 'el
 import KnowledgeBaseManager from './kb/KnowledgeBaseManager'
 import { KnowledgeBase } from "../common/dto/KnowledgeBase";
 import Restructurable from "../common/dto/Restructurable";
-import { loadLocalDataFile } from "./commands/storage";
+import {loadLocalDataFile, saveMetaModelFile} from "./commands/storage";
 import generateMetadata from "./processing/generator";
 import MetaBaseManager from "./kb/MetaBaseManager";
 import metaBaseManager from "./kb/MetaBaseManager";
@@ -36,6 +36,7 @@ export const indexMainEventHandlers: { [type in EventType]?: MainElectronEventHa
   //region SET
   [EventType.KnowledgeBaseUpdated]: (_, kb: KnowledgeBase) => KnowledgeBaseManager.setKnowledgeBase(kb),
   [EventType.KnowledgeBaseDeleted]: (_, kbId: string) => KnowledgeBaseManager.deleteKnowledgeBase(kbId),
+  [EventType.SaveMetaModelRequested]: (_, model) => saveMetaModelFile(BrowserWindow.getFocusedWindow()!, model),
   //endregion
 
   //region CALL

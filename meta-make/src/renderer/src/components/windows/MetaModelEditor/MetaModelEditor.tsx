@@ -51,7 +51,7 @@ export default function MetaModelEditor(): ReactElement {
           Back
         </button>
         <button
-          onClick={() => {}}
+          onClick={() => window.api.requestSaveMetaModel(finalModel!)}
         >
           Export
         </button>
