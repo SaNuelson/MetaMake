@@ -47,3 +47,5 @@ $ npm run build:linux
 
 - [ ] Main window -> New KB -> Back doesn't work
 - [ ] Refresh KB in main window after loading data
+- [ ] Up & down on list UI editors don't work
+- [ ] Delete on list UI editors doesn't shift values

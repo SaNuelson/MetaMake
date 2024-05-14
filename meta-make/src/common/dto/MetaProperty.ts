@@ -1,5 +1,6 @@
 import Restructurable from './Restructurable'
 import { ArityBounds, isValidArity } from "./ArityBounds";
+import { CodebookEntry } from "../../main/format/fetchers/dcat.js";
 
 type PropertyType = 'string' | 'number' | 'object' | 'array' | 'boolean' | 'date';
 type PropertySubType = 'email' | 'url' | 'fileType' | 'mediaType' | 'conformsTo' | 'frequency' | 'dataTheme' | 'spatial' | 'geographical' | 'eurovoc' |'enum';
@@ -30,16 +31,18 @@ export default class MetaProperty extends Restructurable {
   }
 }
 
-export class EnumMetaProperty<T> extends MetaProperty {
-  readonly domain: T[]
+export class EnumMetaProperty extends MetaProperty {
+  readonly domain: CodebookEntry[]
+  readonly strict: boolean
 
-  constructor(name: string, description: string, domain: T[], type: PropertyType) {
+  constructor(name: string, description: string, domain: CodebookEntry[], type: PropertyType, canBeCustom?: boolean) {
     super(name, description, type, 'enum')
-    this.domain = domain
+    this.domain = domain;
+    this.strict = !canBeCustom;
   }
 
-  isValid(...values: T[]): boolean {
-    return super.isValid(...values) && values.every(value => this.domain.includes(value));
+  isValid(...values: any[]): boolean {
+    return super.isValid(...values) && values.every(value => this.domain.find(entry => entry.label === value));
   }
 }
 

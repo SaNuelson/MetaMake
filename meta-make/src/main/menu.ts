@@ -4,7 +4,7 @@ import { createKnowledgeBaseEditorWindow, createKnowledgeBaseWindow } from './wi
 import knowledgeBaseManager from "./kb/KnowledgeBaseManager";
 import MetaStore from "./data/MetaStore";
 import { Config } from "../common/constants";
-import { rmSync } from "node:fs";
+import { existsSync } from "fs";
 
 export function createMainNavigation(window: BrowserWindow): Electron.Menu {
   return Menu.buildFromTemplate([
@@ -56,9 +56,10 @@ export function createMainNavigation(window: BrowserWindow): Electron.Menu {
         {
           label: 'Reset',
           click: () => {
-            MetaStore.delete(Config.kbList);
+            MetaStore.reset();
             knowledgeBaseManager.getKnowledgeBaseList().forEach(kbi => knowledgeBaseManager.deleteKnowledgeBase(kbi.id));
-            rmSync(MetaStore.get(Config.kbPath), {recursive: true});
+            if (existsSync(MetaStore.get(Config.kbPath)))
+              rmSync(MetaStore.get(Config.kbPath), {recursive: true});
           }
         }
       ]
