@@ -4,9 +4,10 @@
     { "path": "./tsconfig.web.json" }
   ],
   "compilerOptions": {
+    "target": "ESNext",
     "allowSyntheticDefaultImports": true,
     "lib": ["ES2021"],
-    "module": "ES2022"
+    "module": "nodenext"
   },
   "ts-node": {
     "experimentalSpecifierResolution": "node",

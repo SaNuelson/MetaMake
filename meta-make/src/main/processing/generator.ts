@@ -42,7 +42,7 @@ export default async function generateMetadata(formatName: string, kbId?: string
 
     // TODO: Remove
     await new Promise(res => setTimeout(res, 500));
-    newModel.setValue(path, `$ChatGPT val for {prop.name}`);
+    newModel.setValue(path, `ChatGPT val for ${prop.name}`);
     continue;
 
     await connector.addMessage(`Provide your best guess in form of mentioned JSON for metadata ${prop.name} (${prop.description}):`);
