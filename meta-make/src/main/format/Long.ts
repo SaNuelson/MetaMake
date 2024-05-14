@@ -1,5 +1,5 @@
 import MetaFormat from '../../common/dto/MetaFormat'
-import MetaProperty, { StructuredMetaProperty } from '../../common/dto/MetaProperty'
+import MetaProperty, { EnumMetaProperty, StructuredMetaProperty } from "../../common/dto/MetaProperty";
 import { MandatoryArity } from "../../common/dto/ArityBounds";
 
 const Long = new MetaFormat(
@@ -22,6 +22,23 @@ const Long = new MetaFormat(
       property: new MetaProperty(
         'Keyword',
         'Single-word keyword describing the content of the dataset',
+        'string'
+      )
+    },
+    {
+      arity: { min: 2 },
+      property: new EnumMetaProperty<string>(
+        'Tag',
+        'Sinle-word tag describing the content of the dataset from a fixed set of values',
+        ['simple', 'average', 'detailed', 'public', 'confidential', 'local', 'national'],
+        'string'
+      )
+    },
+    {
+      arity: MandatoryArity,
+      property: new MetaProperty(
+        'Note',
+        'Custom note for the author',
         'string'
       )
     },

@@ -1,11 +1,11 @@
 import { ReactElement } from "react";
-import MetaProperty, { StructuredMetaProperty } from "../../../../../common/dto/MetaProperty";
+import MetaProperty, { EnumMetaProperty, StructuredMetaProperty } from "../../../../../common/dto/MetaProperty";
 import MetaModel, { PrimitiveMetaDatum } from '../../../../../common/dto/MetaModel'
 import { Button } from '../../common/Buttons'
 import { IoCloseOutline } from 'react-icons/io5'
 import { SlArrowDown, SlArrowUp } from 'react-icons/sl'
 import { VscAdd } from 'react-icons/vsc'
-import { Input } from "../../common/Inputs";
+import { Input, Select } from "../../common/Inputs";
 
 type NodeProps = {
   model: MetaModel
@@ -152,6 +152,19 @@ function PrimitiveNode(
     value: any,
     setValue: (path: string, value: any) => void
   }) {
+
+  if (property.subType && property.subType === 'enum') {
+    if (!(property instanceof EnumMetaProperty)) {
+      throw new Error(`Got property '${property.name}' with enum subtype, was not EnumProperty.`);
+    }
+    return (
+      <Select
+        data={property.domain.map(x => ({text: x, value: x}))}
+
+        />
+    )
+  }
+
   return (
     <Input
       label={property.name}

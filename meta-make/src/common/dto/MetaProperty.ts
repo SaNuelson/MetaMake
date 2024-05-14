@@ -1,8 +1,8 @@
 import Restructurable from './Restructurable'
 import { ArityBounds, isValidArity } from "./ArityBounds";
 
-type PropertyType = 'string' | 'number' | 'object' | 'array' | 'boolean' | 'date'
-type PropertySubType = 'email' | 'url' | 'fileType' | 'mediaType' | 'conformsTo' | 'frequency' | 'dataTheme' | 'spatial' | 'geographical' | 'eurovoc'
+type PropertyType = 'string' | 'number' | 'object' | 'array' | 'boolean' | 'date';
+type PropertySubType = 'email' | 'url' | 'fileType' | 'mediaType' | 'conformsTo' | 'frequency' | 'dataTheme' | 'spatial' | 'geographical' | 'eurovoc' |'enum';
 
 export interface MetaChild {
   arity: ArityBounds
@@ -27,6 +27,19 @@ export default class MetaProperty extends Restructurable {
 
   isValid(...values: any[]): boolean {
     return values.every(value => typeof value === this.type);
+  }
+}
+
+export class EnumMetaProperty<T> extends MetaProperty {
+  readonly domain: T[]
+
+  constructor(name: string, description: string, domain: T[], type: PropertyType) {
+    super(name, description, type, 'enum')
+    this.domain = domain
+  }
+
+  isValid(...values: T[]): boolean {
+    return super.isValid(...values) && values.every(value => this.domain.includes(value));
   }
 }
 
