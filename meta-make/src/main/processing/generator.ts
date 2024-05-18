@@ -57,14 +57,16 @@ export default async function generateMetadata(formatName: string, kbId?: string
 
   await connector.addMessage(localization.initialMessage(data.slice(0,20).join('  \n')));
 
-  let answerLimit = 15;
+  let answerLimit = 2;
   for (const [path, arity, prop, data] of kb.model.preOrderTraversal()) {
     if (prop instanceof StructuredMetaProperty) {
       continue;
     }
 
-    if (--answerLimit === 0)
-      break;
+    if (--answerLimit <= 0) {
+      newModel.setValue(path, `ChatGPT guess for ${prop.name}`);
+      continue;
+    }
 
     await connector.addMessage(localization.guessRequest(prop));
 

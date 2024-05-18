@@ -160,7 +160,8 @@ function PrimitiveNode(
     return (
       <Select
         data={property.domain.map(x => ({text: x.label, value: x.label}))}
-
+        value={value}
+        onChange={(ev) => setValue(path, ev.target.value)}
         />
     )
   }

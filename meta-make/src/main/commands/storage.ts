@@ -53,7 +53,8 @@ export async function saveMetaModelFile(window: BrowserWindow, model: MetaModel)
     const path = await selectSaveFileDialog(window, {
       title: 'Save MetaData File'
     });
-    writeTextToFile(path, exportDCAT(model))
+    exportDCAT(model)
+    //writeTextToFile(path, )
   }
   catch (e: any) {
     console.error(`Failed to save model of ${model.metaFormat.name}: ${e.message}`);

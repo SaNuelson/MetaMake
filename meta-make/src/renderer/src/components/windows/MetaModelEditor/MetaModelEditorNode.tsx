@@ -147,9 +147,9 @@ function PrimitiveNode(
     setValue: (newValue: any) => void
   }): ReactElement {
 
-  const altOptions: OptionData[] = alternatives.map(({ source, value }, i) => ({
+  const altOptions: OptionData[] = alternatives.map(({ source, value }) => ({
     text: source.name,
-    value: value ?? 'UNK',
+    value: value ?? 'UNKNOWN',
   }));
 
   if (property.subType && property.subType === 'enum') {

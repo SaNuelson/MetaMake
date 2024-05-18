@@ -13,16 +13,17 @@ import { getEuCodebook } from './fetchers/dcat.js'
 import MetaStore from '../data/MetaStore.js'
 import { CodebookEntry } from "../../common/dto/CodebookEntry.js";
 
+// region Codebooks
 const ThemeCodebook: CodebookEntry[] = await MetaStore.getCached(
   async () => getEuCodebook('http://publications.europa.eu/resource/authority/data-theme', 'cs'),
   30,
   'ThemeCodebook'
-)
+);
 const AccrualPeriodicityCodebook: CodebookEntry[] = await MetaStore.getCached(
   async () => getEuCodebook('http://publications.europa.eu/resource/authority/frequency', 'cs'),
   30,
   'AccrualPeriodicityCodebook'
-)
+);
 const GeoTerritoryCodebook: CodebookEntry[] = [
   ...(await MetaStore.getCached(
     () => getEuCodebook('http://publications.europa.eu/resource/authority/continent', 'cs'),
@@ -39,7 +40,7 @@ const GeoTerritoryCodebook: CodebookEntry[] = [
     30,
     'GeoTerritoryCodebook3'
   ))
-]
+];
 const IntelPropertyCodebook: CodebookEntry[] = [
   {
     uri: 'https://data.gov.cz/podm%C3%ADnky-u%C5%BEit%C3%AD/obsahuje-v%C3%ADce-autorsk%C3%BDch-d%C4%9Bl/',
@@ -53,7 +54,7 @@ const IntelPropertyCodebook: CodebookEntry[] = [
     uri: 'https://data.gov.cz/podm%C3%ADnky-u%C5%BEit%C3%AD/neobsahuje-autorsk%C3%A1-d%C3%ADla/',
     label: 'Distribuce datové sady neobsahuje autorská díla'
   }
-]
+];
 const DatabaseOriginalityCodebook: CodebookEntry[] = [
   {
     uri: 'https://creativecommons.org/licenses/by/4.0/',
@@ -63,7 +64,7 @@ const DatabaseOriginalityCodebook: CodebookEntry[] = [
     uri: 'https://data.gov.cz/podm%C3%ADnky-u%C5%BEit%C3%AD/nen%C3%AD-autorskopr%C3%A1vn%C4%9B-chr%C3%A1n%C4%9Bnou-datab%C3%A1z%C3%AD/',
     label: 'Distribuce datové sady není autorskoprávně chráněnou databází'
   }
-]
+];
 const DatabaseIntelPropertyCodebook: CodebookEntry[] = [
   {
     uri: 'https://creativecommons.org/publicdomain/zero/1.0/',
@@ -73,7 +74,7 @@ const DatabaseIntelPropertyCodebook: CodebookEntry[] = [
     uri: 'https://data.gov.cz/podm%C3%ADnky-u%C5%BEit%C3%AD/nen%C3%AD-chr%C3%A1n%C4%9Bna-zvl%C3%A1%C5%A1tn%C3%ADm-pr%C3%A1vem-po%C5%99izovatele-datab%C3%A1ze/',
     label: 'Distribuce datové sady není chráněna zvláštním právem pořizovatele databáze'
   }
-]
+];
 const PersonalDataPresenceCodebook: CodebookEntry[] = [
   {
     uri: 'https://data.gov.cz/podm%C3%ADnky-u%C5%BEit%C3%AD/obsahuje-osobn%C3%AD-%C3%BAdaje/',
@@ -83,7 +84,8 @@ const PersonalDataPresenceCodebook: CodebookEntry[] = [
     uri: 'https://data.gov.cz/podm%C3%ADnky-u%C5%BEit%C3%AD/neobsahuje-osobn%C3%AD-%C3%BAdaje/',
     label: 'Distribuce datové sady neobsahuje osobní údaje'
   }
-]
+];
+// endregion
 
 // region 3.5 Třída: Datová služba
 const DatovaSluzba = new StructuredMetaProperty(
@@ -96,7 +98,8 @@ const DatovaSluzba = new StructuredMetaProperty(
       property: new MetaProperty(
         'Název',
         'Tato vlastnost obsahuje název datové služby. Odpovídá vlastnosti dct:title.',
-        'string'
+        'string',
+        {uri: 'http://purl.org/dc/terms/title'}
       )
     },
     // 3.5.2 Přístupový bod
@@ -106,7 +109,10 @@ const DatovaSluzba = new StructuredMetaProperty(
         'Přístupový bod',
         'Tato vlastnost obsahuje URL přístupového bodu datové služby. Odpovídá vlastnosti dcat:endpointURL.',
         'string',
-        'url'
+        {
+          subType:'url',
+          uri: 'http://www.w3.org/ns/dcat#endpointURL'
+        }
       )
     },
     // 3.5.3 Odkaz na specifikaci
@@ -116,7 +122,10 @@ const DatovaSluzba = new StructuredMetaProperty(
         'Odkaz na specifikaci',
         'Tato vlastnost odkazuje na specifikaci, jíž se datová služba řídí. Takovou specifikací je například SPARQL. Seznam možných hodnot lze nalézt například v seznamu udržovaném Open Source Geospatial Foundation. Odpovídá vlastnosti dct:conformsTo.',
         'string',
-        'url' // URL specifikace.
+        {
+          subType:'url',
+          uri: 'http://purl.org/dc/terms/conformsTo'
+        } // URL specifikace.
       )
     },
     // 3.5.4 Popis přístupového bodu
@@ -126,10 +135,14 @@ const DatovaSluzba = new StructuredMetaProperty(
         'Popis přístupového bodu',
         'Tato vlastnost obsahuje URL popisu přístupového bodu datové služby. Odpovídá vlastnosti dcat:endpointDescription.',
         'string',
-        'url'
+        {
+          subType:'url',
+          uri: 'http://www.w3.org/ns/dcat#endpointDescription'
+        }
       )
     }
-  ]
+  ],
+  {uri: 'http://www.w3.org/ns/dcat#DataService'}
 )
 // endregion
 
@@ -153,7 +166,7 @@ const Distribuce = new StructuredMetaProperty(
               'Podmínky užití autorského díla.',
               IntelPropertyCodebook,
               'string',
-              true
+              {canBeCustom: true}
             )
           },
           {
@@ -167,7 +180,7 @@ const Distribuce = new StructuredMetaProperty(
               'Podmínky užití databáze jako autorského díla.',
               DatabaseIntelPropertyCodebook,
               'string',
-              true
+              {canBeCustom: true}
             )
           },
           {
@@ -194,7 +207,10 @@ const Distribuce = new StructuredMetaProperty(
         'Odkaz na stažení souboru',
         'Tato vlastnost obsahuje URL, které je přímým odkazem na stažitelný soubor v daném formátu. Odpovídá vlastnosti dcat:downloadURL.',
         'string',
-        'url' // URL souboru ke stažení.
+        {
+          subType:'url',
+          uri: 'http://www.w3.org/ns/dcat#downloadURL'
+        } // URL souboru ke stažení.
       )
     },
     // 3.4.3 Přístupové URL
@@ -204,7 +220,10 @@ const Distribuce = new StructuredMetaProperty(
         'Přístupové URL',
         'Tato vlastnost obsahuje URL, pomocí kterého se lze dostat k distribuci datové sady. Odpovídá vlastnosti dcat:accessURL. Pro účely katalogů otevřených dat v ČR je hodnota této vlastnosti buďto stejná jako odkaz na stažení souboru v případě distribuce reprezentující soubor ke stažení, nebo stejná jako přístupový bod v případě distribuce reprezentující datovou službu.',
         'string',
-        'url' // Přístupové URL distribuce datové sady.
+        {
+          subType:'url',
+          uri: 'http://www.w3.org/ns/dcat#accessURL'
+        } // Přístupové URL distribuce datové sady.
       )
     },
     // 3.4.4 Formát souboru ke stažení
@@ -216,7 +235,10 @@ const Distribuce = new StructuredMetaProperty(
         'Formát souboru ke stažení',
         'Tato vlastnost odkazuje na typ souboru s distribucí. Odpovídá vlastnosti dct:format. Dle DCAT-AP 2.0.1 jsou hodnoty z evropského číselníku typů souboru.',
         'string',
-        'fileType'
+        {
+          subType: 'fileType',
+          uri: 'http://purl.org/dc/terms/format'
+        }
       )
     },
     // 3.4.5 Media type souboru ke stažení
@@ -228,7 +250,10 @@ const Distribuce = new StructuredMetaProperty(
         'Media type souboru ke stažení',
         'Tato vlastnost odkazuje na typ média distribuce tak, jak je definováno v oficiálním rejstříku typů médií spravovaném IANA [IANA-MEDIA-TYPES]. Odpovídá vlastnosti dcat:mediaType.',
         'string',
-        'mediaType'
+        {
+          subType: 'mediaType',
+          uri: 'http://www.w3.org/ns/dcat#mediaType'
+        }
       )
     },
     // 3.4.6 Odkaz na strojově čitelné schéma souboru ke stažení
@@ -238,7 +263,10 @@ const Distribuce = new StructuredMetaProperty(
         'Odkaz na strojově čitelné schéma souboru ke stažení',
         'Tato vlastnost odkazuje na ustanovené schéma, jímž se popisovaná distribuce řídí. Odpovídá vlastnosti dct:conformsTo.',
         'string',
-        'conformsTo' // URL schématu.
+        {
+          subType: 'conformsTo',
+          uri: 'http://purl.org/dc/terms/conformsTo'
+        } // URL schématu.
       )
     },
     // 3.4.7 Media type kompresního formátu
@@ -249,7 +277,10 @@ const Distribuce = new StructuredMetaProperty(
         'Media type použitého kompresního formátu souboru ke stažení',
         'Tato vlastnost odkazuje na media typ kompresního formátu souboru ke stažení tak, jak je definováno v oficiálním rejstříku typů médií spravovaném IANA [IANA-MEDIA-TYPES]. Kompresní formát určuje techniku použitou ke zmenšení velikosti jednoho souboru ke stažení. Odpovídá vlastnosti dcat:compressFormat.',
         'string',
-        'mediaType'
+        {
+          subType: 'mediaType',
+          uri: 'http://www.w3.org/ns/dcat#compressFormat'
+        }
       )
     },
     // 3.4.8 Media type balíčkovacího formátu
@@ -260,7 +291,10 @@ const Distribuce = new StructuredMetaProperty(
         'Media type použitého balíčkovacího formátu souboru ke stažení',
         'Tato vlastnost odkazuje na media typ balíčkovacího formátu souboru ke stažení tak, jak je definováno v oficiálním rejstříku typů médií spravovaném IANA [IANA-MEDIA-TYPES]. Balíčkovací formát určuje techniku použitou k zabalení více souborů do jednoho. Odpovídá vlastnosti dcat:packageFormat.',
         'string',
-        'mediaType'
+        {
+          subType: 'mediaType',
+          uri: 'http://www.w3.org/ns/dcat#packageFormat'
+        }
       )
     },
     // 3.4.9 Název distribuce datové sady
@@ -269,7 +303,8 @@ const Distribuce = new StructuredMetaProperty(
       property: new MetaProperty(
         'Název distribuce datové sady',
         'Tato vlastnost obsahuje název distribuce. Odpovídá vlastnosti dct:title.',
-        'string'
+        'string',
+        {uri: 'http://purl.org/dc/terms/title'}
       )
     },
     // 3.4.10 Vazba: přístupová služba
@@ -278,7 +313,8 @@ const Distribuce = new StructuredMetaProperty(
       arity: OptionalArity,
       property: DatovaSluzba
     }
-  ]
+  ],
+  {uri: 'https://data.gov.cz/slovník/podmínky-užití/specifikace'}
 )
 // endregion
 
@@ -293,7 +329,8 @@ const DatovaSada = new StructuredMetaProperty(
       property: new MetaProperty(
         'Název',
         'Tato vlastnost obsahuje název datové sady. Odpovídá vlastnosti dct:title.',
-        'string'
+        'string',
+        {uri: 'dct:title'}
       )
     },
     // 3.3.2 Popis
@@ -302,7 +339,8 @@ const DatovaSada = new StructuredMetaProperty(
       property: new MetaProperty(
         'Popis',
         'Tato vlastnost obsahuje volný text s popisem datové sady. Odpovídá vlastnosti dct:description.',
-        'string'
+        'string',
+        {uri: 'dct:description'}
       )
     },
     // 3.3.3 Poskytovatel
@@ -312,7 +350,7 @@ const DatovaSada = new StructuredMetaProperty(
         'Poskytovatel',
         'Poskytovatel datové sady. Odpovídá vlastnosti dct:publisher.',
         'string',
-        'url' // IRI OVM z Registru práv a povinností (RPP).
+        {subType:'url', uri: 'dct:publisher'} // IRI OVM z Registru práv a povinností (RPP).
       )
     },
     // 3.3.4 Téma
@@ -322,7 +360,8 @@ const DatovaSada = new StructuredMetaProperty(
         'Téma',
         'Tato vlastnost odkazuje na kategorii či téma datové sady. Datová sada může být popsána více tématy. Odpovídá vlastnosti dcat:theme. Dle DCAT-AP 2.0.1 musí být alespoň jedno téma z evropského číselníku datových témat.',
         ThemeCodebook,
-        'string'
+        'string',
+        {uri: 'dcat:theme'}
       )
     },
     // 3.3.5 Periodicita aktualizace
@@ -332,7 +371,8 @@ const DatovaSada = new StructuredMetaProperty(
         'Periodicita aktualizace',
         'Tato vlastnost odkazuje na frekvenci, se kterou je datová sada aktualizována. Odpovídá vlastnosti dct:accrualPeriodicity. Dle DCAT-AP 2.0.1 jsou hodnoty z evropského číselníku frekvencí.',
         AccrualPeriodicityCodebook,
-        'string'
+        'string',
+        {uri: 'dct:accrualPeriodicity'}
       )
     },
     // 3.3.6 Klíčová slova
@@ -341,7 +381,8 @@ const DatovaSada = new StructuredMetaProperty(
       property: new MetaProperty(
         'Klíčová slova',
         'Tato vlastnost obsahuje klíčové slovo nebo značku popisující datovou sadu. Odpovídá vlastnosti dcat:keyword.',
-        'string'
+        'string',
+        {uri: 'dcat:keyword'}
       )
     },
     // 3.3.7 Související geografické území - prvek z RÚIAN
@@ -352,7 +393,7 @@ const DatovaSada = new StructuredMetaProperty(
         'Související geografické území - prvek z RÚIAN',
         'Tato vlastnost odkazuje na územní prvek RÚIAN pokrytý datovou sadou. Datová sada může pokrývat více územních prvků RÚIAN. Odpovídá vlastnosti dct:spatial.',
         'string',
-        'spatial'
+        {subType:'spatial', uri:'dct:spatial'}
       )
     },
     // 3.3.8 Související geografické území
@@ -365,7 +406,7 @@ const DatovaSada = new StructuredMetaProperty(
         // TODO: Add GeoNames
         GeoTerritoryCodebook,
         'string',
-        true
+        {canBeCustom:true, uri: 'dct:spatial'}
       )
     },
     // 3.3.9 Časové pokrytí
@@ -378,13 +419,14 @@ const DatovaSada = new StructuredMetaProperty(
         [
           {
             arity: MandatoryArity,
-            property: new MetaProperty('Začátek', 'Začátek časového pokrytí.', 'date')
+            property: new MetaProperty('Začátek', 'Začátek časového pokrytí.', 'date', {uri: 'dcat:startDate'})
           },
           {
             arity: MandatoryArity,
-            property: new MetaProperty('Konec', 'Konec časového pokrytí.', 'date')
+            property: new MetaProperty('Konec', 'Konec časového pokrytí.', 'date', {uri: 'dcat:endDate'})
           }
-        ]
+        ],
+        {uri: 'dct:temporal'}
       )
     },
     // 3.3.10 Kontaktní bod - jméno a email
@@ -396,13 +438,18 @@ const DatovaSada = new StructuredMetaProperty(
         [
           {
             arity: MandatoryArity,
-            property: new MetaProperty('Jméno', 'Jméno kontaktního bodu.', 'string')
+            property: new MetaProperty('Jméno', 'Jméno kontaktního bodu.', 'string', {uri: 'vcard:fn'})
           },
           {
             arity: MandatoryArity,
-            property: new MetaProperty('E-mail', 'E-mail kontaktního bodu.', 'string', 'email')
+            property: new MetaProperty(
+              'E-mail',
+              'E-mail kontaktního bodu.',
+              'string',
+              {subType:'email', uri: 'vcard:hasEmail'})
           }
-        ]
+        ],
+        {uri: 'dcat:contactPoint'}
       )
     },
     // 3.3.11 Odkaz na dokumentaci
@@ -412,7 +459,7 @@ const DatovaSada = new StructuredMetaProperty(
         'Odkaz na dokumentaci',
         'Tato vlastnost odkazuje na stránku nebo dokument o datové sadě. Odpovídá vlastnosti foaf:page.',
         'string',
-        'url' // URL webové stránky dokumentace.
+        {subType:'url', uri: 'foaf:page'} // URL webové stránky dokumentace.
       )
     },
     // 3.3.12 Odkaz na specifikaci
@@ -422,7 +469,7 @@ const DatovaSada = new StructuredMetaProperty(
         'Odkaz na specifikaci',
         'Tato vlastnost odkazuje na specifikaci, jíž se datová sada řídí. Takovou specifikací jsou zejména Otevřené formální normy. Odpovídá vlastnosti dct:conformsTo.',
         'string',
-        'url' // URL specifikace.
+        {subType:'url', uri: 'dct:conformsTo'} // URL specifikace.
       )
     },
     // 3.3.13 Klasifikace dle EuroVoc
@@ -433,7 +480,7 @@ const DatovaSada = new StructuredMetaProperty(
         'Klasifikace dle EuroVoc',
         'Tato vlastnost odkazuje na kategorii či téma datové sady dle EuroVoc. Datová sada může být popsána více tématy. Odpovídá vlastnosti dcat:theme.',
         'string',
-        'eurovoc'
+        {subType:'eurovoc', uri: 'dcat:theme'}
       )
     },
     // 3.3.14 Prostorové rozlišení v metrech
@@ -442,7 +489,8 @@ const DatovaSada = new StructuredMetaProperty(
       property: new MetaProperty(
         'Prostorové rozlišení v metrech',
         'Tato vlastnost určuje prostorové rozlišení dat v datové sadě v metrech. Jedná se o nejmenší prostorový rozdíl v datové sadě. Odpovídá vlastnosti dcat:spatialResolutionInMeters.',
-        'number'
+        'number',
+        {uri: 'dcat:spatialResolutionInMeters'}
       )
     },
     // 3.3.15 Časové rozlišení
@@ -451,7 +499,8 @@ const DatovaSada = new StructuredMetaProperty(
       property: new MetaProperty(
         'Časové rozlišení',
         'Tato vlastnost určuje časové rozlišení dat v datové sadě. Jedná se o nejmenší časový rozdíl v datové sadě. Odpovídá vlastnosti dcat:temporalResolution.',
-        'date' // TODO: correct type??
+        'date', // TODO: correct type??
+        {uri: 'dcat:temporalResolution'}
       )
     },
     // 3.3.16 Vazba: Je součástí
@@ -461,7 +510,8 @@ const DatovaSada = new StructuredMetaProperty(
         // TODO: IRI
         'Je součástí',
         'Tato vlastnost odkazuje na zastřešující datovou sadu datové série, jejíž je tato datová sada součástí. Odpovídá vlastnosti dct:isPartOf.',
-        'string'
+        'string',
+        {uri: 'dct:isPartOf'}
       )
     },
     // 3.3.17 Vazba: Distribuce datové sady
@@ -470,7 +520,8 @@ const DatovaSada = new StructuredMetaProperty(
       arity: MandatoryArity,
       property: Distribuce
     }
-  ]
+  ],
+  {uri: 'http://www.w3.org/ns/dcat#dataset'}
 )
 // endregion
 
@@ -505,7 +556,7 @@ const Katalog = new StructuredMetaProperty(
         'Poskytovatel',
         'Poskytovatel datového katalogu. Odpovídá vlastnosti dct:publisher.',
         'string',
-        'url' // IRI, OVM z Registru práv a povinností (RPP).
+        {subType:'url'} // IRI, OVM z Registru práv a povinností (RPP).
       )
     },
     // 3.2.4 Kontaktní bod - jméno a email
@@ -521,7 +572,7 @@ const Katalog = new StructuredMetaProperty(
           },
           {
             arity: MandatoryArity,
-            property: new MetaProperty('E-mail', 'E-mail kontaktního bodu.', 'string', 'email')
+            property: new MetaProperty('E-mail', 'E-mail kontaktního bodu.', 'string', {subType: 'email'})
           }
         ]
       )
@@ -533,7 +584,7 @@ const Katalog = new StructuredMetaProperty(
         'Domovská stránka',
         'Tato vlastnost odkazuje na domovskou stránku lokálního katalogu, kam mohou chodit uživatelé. Odpovídá vlastnosti foaf:homepage.',
         'string',
-        'url' // URL webové stránky.
+        {subType:'url'} // URL webové stránky.
       )
     },
     // 3.2.6 Vazba: Datová sada

@@ -117,6 +117,7 @@ export default function KnowledgeBaseEditor(): ReactElement {
           onClick={() => {
             if (!knowledgeBase) throw new Error('Unable to save if no format selected.')
             window.api.updateKnowledgeBase(knowledgeBase)
+            setIsChanged(false)
           }}
           disabled={!knowledgeBase}
           className=""

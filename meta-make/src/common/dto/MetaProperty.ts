@@ -11,33 +11,49 @@ export interface MetaChild {
   property: MetaProperty
 }
 
+export interface Options {
+  subType?: PropertySubType
+  uri?: string
+}
+
 export default class MetaProperty extends Restructurable {
   readonly name: string
   readonly description: string
 
   readonly type: PropertyType
   readonly subType?: PropertySubType
+  readonly uri?: string
 
-  constructor(name: string, description: string, type: PropertyType, subType?: PropertySubType) {
+  constructor(name: string, description: string, type: PropertyType, { subType, uri }: Options = {}) {
     super()
     this.name = name
     this.description = description
 
     this.type = type
     this.subType = subType
+    this.uri = uri;
   }
 
   isValid(...values: any[]): boolean {
-    return values.every(value => typeof value === this.type);
+    return values.every((value) => typeof value === this.type)
   }
+
+  [Restructurable.from](obj: MetaProperty): MetaProperty {
+    return new MetaProperty(obj.name, obj.description, obj.type, { subType: obj.subType, uri: obj.uri });
+  }
+}
+
+export interface EnumOptions {
+  canBeCustom?: boolean
+  uri?: string
 }
 
 export class EnumMetaProperty extends MetaProperty {
   readonly domain: CodebookEntry[]
   readonly strict: boolean
 
-  constructor(name: string, description: string, domain: CodebookEntry[], type: PropertyType, canBeCustom?: boolean) {
-    super(name, description, type, 'enum')
+  constructor(name: string, description: string, domain: CodebookEntry[], type: PropertyType, { canBeCustom, uri }: EnumOptions = {}) {
+    super(name, description, type, {subType: 'enum', uri})
     this.domain = domain;
     this.strict = !canBeCustom;
   }
@@ -45,13 +61,22 @@ export class EnumMetaProperty extends MetaProperty {
   isValid(...values: any[]): boolean {
     return super.isValid(...values) && values.every(value => this.domain.find(entry => entry.label === value));
   }
+
+  [Restructurable.from](obj: EnumMetaProperty): EnumMetaProperty {
+    return new EnumMetaProperty(obj.name, obj.description, obj.domain,  obj.type,{ canBeCustom: !obj.strict, uri: obj.uri });
+  }
+}
+
+export interface StructuredOptions {
+  subType?: PropertySubType
+  uri?: string
 }
 
 export class StructuredMetaProperty extends MetaProperty {
   readonly children: {[key: string]: MetaChild};
 
-  constructor(name: string, description: string, children?: Array<MetaChild>, subType?: PropertySubType) {
-    super(name, description, 'object', subType);
+  constructor(name: string, description: string, children: Array<MetaChild>, { subType, uri }: StructuredOptions = {}) {
+    super(name, description, 'object', {subType, uri});
 
     StructuredMetaProperty.validateStructure(children);
     this.children = Object.fromEntries((children ?? []).map(child => [child.property.name, child]));
@@ -80,6 +105,6 @@ export class StructuredMetaProperty extends MetaProperty {
   }
 
   [Restructurable.from](obj: StructuredMetaProperty): StructuredMetaProperty {
-    return new StructuredMetaProperty(obj.name, obj.description, Object.values(obj.children), obj.subType);
+    return new StructuredMetaProperty(obj.name, obj.description, Object.values(obj.children), {subType: obj.subType, uri: obj.uri});
   }
 }
