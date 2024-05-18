@@ -1,5 +1,5 @@
 import { ReactElement } from "react";
-import MetaProperty, { EnumMetaProperty, StructuredMetaProperty } from "../../../../../common/dto/MetaProperty";
+import MetaProperty, { StructuredMetaProperty } from "../../../../../common/dto/MetaProperty";
 import MetaModel, { Primitive, PrimitiveMetaDatum } from "../../../../../common/dto/MetaModel";
 import { Button } from "../../common/Buttons";
 import { IoCloseOutline } from "react-icons/io5";
@@ -152,13 +152,10 @@ function PrimitiveNode(
     value: value ?? 'UNKNOWN',
   }));
 
-  if (property.subType && property.subType === 'enum') {
-    if (!(property instanceof EnumMetaProperty)) {
-      throw new Error(`Got property '${property.name}' with enum subtype, was not EnumProperty.`);
-    }
+  if (property.domain) {
     return (
       <Select
-        data={property.domain.map(x => ({text: x.label, value: x.label}))}
+        data={property.domain.map(x => ({text: x.value, value: x.value}))}
 
       />
     )

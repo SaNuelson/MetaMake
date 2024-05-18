@@ -1,61 +1,85 @@
 import MetaFormat from '../../common/dto/MetaFormat'
-import MetaProperty, { EnumMetaProperty, StructuredMetaProperty } from "../../common/dto/MetaProperty";
-import { MandatoryArity } from "../../common/dto/ArityBounds";
+import MetaProperty, {
+  StructuredMetaProperty
+} from '../../common/dto/MetaProperty'
+import { MandatoryArity } from '../../common/dto/ArityBounds'
 
 const Long = new MetaFormat(
   'Long',
-  new StructuredMetaProperty('Long', 'Long meta format', [
-    {
-      arity: MandatoryArity,
-      property: new MetaProperty('Title', 'Name of the dataset', 'string')
-    },
-    {
-      arity: MandatoryArity,
-      property: new MetaProperty(
-        'Description',
-        'Short description about the contents of the dataset',
-        'string'
-      )
-    },
-    {
-      arity: { min: 3 },
-      property: new MetaProperty(
-        'Keyword',
-        'Single-word keyword describing the content of the dataset',
-        'string'
-      )
-    },
-    {
-      arity: { min: 2 },
-      property: new EnumMetaProperty<string>(
-        'Tag',
-        'Sinle-word tag describing the content of the dataset from a fixed set of values',
-        ['simple', 'average', 'detailed', 'public', 'confidential', 'local', 'national'],
-        'string'
-      )
-    },
-    {
-      arity: MandatoryArity,
-      property: new MetaProperty(
-        'Note',
-        'Custom note for the author',
-        'string'
-      )
-    },
-    {
-      arity: { min: 2 },
-      property: new StructuredMetaProperty('Topic', 'Single topic of the dataset', [
-        {
-          arity: MandatoryArity,
-          property: new MetaProperty('Name', 'Name of the topic', 'string')
-        },
-        {
-          arity: MandatoryArity,
-          property: new MetaProperty('Description', 'Description of the topic', 'string')
-        }
-      ])
-    }
-  ])
+  new StructuredMetaProperty({
+    name: 'Long',
+    description: 'Long meta format',
+    children: [
+      {
+        arity: MandatoryArity,
+        property: new MetaProperty({
+          name: 'Title',
+          description: 'Name of the dataset',
+          type: 'string'
+        })
+      },
+      {
+        arity: MandatoryArity,
+        property: new MetaProperty({
+          name: 'Description',
+          description: 'Short description about the contents of the dataset',
+          type: 'string'
+        })
+      },
+      {
+        arity: { min: 3 },
+        property: new MetaProperty({
+          name: 'Keyword',
+          description: 'Single-word keyword describing the content of the dataset',
+          type: 'string'
+        })
+      },
+      {
+        arity: { min: 2 },
+        property: new MetaProperty({
+          name: 'Tag',
+          description:
+            'Sinle-word tag describing the content of the dataset from a fixed set of values',
+          domain: ['simple', 'average', 'detailed', 'public', 'confidential', 'local', 'national'],
+          isDomainStrict: true,
+          type: 'string'
+        })
+      },
+      {
+        arity: MandatoryArity,
+        property: new MetaProperty({
+          name: 'Note',
+          description: 'Custom note for the author',
+          type: 'string'
+        })
+      },
+      {
+        arity: { min: 2 },
+        property: new StructuredMetaProperty({
+          name: 'Topic',
+          description: 'Single topic of the dataset',
+          children: [
+            {
+              arity: MandatoryArity,
+              property: new MetaProperty({
+                name: 'Name',
+                description: 'Name of the topic',
+                type: 'string'
+              })
+            },
+            {
+              arity: MandatoryArity,
+              property: new MetaProperty({
+                name: 'Description',
+                description: 'Description of the topic',
+                type: 'string'
+              })
+            }
+          ]
+        })
+      }
+    ]
+  })
 )
 
 export default Long

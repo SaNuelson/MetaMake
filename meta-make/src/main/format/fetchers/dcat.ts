@@ -8,6 +8,8 @@ import DcatApCz from "../DcatApCz.js";
 import MetaProperty, { StructuredMetaProperty } from "../../../common/dto/MetaProperty.js";
 import { ArityBounds, MandatoryArity } from "../../../common/dto/ArityBounds.js";
 import knowledgeBaseManager from "../../kb/KnowledgeBaseManager.js";
+import MetaStore from "../../data/MetaStore.js";
+import { LogLevel } from "../../../common/constants.js";
 
 const parseRdf = promisify($rdf.parse);
 
@@ -19,8 +21,10 @@ const SKOS = Namespace('http://www.w3.org/2004/02/skos/core#');
 export async function getEuCodebook(url: string, language: string): Promise<CodebookEntry[]> {
   // const CBOOK = Namespace(url);
 
-  const codebook: {uri: string, label: string}[] = [];
+  const codebook: CodebookEntry[] = [];
 
+  if (MetaStore.logLevel >= LogLevel.Diagnostic)
+    console.log(`fetch(${url})`);
   const res = await fetch(url);
   const txt = await res.text();
 
@@ -34,6 +38,8 @@ export async function getEuCodebook(url: string, language: string): Promise<Code
 
     const entryIri = statement.subject.value;
 
+    if (MetaStore.logLevel >= LogLevel.Diagnostic)
+      console.log(`fetch(${entryIri})`);
     const subRes = await fetch(entryIri);
     const subTxt = await subRes.text();
 
@@ -43,7 +49,8 @@ export async function getEuCodebook(url: string, language: string): Promise<Code
 
     const langLabel = labels.find(stm=> (stm.object as Literal).language === language)?.object?.value ?? 'UNKNOWN';
 
-    codebook.push({uri: entryIri, label: langLabel});
+    const value: CodebookEntry = {uri: entryIri, value: langLabel}
+    codebook.push(value);
   }
   return codebook;
 }

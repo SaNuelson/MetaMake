@@ -1,103 +1,89 @@
 import Restructurable from './Restructurable'
-import { ArityBounds, isValidArity } from "./ArityBounds";
-
-import { CodebookEntry } from "./CodebookEntry.js";
+import { ArityBounds } from "./ArityBounds";
 
 type PropertyType = 'string' | 'number' | 'object' | 'array' | 'boolean' | 'date';
-type PropertySubType = 'email' | 'url' | 'fileType' | 'mediaType' | 'conformsTo' | 'frequency' | 'dataTheme' | 'spatial' | 'geographical' | 'eurovoc' |'enum';
 
 export interface MetaChild {
   arity: ArityBounds
   property: MetaProperty
 }
 
-export interface Options {
-  subType?: PropertySubType
+interface DomainEntry {
+  value: any
+}
+
+export interface MetaPropertyParams {
+  name: string,
+  description?: string,
+  domain?: DomainEntry[],
+  isDomainStrict?: boolean,
+  type: PropertyType,
+
   uri?: string
 }
 
 export default class MetaProperty extends Restructurable {
-  readonly name: string
-  readonly description: string
+  readonly name: string;
+  readonly description?: string;
 
-  readonly type: PropertyType
-  readonly subType?: PropertySubType
-  readonly uri?: string
+  readonly type: PropertyType;
+  readonly uri?: string;
 
-  constructor(name: string, description: string, type: PropertyType, { subType, uri }: Options = {}) {
+  readonly domain?: DomainEntry[];
+  isDomainStrict?: boolean;
+
+  readonly data: object;
+
+  constructor({
+    name,
+    description,
+    type,
+    domain,
+    isDomainStrict,
+    ...rest
+  }: MetaPropertyParams) {
     super()
     this.name = name
     this.description = description
-
     this.type = type
-    this.subType = subType
-    this.uri = uri;
+
+    this.domain = domain;
+    this.isDomainStrict = isDomainStrict;
+
+    this.data = rest;
   }
 
-  isValid(...values: any[]): boolean {
-    return values.every((value) => typeof value === this.type)
+  isValid(...value: any | any[]): boolean {
+    if (Array.isArray(value))
+      return value.every(v => this.isValid(v));
+
+    if (this.domain) {
+      return this.domain.some(entry => entry.value === value);
+    }
+
+    return typeof value === this.type;
   }
 
   [Restructurable.from](obj: MetaProperty): MetaProperty {
-    return new MetaProperty(obj.name, obj.description, obj.type, { subType: obj.subType, uri: obj.uri });
+    return new MetaProperty({...obj});
   }
 }
 
-export interface EnumOptions {
-  canBeCustom?: boolean
-  uri?: string
-}
-
-export class EnumMetaProperty extends MetaProperty {
-  readonly domain: CodebookEntry[]
-  readonly strict: boolean
-
-  constructor(name: string, description: string, domain: CodebookEntry[], type: PropertyType, { canBeCustom, uri }: EnumOptions = {}) {
-    super(name, description, type, {subType: 'enum', uri})
-    this.domain = domain;
-    this.strict = !canBeCustom;
-  }
-
-  isValid(...values: any[]): boolean {
-    return super.isValid(...values) && values.every(value => this.domain.find(entry => entry.label === value));
-  }
-
-  [Restructurable.from](obj: EnumMetaProperty): EnumMetaProperty {
-    return new EnumMetaProperty(obj.name, obj.description, obj.domain,  obj.type,{ canBeCustom: !obj.strict, uri: obj.uri });
-  }
-}
-
-export interface StructuredOptions {
-  subType?: PropertySubType
-  uri?: string
+export interface StructuredMetaPropertyParams extends Omit<MetaPropertyParams, 'type'> {
+  type?: PropertyType,
+  children: Array<MetaChild>
 }
 
 export class StructuredMetaProperty extends MetaProperty {
   readonly children: {[key: string]: MetaChild};
 
-  constructor(name: string, description: string, children: Array<MetaChild>, { subType, uri }: StructuredOptions = {}) {
-    super(name, description, 'object', {subType, uri});
+  constructor({
+    children,
+    ...rest
+  }: StructuredMetaPropertyParams) {
+    super({type: 'object', ...rest});
 
-    StructuredMetaProperty.validateStructure(children);
-    this.children = Object.fromEntries((children ?? []).map(child => [child.property.name, child]));
-  }
-
-  private static validateStructure(children?: Array<MetaChild>) {
-    if (!children) {
-      throw new Error(`StructuredMetaProperty '${this.name}' has no children.`);
-    }
-
-    const keys = new Set();
-    for (const {arity, property} of children) {
-      if (!isValidArity(arity)) {
-        throw new Error(`StructuredMetaProperty '${this.name}' has a child '${property.name}' with invalid arity '${arity}'`);
-      }
-
-      if (keys.has(property.name)) {
-        throw new Error(`StructuredMetaProperty '${this.name}' has multiple children of name '${property.name}'.`);
-      }
-      keys.add(property.name);
-    }
+    this.children = Object.fromEntries(children.map(child => [child.property.name, child]));
   }
 
   isValid(..._: any[]): boolean {
@@ -105,6 +91,6 @@ export class StructuredMetaProperty extends MetaProperty {
   }
 
   [Restructurable.from](obj: StructuredMetaProperty): StructuredMetaProperty {
-    return new StructuredMetaProperty(obj.name, obj.description, Object.values(obj.children), {subType: obj.subType, uri: obj.uri});
+    return new StructuredMetaProperty({...obj, children: Object.values(obj.children)});
   }
 }

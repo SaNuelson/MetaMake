@@ -1,5 +1,5 @@
 import Store, { Options, Schema } from "electron-store";
-import { Config } from "../../common/constants";
+import { Config, LogLevel } from "../../common/constants";
 
 interface MetaStore {
   [Config.kbPath]: string;
@@ -19,7 +19,7 @@ const metaStoreSchema: Schema<MetaStore>  = {
   },
   [Config.logLevel]: {
     type: "number",
-    default: 0
+    default: LogLevel.Diagnostic
   },
   [funcCallCache]: {
     type: "object"
@@ -56,6 +56,7 @@ class MetaElectronStore extends Store<MetaStore> {
   }
 
   async getCached<T>(computeFunc: () => Promise<T>, minutesToLive?: number, handle?: string): Promise<T> {
+
     minutesToLive ??= 30;
 
     const funcHandle = handle ?? computeFunc.name;
@@ -77,12 +78,20 @@ class MetaElectronStore extends Store<MetaStore> {
       const invalidAt = new Date(Date.parse(cachedAt) + minutesToLive * 60000);
 
       if (invalidAt >= this.startedAt) {
+        if (this.logLevel >= LogLevel.Verbose) {
+          console.log(`MetaStore.getCached(${handle ?? computeFunc.name}) -> cached (until ${invalidAt.toJSON()})`)
+        }
         return cachedValue;
       }
     }
 
+    const fetchTimer = performance.now()
     const retval = await computeFunc();
     this.set(memHandle, [this.startedAt, retval]);
+
+    if (this.logLevel >= LogLevel.Verbose) {
+      console.log(`MetaStore.getCached(${handle ?? computeFunc.name}) -> computed (took ${performance.now() - fetchTimer} ms)`)
+    }
     return retval;
   }
 
