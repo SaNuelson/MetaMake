@@ -7,7 +7,7 @@ import MetaModel, { MetaDatum, PrimitiveMetaDatum, StructuredMetaDatum } from ".
 import DcatApCz from "../DcatApCz.js";
 import MetaProperty, { StructuredMetaProperty } from "../../../common/dto/MetaProperty.js";
 import { ArityBounds, MandatoryArity } from "../../../common/dto/ArityBounds.js";
-import knowledgeBaseManager from "../../kb/KnowledgeBaseManager.js";
+import knowledgeBaseManager from "../../manager/KnowledgeBaseManager.js";
 import MetaStore from "../../data/MetaStore.js";
 import { LogLevel } from "../../../common/constants.js";
 

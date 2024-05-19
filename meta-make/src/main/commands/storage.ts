@@ -1,5 +1,5 @@
 import { BrowserWindow, dialog } from 'electron'
-import DataManager from '../data/DataManager'
+import DataManager from '../manager/DataManager.js'
 import {writeTextToFile} from "../utils/io.js";
 import {exportDCAT} from "../format/fetchers/dcat.js";
 import MetaModel from "../../common/dto/MetaModel.js";

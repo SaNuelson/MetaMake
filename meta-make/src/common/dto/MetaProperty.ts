@@ -65,6 +65,12 @@ export default class MetaProperty extends Restructurable {
   }
 
   [Restructurable.from](obj: MetaProperty): MetaProperty {
+    // @ts-ignore
+    delete obj['__className'];
+    Object.entries(obj.data)
+      .forEach(([k,v]) => obj[k] = v);
+    // @ts-ignore
+    delete obj['data'];
     return new MetaProperty({...obj});
   }
 }
@@ -91,6 +97,12 @@ export class StructuredMetaProperty extends MetaProperty {
   }
 
   [Restructurable.from](obj: StructuredMetaProperty): StructuredMetaProperty {
+    // @ts-ignore
+    delete obj['__className'];
+    Object.entries(obj.data)
+      .forEach(([k,v]) => obj[k] = v);
+    // @ts-ignore
+    delete obj['data'];
     return new StructuredMetaProperty({...obj, children: Object.values(obj.children)});
   }
 }

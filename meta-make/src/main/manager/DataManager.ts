@@ -1,5 +1,5 @@
-import DataSource from './DataSource'
-import { LocalCsvDataSource } from './LocalCsvDataSource'
+import DataSource from '../data/DataSource.js'
+import { LocalCsvDataSource } from '../data/LocalCsvDataSource.js'
 
 class DataManager {
   // meta: Meta;

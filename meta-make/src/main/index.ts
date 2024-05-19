@@ -6,9 +6,7 @@ import path from 'node:path'
 import { existsSync, mkdirSync } from 'fs'
 import MetaStore from "./data/MetaStore";
 import { Config, LogLevel } from "../common/constants";
-import { session } from 'electron';
-import * as os from "node:os";
-import knowledgeBaseManager from "./kb/KnowledgeBaseManager";
+import knowledgeBaseManager from "./manager/KnowledgeBaseManager";
 import { attachIndexEventHandlers } from "./events";
 import { createMainNavigation } from "./menu";
 

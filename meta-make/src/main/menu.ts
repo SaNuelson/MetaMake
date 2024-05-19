@@ -1,10 +1,10 @@
 import { BrowserWindow, Menu, shell } from "electron";
 import { loadLocalDataFile } from './commands/storage'
 import { createKnowledgeBaseEditorWindow, createKnowledgeBaseWindow } from './windows'
-import knowledgeBaseManager from "./kb/KnowledgeBaseManager";
+import knowledgeBaseManager from "./manager/KnowledgeBaseManager";
 import MetaStore from "./data/MetaStore";
 import { Config } from "../common/constants";
-import { existsSync } from "fs";
+import { existsSync, rmSync } from "fs";
 
 export function createMainNavigation(window: BrowserWindow): Electron.Menu {
   return Menu.buildFromTemplate([

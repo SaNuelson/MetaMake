@@ -1,13 +1,12 @@
 import { EventType, LogLevel } from "../common/constants";
-import DataManager from './data/DataManager'
+import DataManager from './manager/DataManager.js'
 import { BrowserWindow, ipcMain, IpcMainInvokeEvent, IpcRendererEvent } from 'electron'
-import KnowledgeBaseManager from './kb/KnowledgeBaseManager'
+import KnowledgeBaseManager from './manager/KnowledgeBaseManager'
 import { KnowledgeBase } from "../common/dto/KnowledgeBase";
 import Restructurable from "../common/dto/Restructurable";
 import {loadLocalDataFile, saveMetaModelFile} from "./commands/storage";
-import generateMetadata from "./processing/generator";
-import MetaBaseManager from "./kb/MetaBaseManager";
-import metaBaseManager from "./kb/MetaBaseManager";
+import MetaBaseManager from "./manager/MetaBaseManager";
+import metaBaseManager from "./manager/MetaBaseManager";
 import MetaStore from "./data/MetaStore.js";
 
 type MainElectronEventHandler = (event: IpcMainInvokeEvent, ...args: any[]) => Promise<any> | any

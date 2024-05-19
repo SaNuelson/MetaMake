@@ -1,5 +1,5 @@
 import MetaFormat from '../../common/dto/MetaFormat'
-import knowledgeBaseManager from '../kb/KnowledgeBaseManager'
+import knowledgeBaseManager from '../manager/KnowledgeBaseManager'
 
 export function chainJsonTransformers(
   breakOnChange: boolean = false,
