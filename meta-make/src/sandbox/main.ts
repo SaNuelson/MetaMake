@@ -1,62 +1,68 @@
-import Restructurable from './Restructurable'
-import { ArityBounds, isValidArity } from "./ArityBounds";
+import { MemoryLevel } from 'memory-level';
+import { DataFactory } from 'rdf-data-factory';
+import { Quadstore } from 'quadstore'
+import { Engine } from 'quadstore-comunica';
+import DcatApCz from "../main/format/DcatApCz.js";
+import { KnowledgeBase } from "../common/dto/KnowledgeBase.js";
+import { PrimitiveMetaDatum } from '../common/dto/MetaModel.js'
+import SerializerJsonld from '@rdfjs/serializer-jsonld'
+import { Readable } from 'stream'
 
-import { CodebookEntry } from "./CodebookEntry.js";
-import { MandatoryArity } from "../common/dto/ArityBounds.js";
+// Any implementation of AbstractLevel can be used.
+const backend = new MemoryLevel();
 
-type PropertyType = 'string' | 'number' | 'object' | 'array' | 'boolean' | 'date';
-type PropertyTypes = {
-  'string': string,
-  'number': number,
-  'object': object,
-  'array': any[],
-  'boolean': boolean,
-  'date': Date
-};
+// Implementation of the RDF/JS DataFactory interface
+const df = new DataFactory();
 
-export interface MetaChild {
-  arity: ArityBounds
-  property: MetaProperty
-}
+// Store and query engine are separate modules
+const store = new Quadstore({backend, dataFactory: df});
+const engine = new Engine(store);
 
-type Primitive = string | number | boolean | Date;
-type List<T extends Primitive> = T[];
+// Open the store
+await store.open();
 
-class MetaProperty<T extends keyof PropertyTypes> {
-  readonly name: string
-  readonly description: string
+const kb = new KnowledgeBase('testkb', "TestKB", DcatApCz);
 
-  readonly type: T
+kb.model.setValue(".Název", "My DCAT Test Model Title");
+const [titleArity, titleProp, titleMeta] = kb.model.getData(".Název");
 
-  constructor(name: string, description: string, type: T) {
-    this.name = name
-    this.description = description
-    this.type = type
-  }
-}
+kb.model.setValue(".Popis", "My DCAT Test Model Description");
+const [descArity, descProp, descMeta] = kb.model.getData(".Popis");
 
-class StructuredMetaProperty<T extends keyof PropertyTypes> extends MetaProperty<T> {
-  readonly children: {[key: string]: MetaChild};
+kb.model.setValue(".Poskytovatel", "My DCAT Test Model Provider");
+const [providerArity, providerProp, providerMeta] = kb.model.getData(".Poskytovatel");
 
-  constructor(name: string, description: string, children: Array<MetaChild>) {
-    super(name, description, 'object');
-  }
-}
+// Put a single quad into the store using Quadstore's API
+await store.put(df.quad(
+  df.blankNode("DataSet"),
+  df.namedNode(titleProp.data.uri),
+  df.literal((titleMeta as PrimitiveMetaDatum<string>).value),
+  df.defaultGraph(),
+));
+await store.put(df.quad(
+  df.blankNode("DataSet"),
+  df.namedNode(descProp.data.uri),
+  df.literal((descMeta as PrimitiveMetaDatum<string>).value),
+  df.defaultGraph(),
+));
+await store.put(df.quad(
+  df.blankNode("DataSet"),
+  df.namedNode(providerProp.data.uri),
+  df.literal((providerMeta as PrimitiveMetaDatum<string>).value),
+  df.defaultGraph(),
+));
 
-class MetaDatum<T extends keyof PropertyTypes> {
-  value: PropertyTypes[T]
+// Retrieves all quads using Quadstore's API
+const { items } = await store.get({});
 
-  constructor(property: MetaProperty<T>, value: PropertyTypes[T]) {
-    this.value = value;
-  }
-}
+// Retrieves all quads using RDF/JS Stream interfaces
+const quadsStream = store.match(undefined, undefined, undefined, undefined);
+const serializerJsonld = new SerializerJsonld({
+  space: '  ',
+  context: 'https://ofn.gov.cz/rozhraní-katalogů-otevřených-dat/2021-01-11/kontexty/rozhraní-katalogů-otevřených-dat.jsonld'
+})
+const output = serializerJsonld.import(quadsStream)
 
-const TestFormat = new StructuredMetaProperty(
-  'Test',
-  'Test desc.',
-  [
-    {arity: MandatoryArity, property: new MetaProperty("Title", "Title desc", "string")}
-  ]
-)
-
-const TestDatum = new MetaDatum(new MetaProperty("AA","AA","string"), "abrakadabra")
+output.on('data', jsonld => {
+  console.log(jsonld)
+})
