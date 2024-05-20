@@ -67,3 +67,11 @@ export function createKnowledgeBaseWindow(parent?: BrowserWindow) {
 export function createKnowledgeBaseEditorWindow(parent?: BrowserWindow, kbId?: string) {
   return createWindow({ parent, slug: createMetaUrl(!!kbId ? MetaUrl.KnowledgeBase : MetaUrl.KnowledgeBaseCreate, kbId!)})
 }
+
+export function createPipelineManagerWindow(parent?: BrowserWindow) {
+  return createWindow({ parent, slug: createMetaUrl(MetaUrl.Pipeline) })
+}
+
+export function createPipelineEditorWindow(parent?: BrowserWindow, pipeId?: string) {
+  return createWindow({ parent, slug: createMetaUrl(!!pipeId ? MetaUrl.Pipeline : MetaUrl.PipelineCreate, pipeId!)})
+}

@@ -13,6 +13,8 @@ class App extends React.Component {
           <Route index element={<DataPreview />} />
           <Route path="/kb" element={<KnowledgeBaseManager />} />
           <Route path="/kb/:kb" element={<KnowledgeBaseEditor />} />
+          <Route path="/pipe" element={<PipelineManager />} />
+          <Route path="/pipe/:pipe" element={<PipelineEditor />} />
           <Route path="/mb" element={<MetaModelEditor />} />
         </Routes>
       </BrowserRouter>

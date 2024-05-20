@@ -35,8 +35,13 @@ export enum EventType {
 
 export enum MetaUrl {
   Index = "/",
+
   KnowledgeBase = "/kb/{}",
   KnowledgeBaseCreate = "/kb/create",
+
+  Pipeline = "/pipe/{}",
+  PipelineCreate = "/pipe/create",
+
   MetaBase = "/mb/"
 }
 
