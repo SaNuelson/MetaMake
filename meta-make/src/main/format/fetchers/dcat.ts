@@ -70,13 +70,14 @@ export function exportDCAT(model: MetaModel): string {
       return;
     }
 
-    if (!prop.uri) {
+    const uri: string = prop.data.uri;
+    if (!uri) {
       console.error(`Missing URI on property ${prop.name}`);
       return;
     }
 
     if (data instanceof PrimitiveMetaDatum) {
-      const predicate = new NamedNode(prop.uri);
+      const predicate = new NamedNode(uri);
 
       if (!data.value) {
         console.error(`Invalid value of ${prop.name} = ${data.value}`)
@@ -87,7 +88,7 @@ export function exportDCAT(model: MetaModel): string {
       store.add(node, predicate, object)
     }
 
-    const predicate = new NamedNode(prop.uri);
+    const predicate = new NamedNode(uri);
     const subNode = new BlankNode();
     store.add(node, predicate, subNode);
 
@@ -113,7 +114,10 @@ export function exportDCAT(model: MetaModel): string {
   const format = knowledgeBaseManager.getMetaFormat(model.metaFormat.name);
   walk(dataset, MandatoryArity, model.root, format!.metaProps);
 
-  const jsonldSerializer = new JsonLdSerializer({space: '  '})
+  const jsonldSerializer = new JsonLdSerializer({
+    space: '  ',
+    context: 'https://ofn.gov.cz/rozhraní-katalogů-otevřených-dat/2021-01-11/kontexty/rozhraní-katalogů-otevřených-dat.jsonld'
+  })
 
   jsonldSerializer.pipe(process.stdout);
   for (let statement of store.statements) {

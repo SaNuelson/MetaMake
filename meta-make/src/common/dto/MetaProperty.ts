@@ -27,12 +27,11 @@ export default class MetaProperty extends Restructurable {
   readonly description?: string;
 
   readonly type: PropertyType;
-  readonly uri?: string;
 
   readonly domain?: DomainEntry[];
   isDomainStrict?: boolean;
 
-  readonly data: object;
+  readonly data: any;
 
   constructor({
     name,
