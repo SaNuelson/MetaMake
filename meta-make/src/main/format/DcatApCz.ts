@@ -291,7 +291,7 @@ const Distribuce = new StructuredMetaProperty({
       property: DatovaSluzba
     }
   ],
-  uri: "https://data.gov.cz/slovník/podmínky-užití/specifikace"
+  uri: "http://www.w3.org/ns/dcat#distribution"
 });
 // endregion
 
