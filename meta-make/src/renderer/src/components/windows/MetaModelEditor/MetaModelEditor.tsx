@@ -1,9 +1,9 @@
 import { ReactElement, useState } from "react";
-import { MetaModelEditorNode } from "./MetaModelEditorNode";
 import MetaModel from "../../../../../common/dto/MetaModel";
 import { useMetaBase } from "../../hooks/use-meta-base";
 import Modal from "../../helpers/Modal";
 import { useNavigate } from "react-router-dom";
+import { FormatFormNode } from '../../common/FormatFormNode.js'
 
 export default function MetaModelEditor(): ReactElement {
 
@@ -56,7 +56,7 @@ export default function MetaModelEditor(): ReactElement {
       <hr className="h-px my-4 bg-gray-200 border-0 dark:bg-gray-700" />
       <div className="flex justify-center">
         <div className="block w-3/4 rounded-lg bg-white px-6 py-3">
-          <MetaModelEditorNode model={finalModel!} path=''  metaBase={metaBase!} setProperty={setModelProp} extendProperty={extendModelProp} deleteProperty={deleteModelProp}/>
+          <FormatFormNode model={finalModel!} path=''  metaBase={metaBase!} setProperty={setModelProp} extendProperty={extendModelProp} deleteProperty={deleteModelProp}/>
         </div>
       </div>
       <hr className="h-px my-4 bg-gray-200 border-0 dark:bg-gray-700" />

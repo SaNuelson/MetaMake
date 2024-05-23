@@ -1,23 +1,23 @@
-import { ReactElement } from "react";
-import Property, { StructuredProperty } from "../../../../../common/dto/Property.js";
-import MetaModel, { Primitive, PrimitiveMetaDatum } from "../../../../../common/dto/MetaModel";
-import { Button } from "../../common/Buttons";
-import { IoCloseOutline } from "react-icons/io5";
-import MetaModelSource, { MetaBase } from "../../../../../common/dto/MetaModelSource";
-import { SlArrowDown, SlArrowUp } from "react-icons/sl";
-import { VscAdd } from "react-icons/vsc";
-import { Input, OptionData, Select } from "../../common/Inputs.js";
+import MetaModel, { Primitive, PrimitiveMetaDatum } from '../../../../common/dto/MetaModel'
+import MetaModelSource, { MetaBase } from '../../../../common/dto/MetaModelSource'
+import { ReactElement } from 'react'
+import { SlArrowDown, SlArrowUp } from 'react-icons/sl'
+import { Button } from './Buttons'
+import { IoCloseOutline } from 'react-icons/io5'
+import Property, { StructuredProperty } from '../../../../common/dto/Property.js'
+import { VscAdd } from 'react-icons/vsc'
+import { Input, OptionData, Select } from './Inputs'
 
 type NodeProps = {
   model: MetaModel,
-  metaBase: MetaBase,
+  metaBase?: MetaBase,
   path: string,
   setProperty: (path: string, value: any) => void
   extendProperty: (path: string) => void
   deleteProperty: (path: string) => void
 }
 
-export function MetaModelEditorNode({ model, metaBase, path, setProperty, extendProperty, deleteProperty }: NodeProps): ReactElement {
+export function FormatFormNode({ model, metaBase, path, setProperty, extendProperty, deleteProperty }: NodeProps): ReactElement {
   const [arity, property, data] = model.getData(path);
 
   if (Array.isArray(data)) {
@@ -40,7 +40,7 @@ export function MetaModelEditorNode({ model, metaBase, path, setProperty, extend
             <li key={idx}>
               <div className="flex my-4">
                 <div className="flex-1 flex flex-col justify-center">
-                  <MetaModelEditorNode
+                  <FormatFormNode
                     model={model}
                     metaBase={metaBase}
                     path={`${path}[${idx}]`}
@@ -99,7 +99,7 @@ export function MetaModelEditorNode({ model, metaBase, path, setProperty, extend
           {Object.values((property as StructuredProperty).propertyDefinitions).map(
             ({ property }, idx, arr) => (
               <li key={idx} className={idx < arr.length - 1 ? 'mb-6' : ''}>
-                <MetaModelEditorNode
+                <FormatFormNode
                   model={model}
                   metaBase={metaBase}
                   path={[path, property.name].join('.')}
@@ -119,7 +119,9 @@ export function MetaModelEditorNode({ model, metaBase, path, setProperty, extend
     throw new Error("Malformed data: Property structured, datum is not.");
   }
 
-  const alternatives: {source: MetaModelSource, value: Primitive | Primitive[]}[] = metaBase.models.map(([model, source]) => ({source, value: model.getValue(path)}));
+  const alternatives: {source: MetaModelSource, value: Primitive | Primitive[]}[] = metaBase
+    ? metaBase.models.map(([model, source]) => ({source, value: model.getValue(path)}))
+    : [];
   const isInArray = !arity.max || arity.max > 1
 
   return (<PrimitiveNode

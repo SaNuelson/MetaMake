@@ -7,8 +7,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { MetaUrl } from '../../../../../common/constants'
 import { createMetaUrl } from '../../../../../common/utils/url'
 import { useKnowledgeBase } from '../../hooks/use-knowledge-base'
-import { KnowledgeBaseEditorNode } from './KnowledgeBaseEditorNode'
 import MetaFormatSelect from '../../common/MetaFormatSelect'
+import { FormatFormNode } from '../../common/FormatFormNode.js'
 
 export default function KnowledgeBaseEditor(): ReactElement {
   const kbId = useParams()['kb'];
@@ -96,7 +96,7 @@ export default function KnowledgeBaseEditor(): ReactElement {
       <div className="flex justify-center">
         <div className="block w-3/4 rounded-lg bg-white px-6 py-3">
           {knowledgeBase ? (
-            <KnowledgeBaseEditorNode
+            <FormatFormNode
               model={knowledgeBase.model}
               path=''
               setProperty={setModelProp}

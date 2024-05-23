@@ -1,11 +1,10 @@
 import $rdf, { BlankNode, NamedNode, Namespace } from "rdflib";
 import { promisify } from "util";
 import { Literal } from "rdflib/lib/tf-types.js";
-import {JsonLdSerializer} from "jsonld-streaming-serializer";
 import { CodebookEntry } from "../../../common/dto/CodebookEntry.js";
 import MetaModel, { MetaDatum, PrimitiveMetaDatum, StructuredMetaDatum } from "../../../common/dto/MetaModel.js";
 import DcatApCz from "../DcatApCz.js";
-import MetaProperty, { StructuredMetaProperty } from "../../../common/dto/MetaProperty.js";
+import Property, { StructuredProperty } from "../../../common/dto/Property.js";
 import { ArityBounds, MandatoryArity } from "../../../common/dto/ArityBounds.js";
 import knowledgeBaseManager from "../../manager/KnowledgeBaseManager.js";
 import MetaStore from "../../data/MetaStore.js";
@@ -62,7 +61,7 @@ export function exportDCAT(model: MetaModel): string {
     throw new Error(`Unable to export non-DCAT format using DCAT exporter.`);
   }
 
-  function walk(node: BlankNode, arity: ArityBounds, data: MetaDatum | MetaDatum[], prop: MetaProperty) {
+  function walk(node: BlankNode, arity: ArityBounds, data: MetaDatum | MetaDatum[], prop: Property) {
     if (Array.isArray(data)) {
       for (const child of data) {
         walk(node, arity, child, prop);
@@ -92,7 +91,7 @@ export function exportDCAT(model: MetaModel): string {
     const subNode = new BlankNode();
     store.add(node, predicate, subNode);
 
-    if (!(prop instanceof StructuredMetaProperty)) {
+    if (!(prop instanceof StructuredProperty)) {
       console.error(`Property ${prop.name} is not structured as expected`);
       return;
     }
@@ -102,8 +101,8 @@ export function exportDCAT(model: MetaModel): string {
       return;
     }
 
-    for (const key in prop.children) {
-      const {arity: subArity, property: subProp} = prop.children[key];
+    for (const key in prop.propertyDefinitions) {
+      const {arity: subArity, property: subProp} = prop.propertyDefinitions[key];
       const subData = data.data[key];
       walk(subNode, subArity, subData, subProp);
     }
@@ -113,18 +112,6 @@ export function exportDCAT(model: MetaModel): string {
   // TODO: Fix serialization (or remove ofc)
   const format = knowledgeBaseManager.getMetaFormat(model.metaFormat.name);
   walk(dataset, MandatoryArity, model.root, format!.metaProps);
-
-  const jsonldSerializer = new JsonLdSerializer({
-    space: '  ',
-    context: 'https://ofn.gov.cz/rozhraní-katalogů-otevřených-dat/2021-01-11/kontexty/rozhraní-katalogů-otevřených-dat.jsonld'
-  })
-
-  jsonldSerializer.pipe(process.stdout);
-  for (let statement of store.statements) {
-
-    jsonldSerializer.write(statement);
-  }
-  jsonldSerializer.end()
 
   return "";
 }
