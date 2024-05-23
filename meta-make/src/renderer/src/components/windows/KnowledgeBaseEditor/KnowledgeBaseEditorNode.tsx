@@ -1,5 +1,5 @@
 import { ReactElement } from "react";
-import MetaProperty, { StructuredMetaProperty } from "../../../../../common/dto/MetaProperty";
+import Property, { StructuredProperty } from "../../../../../common/dto/Property.js";
 import MetaModel, { PrimitiveMetaDatum } from '../../../../../common/dto/MetaModel'
 import { Button } from '../../common/Buttons'
 import { IoCloseOutline } from 'react-icons/io5'
@@ -103,7 +103,7 @@ export function KnowledgeBaseEditorNode({
           {property.description}
         </small>
         <ul className="ml-2">
-          {Object.values((property as StructuredMetaProperty).children).map(
+          {Object.values((property as StructuredProperty).propertyDefinitions).map(
             ({ property }, idx, arr) => (
               <li key={idx} className={idx < arr.length - 1 ? 'mb-6' : ''}>
                 <KnowledgeBaseEditorNode
@@ -147,7 +147,7 @@ function PrimitiveNode(
     setValue
   } : {
     showDescription: boolean,
-    property: MetaProperty,
+    property: Property,
     path: string,
     value: any,
     setValue: (path: string, value: any) => void

@@ -3,16 +3,16 @@ import { ArityBounds } from "./ArityBounds";
 
 type PropertyType = 'string' | 'number' | 'object' | 'array' | 'boolean' | 'date';
 
-export interface MetaChild {
+export interface PropertyDefinition {
   arity: ArityBounds
-  property: MetaProperty
+  property: Property
 }
 
 interface DomainEntry {
   value: any
 }
 
-export interface MetaPropertyParams {
+export interface PropertyParams {
   name: string,
   description?: string,
   domain?: DomainEntry[],
@@ -22,7 +22,7 @@ export interface MetaPropertyParams {
   uri?: string
 }
 
-export default class MetaProperty extends Restructurable {
+export default class Property extends Restructurable {
   readonly name: string;
   readonly description?: string;
 
@@ -40,7 +40,7 @@ export default class MetaProperty extends Restructurable {
     domain,
     isDomainStrict,
     ...rest
-  }: MetaPropertyParams) {
+  }: PropertyParams) {
     super()
     this.name = name
     this.description = description
@@ -63,36 +63,36 @@ export default class MetaProperty extends Restructurable {
     return typeof value === this.type;
   }
 
-  [Restructurable.from](obj: MetaProperty): MetaProperty {
-    const prop = Object.create(MetaProperty.prototype)
+  [Restructurable.from](obj: Property): Property {
+    const prop = Object.create(Property.prototype)
     Object.assign(prop, obj);
     return prop;
   }
 }
 
-export interface StructuredMetaPropertyParams extends Omit<MetaPropertyParams, 'type'> {
+export interface StructuredPropertyParams extends Omit<PropertyParams, 'type'> {
   type?: PropertyType,
-  children: Array<MetaChild>
+  children: Array<PropertyDefinition>
 }
 
-export class StructuredMetaProperty extends MetaProperty {
-  readonly children: {[key: string]: MetaChild};
+export class StructuredProperty extends Property {
+  readonly propertyDefinitions: {[key: string]: PropertyDefinition};
 
   constructor({
     children,
     ...rest
-  }: StructuredMetaPropertyParams) {
+  }: StructuredPropertyParams) {
     super({type: 'object', ...rest});
 
-    this.children = Object.fromEntries(children.map(child => [child.property.name, child]));
+    this.propertyDefinitions = Object.fromEntries(children.map(child => [child.property.name, child]));
   }
 
   isValid(..._: any[]): boolean {
     throw new Error("Potentially undefined behavior");
   }
 
-  [Restructurable.from](obj: StructuredMetaProperty): StructuredMetaProperty {
-    const prop = Object.create(StructuredMetaProperty.prototype);
+  [Restructurable.from](obj: StructuredProperty): StructuredProperty {
+    const prop = Object.create(StructuredProperty.prototype);
     Object.assign(prop, obj);
     return prop;
   }

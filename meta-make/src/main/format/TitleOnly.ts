@@ -1,16 +1,16 @@
 import MetaFormat from '../../common/dto/MetaFormat'
-import MetaProperty, { StructuredMetaProperty } from '../../common/dto/MetaProperty'
+import Property, { StructuredProperty } from '../../common/dto/Property.js'
 import { MandatoryArity } from '../../common/dto/ArityBounds'
 
 const TitleOnly = new MetaFormat(
   'TitleOnly',
-  new StructuredMetaProperty({
+  new StructuredProperty({
     name: 'TitleOnly',
     description: 'TitleOnly meta format',
     children: [
       {
         arity: MandatoryArity,
-        property: new MetaProperty({
+        property: new Property({
           name: 'Title',
           description: 'Name of the dataset',
           type: 'string'

@@ -1,5 +1,5 @@
 import MetaFormat from "./MetaFormat";
-import MetaProperty, { StructuredMetaProperty } from "./MetaProperty";
+import Property, { StructuredProperty } from "./Property.js";
 import Restructurable from "./Restructurable";
 import { ArityBounds, MandatoryArity } from "./ArityBounds";
 
@@ -25,7 +25,7 @@ export default class MetaModel extends Restructurable {
    * @param index Index to select. Must be within arity and at most length of current data.
    * @throws Error if index out of arity or out of existing length
    */
-  private stepIndex(arity: ArityBounds, property: MetaProperty, data: MetaDatum[], index: number): MetaDatum {
+  private stepIndex(arity: ArityBounds, property: Property, data: MetaDatum[], index: number): MetaDatum {
     const minArity = (arity.min ?? 0);
     const maxArity = (arity.max ?? Number.MAX_SAFE_INTEGER);
 
@@ -53,8 +53,8 @@ export default class MetaModel extends Restructurable {
    * @throws Error If data is malformed (MetaDatum isn't structured despite MetaProperty being).
    * @throws Error If propName isn't known.
    */
-  private stepProperty(prop: MetaProperty, data: MetaDatum, propName: string): [ArityBounds, MetaProperty, MetaDatum[]] {
-    if (!(prop instanceof StructuredMetaProperty)) {
+  private stepProperty(prop: Property, data: MetaDatum, propName: string): [ArityBounds, Property, MetaDatum[]] {
+    if (!(prop instanceof StructuredProperty)) {
       throw new Error(`PROP OF SIMPLE PROP: Expected end of path, got property ${propName} instead.`);
     }
 
@@ -62,13 +62,13 @@ export default class MetaModel extends Restructurable {
       throw new Error(`BAD DATA: MetaDatum ${data.name} is unstructured, but underlying property ${prop.name} is structured.`);
     }
 
-    const childProp = prop.children[propName]?.property;
+    const childProp = prop.propertyDefinitions[propName]?.property;
     if (!childProp) {
-      throw new Error(`UNK PROP CHILD: Expected property of ${prop.name} (one of [${Object.keys(prop.children)}]), got ${propName} instead.`);
+      throw new Error(`UNK PROP CHILD: Expected property of ${prop.name} (one of [${Object.keys(prop.propertyDefinitions)}]), got ${propName} instead.`);
     }
 
     return [
-      prop.children[propName].arity,
+      prop.propertyDefinitions[propName].arity,
       childProp,
       data.data[propName]
     ];
@@ -84,7 +84,7 @@ export default class MetaModel extends Restructurable {
    * @throws Error If step is an index but datum is not structured - end of path is expected.
    * @throws Error If step is not an index but data is an array and there is no only datum - index is expected.
    */
-  private step(arity: ArityBounds, prop: MetaProperty, data: MetaDatum | MetaDatum[], edge: string): [ArityBounds, MetaProperty, MetaDatum | MetaDatum[]] {
+  private step(arity: ArityBounds, prop: Property, data: MetaDatum | MetaDatum[], edge: string): [ArityBounds, Property, MetaDatum | MetaDatum[]] {
     const isIndex = /^\d+$/.test(edge);
     if (isIndex) {
       if (!Array.isArray(data)) {
@@ -123,11 +123,11 @@ export default class MetaModel extends Restructurable {
    * const result = model.walk(".Authors[1].Degrees[1].AwardedBy");
    * // result === [Mandatory: Arity, AwardedByProperty: MetaProperty, AwardedByValues: string[]]
    */
-  private walk(path: string | string[]): [ArityBounds, MetaProperty, MetaDatum | MetaDatum[]] {
+  private walk(path: string | string[]): [ArityBounds, Property, MetaDatum | MetaDatum[]] {
     const parsedPath = Array.isArray(path) ? path : parsePath(path);
 
     let arity: ArityBounds = MandatoryArity;
-    let prop: MetaProperty = this.metaFormat.metaProps;
+    let prop: Property = this.metaFormat.metaProps;
     let data: MetaDatum | MetaDatum[] = this.root;
 
     for (const edge of parsedPath) {
@@ -144,7 +144,7 @@ export default class MetaModel extends Restructurable {
    * const result = model.getData(".Authors[1].Degrees[1].AwardedBy");
    * // result === [Mandatory: Arity, AwardedByProperty: MetaProperty, AwardedByValue: string]
    */
-  getData(path: string): [ArityBounds, MetaProperty, MetaDatum | MetaDatum[]] {
+  getData(path: string): [ArityBounds, Property, MetaDatum | MetaDatum[]] {
     const [arity, prop, data] = this.walk(path);
 
     if (Array.isArray(data) && data.length === 1 && arity.max === 1) {
@@ -261,15 +261,15 @@ export default class MetaModel extends Restructurable {
 
   *preOrderTraversal(path: string = "",
                      arity: ArityBounds = MandatoryArity,
-                     metaProperty: MetaProperty = this.metaFormat.metaProps,
-                     metaDatum: MetaDatum = this.root): Generator<[string, ArityBounds, MetaProperty, MetaDatum]> {
+                     metaProperty: Property = this.metaFormat.metaProps,
+                     metaDatum: MetaDatum = this.root): Generator<[string, ArityBounds, Property, MetaDatum]> {
     if (!metaDatum)
       return;
 
     yield [path, arity, metaProperty, metaDatum];
 
     const isDataStructured = metaDatum instanceof StructuredMetaDatum;
-    const isPropStructured = metaProperty instanceof StructuredMetaProperty;
+    const isPropStructured = metaProperty instanceof StructuredProperty;
 
     if (isDataStructured !== isPropStructured) {
       throw new Error(`BAD DATA: MetaDatum ${metaDatum.name} is structurally inconsistent with underlying property ${metaProperty.name}.`);
@@ -278,7 +278,7 @@ export default class MetaModel extends Restructurable {
     if (isDataStructured && isPropStructured) {
       for (const key in metaDatum.data) {
         const childPath = `${path}.${key}`;
-        const {arity: childArity, property: childMetaProperty} = metaProperty.children[key];
+        const {arity: childArity, property: childMetaProperty} = metaProperty.propertyDefinitions[key];
         const childMetaData = metaDatum.data[key];
 
         for (const childMetaDatum of childMetaData) {
@@ -328,12 +328,12 @@ function parsePath(path: string) {
   return path.split(/[.\[\]]/g).filter(x=>x);
 }
 
-function createMetaDatum(property: MetaProperty): MetaDatum {
-  if (property instanceof StructuredMetaProperty) {
+function createMetaDatum(property: Property): MetaDatum {
+  if (property instanceof StructuredProperty) {
     // Instantiate StructuredMetaDatum child metadata
     const values: {[p: string]: MetaDatum[]} =
       Object.fromEntries(
-        Object.values(property.children)
+        Object.values(property.propertyDefinitions)
           .map(({arity, property}) =>
             [
               property.name,
@@ -350,8 +350,8 @@ function createMetaDatum(property: MetaProperty): MetaDatum {
   }
 }
 
-function copyMetaDatum(property: MetaProperty, value: MetaDatum): MetaDatum {
-  if (property instanceof StructuredMetaProperty) {
+function copyMetaDatum(property: Property, value: MetaDatum): MetaDatum {
+  if (property instanceof StructuredProperty) {
     if (!(value instanceof StructuredMetaDatum)) {
       throw new Error(`Property ${property.name} is structured, value ${value.name} is not.`);
     }
@@ -359,7 +359,7 @@ function copyMetaDatum(property: MetaProperty, value: MetaDatum): MetaDatum {
     const copyData = Object.fromEntries(
       Object.entries(value.data)
         .map(([subPropName, subValues]) => {
-          const subProperty = property.children[subPropName].property;
+          const subProperty = property.propertyDefinitions[subPropName].property;
           const subCopies = subValues.map(subValue => copyMetaDatum(subProperty, subValue));
           return [subPropName, subCopies];
         })

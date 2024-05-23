@@ -1,18 +1,18 @@
 import MetaFormat from '../../common/dto/MetaFormat'
-import MetaProperty, {
-  StructuredMetaProperty
-} from '../../common/dto/MetaProperty'
+import Property, {
+  StructuredProperty
+} from '../../common/dto/Property.js'
 import { MandatoryArity } from '../../common/dto/ArityBounds'
 
 const Long = new MetaFormat(
   'Long',
-  new StructuredMetaProperty({
+  new StructuredProperty({
     name: 'Long',
     description: 'Long meta format',
     children: [
       {
         arity: MandatoryArity,
-        property: new MetaProperty({
+        property: new Property({
           name: 'Title',
           description: 'Name of the dataset',
           type: 'string'
@@ -20,7 +20,7 @@ const Long = new MetaFormat(
       },
       {
         arity: MandatoryArity,
-        property: new MetaProperty({
+        property: new Property({
           name: 'Description',
           description: 'Short description about the contents of the dataset',
           type: 'string'
@@ -28,7 +28,7 @@ const Long = new MetaFormat(
       },
       {
         arity: { min: 3 },
-        property: new MetaProperty({
+        property: new Property({
           name: 'Keyword',
           description: 'Single-word keyword describing the content of the dataset',
           type: 'string'
@@ -36,7 +36,7 @@ const Long = new MetaFormat(
       },
       {
         arity: { min: 2 },
-        property: new MetaProperty({
+        property: new Property({
           name: 'Tag',
           description:
             'Sinle-word tag describing the content of the dataset from a fixed set of values',
@@ -47,7 +47,7 @@ const Long = new MetaFormat(
       },
       {
         arity: MandatoryArity,
-        property: new MetaProperty({
+        property: new Property({
           name: 'Note',
           description: 'Custom note for the author',
           type: 'string'
@@ -55,13 +55,13 @@ const Long = new MetaFormat(
       },
       {
         arity: { min: 2 },
-        property: new StructuredMetaProperty({
+        property: new StructuredProperty({
           name: 'Topic',
           description: 'Single topic of the dataset',
           children: [
             {
               arity: MandatoryArity,
-              property: new MetaProperty({
+              property: new Property({
                 name: 'Name',
                 description: 'Name of the topic',
                 type: 'string'
@@ -69,7 +69,7 @@ const Long = new MetaFormat(
             },
             {
               arity: MandatoryArity,
-              property: new MetaProperty({
+              property: new Property({
                 name: 'Description',
                 description: 'Description of the topic',
                 type: 'string'

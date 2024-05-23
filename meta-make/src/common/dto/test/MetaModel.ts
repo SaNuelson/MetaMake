@@ -1,4 +1,4 @@
-import MetaProperty, { StructuredMetaProperty } from '../MetaProperty'
+import Property, { StructuredProperty } from '../Property.js'
 import MetaFormat from '../MetaFormat'
 import MetaModel, { MetaDatum, PrimitiveMetaDatum, StructuredMetaDatum } from "../MetaModel";
 import { strict as assert } from 'node:assert'
@@ -6,9 +6,9 @@ import { MandatoryArity, OneOrMoreArity, OptionalArity } from '../ArityBounds'
 import Restructurable from "../Restructurable.js";
 
 describe('MetaModel, when constructed', () => {
-  const authorNameProp = new MetaProperty({ name: 'Name', description: '', type: 'string' })
-  const authorAgeProp = new MetaProperty({ name: 'Age', description: '', type: 'number' })
-  const authorsProp = new StructuredMetaProperty({
+  const authorNameProp = new Property({ name: 'Name', description: '', type: 'string' })
+  const authorAgeProp = new Property({ name: 'Age', description: '', type: 'number' })
+  const authorsProp = new StructuredProperty({
     name: 'Author',
     description: 'Author of the data',
     children: [
@@ -17,10 +17,10 @@ describe('MetaModel, when constructed', () => {
     ]
   })
 
-  const titleProp = new MetaProperty({ name: 'Title', description: '', type: 'string' })
-  const keywordProp = new MetaProperty({ name: 'Keyword', description: '', type: 'string' })
+  const titleProp = new Property({ name: 'Title', description: '', type: 'string' })
+  const keywordProp = new Property({ name: 'Keyword', description: '', type: 'string' })
 
-  const testFormatProps = new StructuredMetaProperty({
+  const testFormatProps = new StructuredProperty({
     name: 'Props',
     description: '',
     children: [
@@ -49,8 +49,8 @@ describe('MetaModel, when constructed', () => {
   it('should be able to be restructured', () => {
     Restructurable.addClass(MetaFormat)
 
-    Restructurable.addClass(MetaProperty)
-    Restructurable.addClass(StructuredMetaProperty)
+    Restructurable.addClass(Property)
+    Restructurable.addClass(StructuredProperty)
 
     Restructurable.addClass(MetaModel)
     Restructurable.addClass(MetaDatum)

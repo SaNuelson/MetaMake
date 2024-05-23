@@ -1,16 +1,16 @@
 import MetaFormat from '../../common/dto/MetaFormat'
-import MetaProperty, { StructuredMetaProperty } from '../../common/dto/MetaProperty'
+import Property, { StructuredProperty } from '../../common/dto/Property.js'
 import { MandatoryArity } from '../../common/dto/ArityBounds'
 
 const Basic = new MetaFormat(
   'Basic',
-  new StructuredMetaProperty({
+  new StructuredProperty({
     name: 'Basic',
     description: 'Basic meta format',
     children: [
       {
         arity: MandatoryArity,
-        property: new MetaProperty({
+        property: new Property({
           name: 'Title',
           description: 'Name of the dataset',
           type: 'string'
@@ -18,7 +18,7 @@ const Basic = new MetaFormat(
       },
       {
         arity: MandatoryArity,
-        property: new MetaProperty({
+        property: new Property({
           name: 'Description',
           description: 'Short description about the contents of the dataset',
           type: 'string'

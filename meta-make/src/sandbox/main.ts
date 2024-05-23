@@ -8,7 +8,7 @@ import {MetaDatum, PrimitiveMetaDatum, StructuredMetaDatum} from '../common/dto/
 import SerializerJsonld from '@rdfjs/serializer-jsonld-ext'
 import {writeFileSync} from "node:fs";
 import {ArityBounds, MandatoryArity} from "../common/dto/ArityBounds.js";
-import MetaProperty, {StructuredMetaProperty} from "../common/dto/MetaProperty.js";
+import Property, {StructuredProperty} from "../common/dto/Property.js";
 
 
 // Any implementation of AbstractLevel can be used.
@@ -21,7 +21,7 @@ const df = new DataFactory();
 const store = new Quadstore({backend, dataFactory: df});
 const engine = new Engine(store);
 
-async function walk(node: BlankNode | null, arity: ArityBounds, data: MetaDatum | MetaDatum[], prop: MetaProperty): BlankNode {
+async function walk(node: BlankNode | null, arity: ArityBounds, data: MetaDatum | MetaDatum[], prop: Property): BlankNode {
   console.log(prop.name)
 
   if (Array.isArray(data)) {
@@ -62,7 +62,7 @@ async function walk(node: BlankNode | null, arity: ArityBounds, data: MetaDatum 
     ));
   }
 
-  if (!(prop instanceof StructuredMetaProperty)) {
+  if (!(prop instanceof StructuredProperty)) {
     console.error(`Property ${prop.name} is not structured as expected`);
     return node;
   }
@@ -72,8 +72,8 @@ async function walk(node: BlankNode | null, arity: ArityBounds, data: MetaDatum 
     return node;
   }
 
-  for (const key in prop.children) {
-    const {arity: subArity, property: subProp} = prop.children[key];
+  for (const key in prop.propertyDefinitions) {
+    const {arity: subArity, property: subProp} = prop.propertyDefinitions[key];
     const subData = data.data[key];
     await walk(subNode, subArity, subData, subProp);
   }

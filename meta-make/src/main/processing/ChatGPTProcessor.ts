@@ -1,14 +1,12 @@
 import MetaFormat from "../../common/dto/MetaFormat";
 import MetaModel from '../../common/dto/MetaModel'
 import { Processor } from './Processor'
-import MetaProperty, { StructuredMetaProperty } from "../../common/dto/MetaProperty.js";
+import Property, { StructuredProperty } from "../../common/dto/Property.js";
 import DataSource from "../data/DataSource.js";
 import { ThreadController } from "./openaiconnector.js";
 import DcatApCz from "../format/DcatApCz.js";
 import MetaStore from "../data/MetaStore.js";
 import { LogLevel } from "../../common/constants.js";
-import path from "node:path";
-import { string } from "rdflib/lib/utils-js.js";
 
 interface GuessResponse {
   value: string,
@@ -26,7 +24,7 @@ const queryLocalization = {
       process: "Your thought process behind the assumption."
   }
   `,
-    guessRequest: (prop: MetaProperty) => `Provide your best guess in form of mentioned JSON for metadata ${prop.name} (${prop.description}):`
+    guessRequest: (prop: Property) => `Provide your best guess in form of mentioned JSON for metadata ${prop.name} (${prop.description}):`
   },
   cz: {
     initialMessage: (dataSlice: string) => `Zde je malá ukázka - prvních 20 řádků z většího datasetu:
@@ -38,7 +36,7 @@ const queryLocalization = {
       process: "Proč si myslíš, že je tvá odpověď správná."
   }
   `,
-    guessRequest: (prop: MetaProperty) => `Jaký je tvůj tip na metadata ${prop.name} (${prop.description})? Odpověz v JSON ve formátu zmíněným výše.`
+    guessRequest: (prop: Property) => `Jaký je tvůj tip na metadata ${prop.name} (${prop.description})? Odpověz v JSON ve formátu zmíněným výše.`
   }
 }
 
@@ -81,7 +79,7 @@ class ChatGPTProcessor implements Processor {
 
     let answerLimit = 0
     for (const [path, arity, prop, data] of newModel.preOrderTraversal()) {
-      if (prop instanceof StructuredMetaProperty) {
+      if (prop instanceof StructuredProperty) {
         continue
       }
 

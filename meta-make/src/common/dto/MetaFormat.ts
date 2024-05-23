@@ -1,11 +1,11 @@
-import { StructuredMetaProperty } from "./MetaProperty";
+import { StructuredProperty } from "./Property.js";
 import Restructurable from './Restructurable'
 
 export default class MetaFormat extends Restructurable {
   public name: string
-  public metaProps: StructuredMetaProperty
+  public metaProps: StructuredProperty
 
-  constructor(name: string, metaProps: StructuredMetaProperty) {
+  constructor(name: string, metaProps: StructuredProperty) {
     super()
     this.name = name
     this.metaProps = metaProps

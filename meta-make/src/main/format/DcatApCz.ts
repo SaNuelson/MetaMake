@@ -1,6 +1,6 @@
-import MetaProperty, {
-  StructuredMetaProperty
-} from "../../common/dto/MetaProperty";
+import Property, {
+  StructuredProperty
+} from "../../common/dto/Property.js";
 import MetaFormat from "../../common/dto/MetaFormat";
 import {
   MandatoryArity,
@@ -87,14 +87,14 @@ const PersonalDataPresenceCodebook: CodebookEntry[] = [
 // endregion
 
 // region 3.5 Třída: Datová služba
-const DatovaSluzba = new StructuredMetaProperty({
+const DatovaSluzba = new StructuredProperty({
   name: "Datová služba",
   description: "Třída reprezentující datovou službu zpřístupňující data datové sady. Odpovídá třídě dcat:DataService.",
   children: [
     // 3.5.1 Název
     {
       arity: MandatoryArity,
-      property: new MetaProperty({
+      property: new Property({
         name: "Název",
         description: "Tato vlastnost obsahuje název datové služby. Odpovídá vlastnosti dct:title.",
         type: "string",
@@ -104,7 +104,7 @@ const DatovaSluzba = new StructuredMetaProperty({
     // 3.5.2 Přístupový bod
     {
       arity: MandatoryArity,
-      property: new MetaProperty({
+      property: new Property({
         name: "Přístupový bod",
         description: "Tato vlastnost obsahuje URL přístupového bodu datové služby. Odpovídá vlastnosti dcat:endpointURL.",
         type: "string",
@@ -114,7 +114,7 @@ const DatovaSluzba = new StructuredMetaProperty({
     // 3.5.3 Odkaz na specifikaci
     {
       arity: OptionalArity,
-      property: new MetaProperty({
+      property: new Property({
         name: "Odkaz na specifikaci",
         description: "Tato vlastnost odkazuje na specifikaci, jíž se datová služba řídí. Takovou specifikací je například SPARQL. Seznam možných hodnot lze nalézt například v seznamu udržovaném Open Source Geospatial Foundation. Odpovídá vlastnosti dct:conformsTo.",
         type: "string",
@@ -124,7 +124,7 @@ const DatovaSluzba = new StructuredMetaProperty({
     // 3.5.4 Popis přístupového bodu
     {
       arity: OptionalArity,
-      property: new MetaProperty({
+      property: new Property({
         name: "Popis přístupového bodu",
         description: "Tato vlastnost obsahuje URL popisu přístupového bodu datové služby. Odpovídá vlastnosti dcat:endpointDescription.",
         type: "string",
@@ -137,7 +137,7 @@ const DatovaSluzba = new StructuredMetaProperty({
 // endregion
 
 // region 3.4 Třída: Distribuce datové sady
-const Distribuce = new StructuredMetaProperty({
+const Distribuce = new StructuredProperty({
   name: "Distribuce datové sady",
   description: "Fyzická podoba datové sady v konkrétním formátu nebo jako konkrétní služba, nikdy obojí. Odpovídá třídě dcat:Distribution.",
   children: [
@@ -145,13 +145,13 @@ const Distribuce = new StructuredMetaProperty({
     {
       arity: MandatoryArity,
       // TODO: Check
-      property: new StructuredMetaProperty({
+      property: new StructuredProperty({
         name: "Specifikace podmínek užití",
         description: "Tato vlastnost odkazuje na strukturovaný popis podmínek užití této distribuce datové sady. Hodnoty se řídí návodem na stanovení podmínek užití.",
         children: [
           {
             arity: MandatoryArity,
-            property: new MetaProperty({
+            property: new Property({
               name: "Podmínky užití autorského díla",
               description: "Podmínky užití autorského díla.",
               domain: IntelPropertyCodebook,
@@ -161,7 +161,7 @@ const Distribuce = new StructuredMetaProperty({
           },
           {
             arity: MandatoryArity,
-            property: new MetaProperty({
+            property: new Property({
               name: "Autor díla",
               description: "Autor díla.",
               type: "string"
@@ -169,7 +169,7 @@ const Distribuce = new StructuredMetaProperty({
           },
           {
             arity: MandatoryArity,
-            property: new MetaProperty({
+            property: new Property({
               name: "Podmínky užití databáze jako autorského díla",
               description: "Podmínky užití databáze jako autorského díla.",
               domain: DatabaseIntelPropertyCodebook,
@@ -179,7 +179,7 @@ const Distribuce = new StructuredMetaProperty({
           },
           {
             arity: MandatoryArity,
-            property: new MetaProperty({
+            property: new Property({
               name: "Autor databáze",
               description: "Autor databáze.",
               type: "string"
@@ -187,7 +187,7 @@ const Distribuce = new StructuredMetaProperty({
           },
           {
             arity: MandatoryArity,
-            property: new MetaProperty({
+            property: new Property({
               name: "Přítomnost osobích údajů",
               description: "Přítomnost osobích údajů.",
               domain: PersonalDataPresenceCodebook,
@@ -201,7 +201,7 @@ const Distribuce = new StructuredMetaProperty({
     {
       // TODO: Povinná pro soubor ke stažení
       arity: MandatoryArity,
-      property: new MetaProperty({
+      property: new Property({
         name: "Odkaz na stažení souboru",
         description: "Tato vlastnost obsahuje URL, které je přímým odkazem na stažitelný soubor v daném formátu. Odpovídá vlastnosti dcat:downloadURL.",
         type: "string",
@@ -211,7 +211,7 @@ const Distribuce = new StructuredMetaProperty({
     // 3.4.3 Přístupové URL
     {
       arity: MandatoryArity,
-      property: new MetaProperty({
+      property: new Property({
         name: "Přístupové URL",
         description: "Tato vlastnost obsahuje URL, pomocí kterého se lze dostat k distribuci datové sady. Odpovídá vlastnosti dcat:accessURL. Pro účely katalogů otevřených dat v ČR je hodnota této vlastnosti buďto stejná jako odkaz na stažení souboru v případě distribuce reprezentující soubor ke stažení, nebo stejná jako přístupový bod v případě distribuce reprezentující datovou službu.",
         type: "string",
@@ -223,7 +223,7 @@ const Distribuce = new StructuredMetaProperty({
       // TODO: Povinná pro soubor ke stažení 0...1
       // TODO: IRI
       arity: MandatoryArity,
-      property: new MetaProperty({
+      property: new Property({
         name: "Formát souboru ke stažení",
         description: "Tato vlastnost odkazuje na typ souboru s distribucí. Odpovídá vlastnosti dct:format. Dle DCAT-AP 2.0.1 jsou hodnoty z evropského číselníku typů souboru.",
         type: "string",
@@ -235,7 +235,7 @@ const Distribuce = new StructuredMetaProperty({
       // TODO: Povinná pro soubor ke stažení 0...1
       // TODO: IRI
       arity: MandatoryArity,
-      property: new MetaProperty({
+      property: new Property({
         name: "Media type souboru ke stažení",
         description: "Tato vlastnost odkazuje na typ média distribuce tak, jak je definováno v oficiálním rejstříku typů médií spravovaném IANA [IANA-MEDIA-TYPES]. Odpovídá vlastnosti dcat:mediaType.",
         type: "string",
@@ -245,7 +245,7 @@ const Distribuce = new StructuredMetaProperty({
     // 3.4.6 Odkaz na strojově čitelné schéma souboru ke stažení
     {
       arity: OptionalArity,
-      property: new MetaProperty({
+      property: new Property({
         name: "Odkaz na strojově čitelné schéma souboru ke stažení",
         description: "Tato vlastnost odkazuje na ustanovené schéma, jímž se popisovaná distribuce řídí. Odpovídá vlastnosti dct:conformsTo.",
         type: "string",
@@ -255,7 +255,7 @@ const Distribuce = new StructuredMetaProperty({
     // 3.4.7 Media type kompresního formátu
     {
       arity: OptionalArity,
-      property: new MetaProperty({
+      property: new Property({
         // TODO: IRI
         name: "Media type použitého kompresního formátu souboru ke stažení",
         description: "Tato vlastnost odkazuje na media typ kompresního formátu souboru ke stažení tak, jak je definováno v oficiálním rejstříku typů médií spravovaném IANA [IANA-MEDIA-TYPES]. Kompresní formát určuje techniku použitou ke zmenšení velikosti jednoho souboru ke stažení. Odpovídá vlastnosti dcat:compressFormat.",
@@ -266,7 +266,7 @@ const Distribuce = new StructuredMetaProperty({
     // 3.4.8 Media type balíčkovacího formátu
     {
       arity: OptionalArity,
-      property: new MetaProperty({
+      property: new Property({
         // TODO: IRI
         name: "Media type použitého balíčkovacího formátu souboru ke stažení",
         description: "Tato vlastnost odkazuje na media typ balíčkovacího formátu souboru ke stažení tak, jak je definováno v oficiálním rejstříku typů médií spravovaném IANA [IANA-MEDIA-TYPES]. Balíčkovací formát určuje techniku použitou k zabalení více souborů do jednoho. Odpovídá vlastnosti dcat:packageFormat.",
@@ -277,7 +277,7 @@ const Distribuce = new StructuredMetaProperty({
     // 3.4.9 Název distribuce datové sady
     {
       arity: OptionalArity,
-      property: new MetaProperty({
+      property: new Property({
         name: "Název distribuce datové sady",
         description: "Tato vlastnost obsahuje název distribuce. Odpovídá vlastnosti dct:title.",
         type: "string",
@@ -296,14 +296,14 @@ const Distribuce = new StructuredMetaProperty({
 // endregion
 
 // region 3.3 Třída: Datová sada
-const DatovaSada = new StructuredMetaProperty({
+const DatovaSada = new StructuredProperty({
   name: "Datová sada",
   description: "Klíčová třída reprezentující poskytovanou informaci. Odpovídá třídě dcat:Dataset.",
   children: [
     // 3.3.1 Název
     {
       arity: MandatoryArity,
-      property: new MetaProperty({
+      property: new Property({
         name: "Název",
         description: "Tato vlastnost obsahuje název datové sady. Odpovídá vlastnosti dct:title.",
         type: "string",
@@ -313,7 +313,7 @@ const DatovaSada = new StructuredMetaProperty({
     // 3.3.2 Popis
     {
       arity: MandatoryArity,
-      property: new MetaProperty({
+      property: new Property({
         name: "Popis",
         description: "Tato vlastnost obsahuje volný text s popisem datové sady. Odpovídá vlastnosti dct:description.",
         type: "string",
@@ -323,7 +323,7 @@ const DatovaSada = new StructuredMetaProperty({
     // 3.3.3 Poskytovatel
     {
       arity: MandatoryArity,
-      property: new MetaProperty({
+      property: new Property({
         name: "Poskytovatel",
         description: "Poskytovatel datové sady. Odpovídá vlastnosti dct:publisher.",
         type: "string",
@@ -333,7 +333,7 @@ const DatovaSada = new StructuredMetaProperty({
     // 3.3.4 Téma
     {
       arity: OneOrMoreArity,
-      property: new MetaProperty({
+      property: new Property({
         name: "Téma",
         description: "Tato vlastnost odkazuje na kategorii či téma datové sady. Datová sada může být popsána více tématy. Odpovídá vlastnosti dcat:theme. Dle DCAT-AP 2.0.1 musí být alespoň jedno téma z evropského číselníku datových témat.",
         domain: ThemeCodebook,
@@ -345,7 +345,7 @@ const DatovaSada = new StructuredMetaProperty({
     // 3.3.5 Periodicita aktualizace
     {
       arity: MandatoryArity,
-      property: new MetaProperty({
+      property: new Property({
         name: "Periodicita aktualizace",
         description: "Tato vlastnost odkazuje na frekvenci, se kterou je datová sada aktualizována. Odpovídá vlastnosti dct:accrualPeriodicity. Dle DCAT-AP 2.0.1 jsou hodnoty z evropského číselníku frekvencí.",
         domain: AccrualPeriodicityCodebook,
@@ -357,7 +357,7 @@ const DatovaSada = new StructuredMetaProperty({
     // 3.3.6 Klíčová slova
     {
       arity: OneOrMoreArity,
-      property: new MetaProperty({
+      property: new Property({
         name: "Klíčová slova",
         description: "Tato vlastnost obsahuje klíčové slovo nebo značku popisující datovou sadu. Odpovídá vlastnosti dcat:keyword.",
         type: "string",
@@ -368,7 +368,7 @@ const DatovaSada = new StructuredMetaProperty({
     {
       arity: OneOrMoreArity,
       // TODO:  Codebook value (IRI})
-      property: new MetaProperty({
+      property: new Property({
         name: "Související geografické území - prvek z RÚIAN",
         description: "Tato vlastnost odkazuje na územní prvek RÚIAN pokrytý datovou sadou. Datová sada může pokrývat více územních prvků RÚIAN. Odpovídá vlastnosti dct:spatial.",
         type: "string",
@@ -378,7 +378,7 @@ const DatovaSada = new StructuredMetaProperty({
     // 3.3.8 Související geografické území
     {
       arity: OneOrMoreArity,
-      property: new MetaProperty({
+      property: new Property({
         name: "Související geografické území",
         description: "Tato vlastnost odkazuje na geografickou oblast pokrytou datovou sadou. Datová sada může být popsána více geografickými oblastmi. Odpovídá vlastnosti dct:spatial.",
         // TODO: v popise nepovinna, v scheme 1...*
@@ -392,14 +392,14 @@ const DatovaSada = new StructuredMetaProperty({
     // 3.3.9 Časové pokrytí
     {
       arity: OptionalArity,
-      property: new StructuredMetaProperty({
+      property: new StructuredProperty({
         name: "Časové pokrytí",
         description: "Tato vlastnost odkazuje na časový úsek pokrytý datovou sadou. Odpovídá vlastnosti dct:temporal.",
         // TODO: check children
         children: [
           {
             arity: MandatoryArity,
-            property: new MetaProperty({
+            property: new Property({
               name: "Začátek",
               description: "Začátek časového pokrytí.",
               type: "date",
@@ -408,7 +408,7 @@ const DatovaSada = new StructuredMetaProperty({
           },
           {
             arity: MandatoryArity,
-            property: new MetaProperty({
+            property: new Property({
               name: "Konec",
               description: "Konec časového pokrytí.",
               type: "date",
@@ -422,13 +422,13 @@ const DatovaSada = new StructuredMetaProperty({
     // 3.3.10 Kontaktní bod - jméno a email
     {
       arity: OptionalArity,
-      property: new StructuredMetaProperty({
+      property: new StructuredProperty({
         name: "Kontaktní bod - jméno a email",
         description: "Tato vlastnost obsahuje kontaktní informace, které mohou být využity pro zasílání připomínek k datové sadě. Odpovídá vlastnosti dcat:contactPoint.",
         children: [
           {
             arity: MandatoryArity,
-            property: new MetaProperty({
+            property: new Property({
               name: "Jméno",
               description: "Jméno kontaktního bodu.",
               type: "string",
@@ -437,7 +437,7 @@ const DatovaSada = new StructuredMetaProperty({
           },
           {
             arity: MandatoryArity,
-            property: new MetaProperty({
+            property: new Property({
               name: "E-mail",
               description: "E-mail kontaktního bodu.",
               type: "string",
@@ -451,7 +451,7 @@ const DatovaSada = new StructuredMetaProperty({
     // 3.3.11 Odkaz na dokumentaci
     {
       arity: OptionalArity,
-      property: new MetaProperty({
+      property: new Property({
         name: "Odkaz na dokumentaci",
         description: "Tato vlastnost odkazuje na stránku nebo dokument o datové sadě. Odpovídá vlastnosti foaf:page.",
         type: "string",
@@ -461,7 +461,7 @@ const DatovaSada = new StructuredMetaProperty({
     // 3.3.12 Odkaz na specifikaci
     {
       arity: UnboundedArity,
-      property: new MetaProperty({
+      property: new Property({
         name: "Odkaz na specifikaci",
         description: "Tato vlastnost odkazuje na specifikaci, jíž se datová sada řídí. Takovou specifikací jsou zejména Otevřené formální normy. Odpovídá vlastnosti dct:conformsTo.",
         type: "string",
@@ -472,7 +472,7 @@ const DatovaSada = new StructuredMetaProperty({
     {
       arity: UnboundedArity,
       // TODO: Codebook (crazy big RDF, possibly converted xml table (code: name}) for CZ, but only in zip with others
-      property: new MetaProperty({
+      property: new Property({
         name: "Klasifikace dle EuroVoc",
         description: "Tato vlastnost odkazuje na kategorii či téma datové sady dle EuroVoc. Datová sada může být popsána více tématy. Odpovídá vlastnosti dcat:theme.",
         type: "string",
@@ -482,7 +482,7 @@ const DatovaSada = new StructuredMetaProperty({
     // 3.3.14 Prostorové rozlišení v metrech
     {
       arity: OptionalArity,
-      property: new MetaProperty({
+      property: new Property({
         name: "Prostorové rozlišení v metrech",
         description: "Tato vlastnost určuje prostorové rozlišení dat v datové sadě v metrech. Jedná se o nejmenší prostorový rozdíl v datové sadě. Odpovídá vlastnosti dcat:spatialResolutionInMeters.",
         type: "number",
@@ -492,7 +492,7 @@ const DatovaSada = new StructuredMetaProperty({
     // 3.3.15 Časové rozlišení
     {
       arity: OptionalArity,
-      property: new MetaProperty({
+      property: new Property({
         name: "Časové rozlišení",
         description: "Tato vlastnost určuje časové rozlišení dat v datové sadě. Jedná se o nejmenší časový rozdíl v datové sadě. Odpovídá vlastnosti dcat:temporalResolution.",
         type: "date", // TODO: correct type??
@@ -502,7 +502,7 @@ const DatovaSada = new StructuredMetaProperty({
     // 3.3.16 Vazba: Je součástí
     {
       arity: OptionalArity,
-      property: new MetaProperty({
+      property: new Property({
         // TODO: IRI
         name: "Je součástí",
         description: "Tato vlastnost odkazuje na zastřešující datovou sadu datové série, jejíž je tato datová sada součástí. Odpovídá vlastnosti dct:isPartOf.",
@@ -523,14 +523,14 @@ const DatovaSada = new StructuredMetaProperty({
 
 // region 3.2 Třída: Katalog
 // @ts-ignore
-const Katalog = new StructuredMetaProperty({
+const Katalog = new StructuredProperty({
   name: "Katalog",
   description: "Třída reprezentující datový katalog. Odpovídá třídě dcat:Catalog.",
   children: [
     // 3.2.1 Název
     {
       arity: MandatoryArity,
-      property: new MetaProperty({
+      property: new Property({
         name: "Název",
         description: "Tato vlastnost obsahuje název datového katalogu. Odpovídá vlastnosti dct:title.",
         type: "string"
@@ -539,7 +539,7 @@ const Katalog = new StructuredMetaProperty({
     // 3.2.2 Popis
     {
       arity: MandatoryArity,
-      property: new MetaProperty({
+      property: new Property({
         name: "Popis",
         description: "Tato vlastnost obsahuje volný text s popisem datového katalogu. Odpovídá vlastnosti dct:description.",
         type: "string"
@@ -548,7 +548,7 @@ const Katalog = new StructuredMetaProperty({
     // 3.2.3 Poskytovatel
     {
       arity: MandatoryArity,
-      property: new MetaProperty({
+      property: new Property({
         name: "Poskytovatel",
         description: "Poskytovatel datového katalogu. Odpovídá vlastnosti dct:publisher.",
         type: "string"
@@ -558,13 +558,13 @@ const Katalog = new StructuredMetaProperty({
     // 3.2.4 Kontaktní bod - jméno a email
     {
       arity: OptionalArity,
-      property: new StructuredMetaProperty({
+      property: new StructuredProperty({
         name: "Kontaktní bod - jméno a email",
         description: "Tato vlastnost obsahuje kontaktní informace, které mohou být využity pro zasílání připomínek ke katalogu. Odpovídá vlastnosti dcat:contactPoint.",
         children: [
           {
             arity: MandatoryArity,
-            property: new MetaProperty({
+            property: new Property({
               name: "Jméno",
               description: "Jméno kontaktního bodu.",
               type: "string"
@@ -572,7 +572,7 @@ const Katalog = new StructuredMetaProperty({
           },
           {
             arity: MandatoryArity,
-            property: new MetaProperty({
+            property: new Property({
               name: "E-mail",
               description: "E-mail kontaktního bodu.",
               type: "string"
@@ -584,7 +584,7 @@ const Katalog = new StructuredMetaProperty({
     // 3.2.5 Domovská stránka
     {
       arity: OptionalArity,
-      property: new MetaProperty({
+      property: new Property({
         name: "Domovská stránka",
         description: "Tato vlastnost odkazuje na domovskou stránku lokálního katalogu, kam mohou chodit uživatelé. Odpovídá vlastnosti foaf:homepage.",
         type: "string"
