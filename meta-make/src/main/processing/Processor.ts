@@ -14,13 +14,19 @@ export interface Processor {
    * Will be called before execute and, getInputFormats and getOutputFormats.
    * @param targetFormat Final output MetaFormat of the MetaMake pipeline.
    * @param knownFormats List of all known and available MetaFormats.
+   * @param config Model of this.getConfigFormat() MetaFormat.
    */
-  initialize(targetFormat: MetaFormat, knownFormats: MetaFormat[]): void
+  initialize(targetFormat: MetaFormat, knownFormats: MetaFormat[], config?: MetaModel): void
 
   /**
    * Get meta formats which can be consumed by this processor
    */
   getInputFormats(): MetaFormat[]
+
+  /**
+   * Get meta format which can be filled to provide a valid configuration to the processor.
+   */
+  getConfigFormat(): MetaFormat
 
   /**
    * Get meta format which will be produced by this processor

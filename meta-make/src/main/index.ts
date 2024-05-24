@@ -2,26 +2,18 @@ import { app, BrowserWindow, globalShortcut, Menu } from "electron";
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { createIndexWindow } from './windows'
 import InitDtos from './dto/Init'
-import path from 'node:path'
-import { existsSync, mkdirSync } from 'fs'
 import MetaStore from "./data/MetaStore";
 import { Config, LogLevel } from "../common/constants";
-import knowledgeBaseManager from "./manager/KnowledgeBaseManager";
 import { attachIndexEventHandlers } from "./events";
 import { createMainNavigation } from "./menu";
+import KnowledgeBaseManager from './manager/KnowledgeBaseManager.js'
+import PipelineManager from './manager/PipelineManager.js'
 
 app.whenReady().then(async () => {
+
   InitDtos()
-
-  const kbPath = path.join(app.getPath('userData'), 'kb/');
-  if (!existsSync(kbPath))
-    mkdirSync(kbPath)
-  MetaStore.set(Config.kbPath, kbPath);
-  MetaStore.set(Config.logLevel, LogLevel.Verbose)
-
-  if (MetaStore.logLevel >= LogLevel.Log)
-    console.log("Known KB IDs: ", MetaStore.getKnowledgeBases());
-  knowledgeBaseManager.loadKBs()
+  KnowledgeBaseManager.init();
+  PipelineManager.init()
 
   electronApp.setAppUserModelId('com.electron.metamake')
 

@@ -1,13 +1,14 @@
 import { EventType, LogLevel } from "../common/constants";
 import DataManager from './manager/DataManager.js'
 import { BrowserWindow, ipcMain, IpcMainInvokeEvent, IpcRendererEvent } from 'electron'
-import KnowledgeBaseManager from './manager/KnowledgeBaseManager'
+import KnowledgeBaseManager from './manager/KnowledgeBaseManager.js'
 import { KnowledgeBase } from "../common/dto/KnowledgeBase";
 import Restructurable from "../common/dto/Restructurable";
 import {loadLocalDataFile, saveMetaModelFile} from "./commands/storage";
 import MetaBaseManager from "./manager/MetaBaseManager";
 import metaBaseManager from "./manager/MetaBaseManager";
 import MetaStore from "./data/MetaStore.js";
+import MetaFormatManager from './manager/MetaFormatManager.js'
 
 type MainElectronEventHandler = (event: IpcMainInvokeEvent, ...args: any[]) => Promise<any> | any
 type RendererElectronEventHandler = (event: IpcRendererEvent, ...args: any[]) => (Promise<any>) | (any);
@@ -22,8 +23,8 @@ export const indexMainEventHandlers: { [type in EventType]?: MainElectronEventHa
   [EventType.LoadDataModalRequested]: () => loadLocalDataFile(BrowserWindow.getFocusedWindow()!),
   [EventType.DataPreviewRequested]: () => DataManager.dataSource?.getPreview(),
 
-  [EventType.MetaFormatListRequested]: () => KnowledgeBaseManager.getMetaFormatList(),
-  [EventType.MetaFormatsRequested]: () => KnowledgeBaseManager.metaFormats,
+  [EventType.MetaFormatListRequested]: () => MetaFormatManager.getMetaFormatList(),
+  [EventType.MetaFormatsRequested]: () => MetaFormatManager.metaFormats,
 
   [EventType.KnowledgeBaseListRequested]: (_, formatName?: string) => KnowledgeBaseManager.getKnowledgeBaseList(formatName),
   [EventType.KnowledgeBaseRequested]: (_, id: string) => KnowledgeBaseManager.getKnowledgeBase(id),
@@ -41,7 +42,7 @@ export const indexMainEventHandlers: { [type in EventType]?: MainElectronEventHa
   [EventType.DataProcessingRequested]: (_, formatName: string, kbId?: string) => {
     if (kbId)
       return metaBaseManager.fromKnowledgeBase(KnowledgeBaseManager.getKnowledgeBase(kbId)!)
-    return metaBaseManager.fromMetaFormat(KnowledgeBaseManager.getMetaFormat(formatName)!)
+    return metaBaseManager.fromMetaFormat(MetaFormatManager.getMetaFormat(formatName)!)
   },
   //endregion
 };

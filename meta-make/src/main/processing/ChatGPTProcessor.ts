@@ -7,6 +7,35 @@ import { ThreadController } from "./openaiconnector.js";
 import DcatApCz from "../format/DcatApCz.js";
 import MetaStore from "../data/MetaStore.js";
 import { LogLevel } from "../../common/constants.js";
+import { MandatoryArity } from '../../common/dto/ArityBounds.js'
+
+export const ChatGPTConfigFormat = new MetaFormat(
+  "ChatGPTConfigFormat",
+  new StructuredProperty({
+    name: "ChatGPTConfig",
+    description: "Configuration for the JSON Schema processor",
+    propertyDefinitions: [
+      {
+        arity: MandatoryArity,
+        property: new Property({
+          name: "Language",
+          description: "Language of the ChatGPT prompts (ideally identical to MetaFormat)",
+          type: 'string',
+          domain: [{value: 'en'}, {value: 'cs'}],
+          isDomainStrict: true
+        })
+      },
+      {
+        arity: MandatoryArity,
+        property: new Property({
+          name: "Minimal confidence",
+          description: "Confidence of the ChatGPT's responses below which guesses won't be considered.",
+          type: 'number'
+        })
+      }
+    ]
+  })
+)
 
 interface GuessResponse {
   value: string,
@@ -41,23 +70,29 @@ const queryLocalization = {
 }
 
 class ChatGPTProcessor implements Processor {
-  outputFormat: MetaFormat | undefined
+  outputFormat!: MetaFormat
+  config?: MetaModel
 
   getName() {
     return 'ChatGPTProcessor'
   }
 
-  initialize(targetFormat: MetaFormat, knownFormats: MetaFormat[]) {
+  initialize(targetFormat: MetaFormat, _knownFormats: MetaFormat[], config?: MetaModel): void {
     this.outputFormat = targetFormat
+    this.config = config
   }
 
   getInputFormats(): MetaFormat[] {
     return []
   }
 
+  getConfigFormat(): MetaFormat {
+    return ChatGPTConfigFormat
+  }
+
   getOutputFormat(): MetaFormat {
     if (!this.outputFormat)
-      throw new Error(`ChatGPTProcessor.getOutputFormat called before initialize`);
+      throw new Error(`ChatGPTProcessor.getOutputFormat called before initialize`)
 
     return this.outputFormat
   }

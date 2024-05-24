@@ -1,7 +1,7 @@
 import { BrowserWindow, Menu, shell } from "electron";
 import { loadLocalDataFile } from './commands/storage'
 import { createKnowledgeBaseEditorWindow, createKnowledgeBaseWindow, createPipelineManagerWindow } from './windows'
-import knowledgeBaseManager from "./manager/KnowledgeBaseManager";
+import knowledgeBaseManager from "./manager/KnowledgeBaseManager.js";
 import MetaStore from "./data/MetaStore";
 import { Config } from "../common/constants";
 import { existsSync, rmSync } from "fs";

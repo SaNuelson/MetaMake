@@ -8,7 +8,7 @@ export interface PropertyDefinition {
   property: Property
 }
 
-interface DomainEntry {
+export interface DomainEntry {
   value: any
 }
 
