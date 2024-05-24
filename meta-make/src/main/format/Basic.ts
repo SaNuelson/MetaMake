@@ -7,7 +7,7 @@ const Basic = new MetaFormat(
   new StructuredProperty({
     name: 'Basic',
     description: 'Basic meta format',
-    children: [
+    propertyDefinitions: [
       {
         arity: MandatoryArity,
         property: new Property({

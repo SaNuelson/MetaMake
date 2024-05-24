@@ -7,7 +7,7 @@ const TitleOnly = new MetaFormat(
   new StructuredProperty({
     name: 'TitleOnly',
     description: 'TitleOnly meta format',
-    children: [
+    propertyDefinitions: [
       {
         arity: MandatoryArity,
         property: new Property({

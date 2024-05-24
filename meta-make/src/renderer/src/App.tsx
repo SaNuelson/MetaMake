@@ -4,6 +4,8 @@ import KnowledgeBaseManager from './components/windows/KnowledgeBaseManager/Know
 import KnowledgeBaseEditor from './components/windows/KnowledgeBaseEditor/KnowledgeBaseEditor'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import MetaModelEditor from "./components/windows/MetaModelEditor/MetaModelEditor";
+import PipelineManager from './components/windows/PipelineManager/PipelineManager.js'
+import PipelineEditor from './components/windows/PipelineEditor/PipelineEditor.js'
 
 class App extends React.Component {
   render(): React.JSX.Element {

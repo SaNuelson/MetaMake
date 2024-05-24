@@ -9,7 +9,7 @@ const Long = new MetaFormat(
   new StructuredProperty({
     name: 'Long',
     description: 'Long meta format',
-    children: [
+    propertyDefinitions: [
       {
         arity: MandatoryArity,
         property: new Property({
@@ -58,7 +58,7 @@ const Long = new MetaFormat(
         property: new StructuredProperty({
           name: 'Topic',
           description: 'Single topic of the dataset',
-          children: [
+          propertyDefinitions: [
             {
               arity: MandatoryArity,
               property: new Property({

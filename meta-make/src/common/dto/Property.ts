@@ -71,20 +71,19 @@ export default class Property extends Restructurable {
 }
 
 export interface StructuredPropertyParams extends Omit<PropertyParams, 'type'> {
-  type?: PropertyType,
-  children: Array<PropertyDefinition>
+  propertyDefinitions: Array<PropertyDefinition>
 }
 
 export class StructuredProperty extends Property {
   readonly propertyDefinitions: {[key: string]: PropertyDefinition};
 
   constructor({
-    children,
+    propertyDefinitions,
     ...rest
   }: StructuredPropertyParams) {
     super({type: 'object', ...rest});
 
-    this.propertyDefinitions = Object.fromEntries(children.map(child => [child.property.name, child]));
+    this.propertyDefinitions = Object.fromEntries(propertyDefinitions.map(propDef => [propDef.property.name, propDef]));
   }
 
   isValid(..._: any[]): boolean {

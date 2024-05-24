@@ -1,6 +1,6 @@
 import { BrowserWindow, Menu, shell } from "electron";
 import { loadLocalDataFile } from './commands/storage'
-import { createKnowledgeBaseEditorWindow, createKnowledgeBaseWindow } from './windows'
+import { createKnowledgeBaseEditorWindow, createKnowledgeBaseWindow, createPipelineManagerWindow } from './windows'
 import knowledgeBaseManager from "./manager/KnowledgeBaseManager";
 import MetaStore from "./data/MetaStore";
 import { Config } from "../common/constants";
@@ -37,6 +37,15 @@ export function createMainNavigation(window: BrowserWindow): Electron.Menu {
         {
           label: 'Manage knowledge bases',
           click: () => createKnowledgeBaseWindow(window)
+        }
+      ]
+    },
+    {
+      label: 'Pipeline',
+      submenu: [
+        {
+          label: 'Manage pipelines',
+          click: () => createPipelineManagerWindow(window)
         }
       ]
     },

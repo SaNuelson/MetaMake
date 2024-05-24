@@ -49,3 +49,4 @@ $ npm run build:linux
 - [ ] Refresh KB in main window after loading data
 - [ ] Up & down on list UI editors don't work
 - [ ] Delete on list UI editors doesn't shift values
+- [ ] Won't run if open ai key is not in env variables

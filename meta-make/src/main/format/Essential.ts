@@ -7,7 +7,7 @@ const Essential = new MetaFormat(
   new StructuredProperty({
     name: 'Essential',
     description: 'Essential meta format',
-    children: [
+    propertyDefinitions: [
       {
         arity: MandatoryArity,
         property: new Property({
@@ -29,7 +29,7 @@ const Essential = new MetaFormat(
         property: new StructuredProperty({
           name: 'Author',
           description: 'Creator of the dataset',
-          children: [
+          propertyDefinitions: [
             {
               arity: MandatoryArity,
               property: new Property({

@@ -11,7 +11,7 @@ describe('MetaModel, when constructed', () => {
   const authorsProp = new StructuredProperty({
     name: 'Author',
     description: 'Author of the data',
-    children: [
+    propertyDefinitions: [
       { arity: MandatoryArity, property: authorNameProp },
       { arity: OptionalArity, property: authorAgeProp }
     ]
@@ -23,7 +23,7 @@ describe('MetaModel, when constructed', () => {
   const testFormatProps = new StructuredProperty({
     name: 'Props',
     description: '',
-    children: [
+    propertyDefinitions: [
       { arity: MandatoryArity, property: titleProp },
       { arity: { min: 3, max: 10 }, property: keywordProp },
       { arity: OneOrMoreArity, property: authorsProp }

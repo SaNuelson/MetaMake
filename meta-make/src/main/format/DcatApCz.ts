@@ -90,7 +90,7 @@ const PersonalDataPresenceCodebook: CodebookEntry[] = [
 const DatovaSluzba = new StructuredProperty({
   name: "Datová služba",
   description: "Třída reprezentující datovou službu zpřístupňující data datové sady. Odpovídá třídě dcat:DataService.",
-  children: [
+  propertyDefinitions: [
     // 3.5.1 Název
     {
       arity: MandatoryArity,
@@ -140,7 +140,7 @@ const DatovaSluzba = new StructuredProperty({
 const Distribuce = new StructuredProperty({
   name: "Distribuce datové sady",
   description: "Fyzická podoba datové sady v konkrétním formátu nebo jako konkrétní služba, nikdy obojí. Odpovídá třídě dcat:Distribution.",
-  children: [
+  propertyDefinitions: [
     // 3.4.1 Specifikace podmínek užití
     {
       arity: MandatoryArity,
@@ -148,7 +148,7 @@ const Distribuce = new StructuredProperty({
       property: new StructuredProperty({
         name: "Specifikace podmínek užití",
         description: "Tato vlastnost odkazuje na strukturovaný popis podmínek užití této distribuce datové sady. Hodnoty se řídí návodem na stanovení podmínek užití.",
-        children: [
+        propertyDefinitions: [
           {
             arity: MandatoryArity,
             property: new Property({
@@ -299,7 +299,7 @@ const Distribuce = new StructuredProperty({
 const DatovaSada = new StructuredProperty({
   name: "Datová sada",
   description: "Klíčová třída reprezentující poskytovanou informaci. Odpovídá třídě dcat:Dataset.",
-  children: [
+  propertyDefinitions: [
     // 3.3.1 Název
     {
       arity: MandatoryArity,
@@ -396,7 +396,7 @@ const DatovaSada = new StructuredProperty({
         name: "Časové pokrytí",
         description: "Tato vlastnost odkazuje na časový úsek pokrytý datovou sadou. Odpovídá vlastnosti dct:temporal.",
         // TODO: check children
-        children: [
+        propertyDefinitions: [
           {
             arity: MandatoryArity,
             property: new Property({
@@ -425,7 +425,7 @@ const DatovaSada = new StructuredProperty({
       property: new StructuredProperty({
         name: "Kontaktní bod - jméno a email",
         description: "Tato vlastnost obsahuje kontaktní informace, které mohou být využity pro zasílání připomínek k datové sadě. Odpovídá vlastnosti dcat:contactPoint.",
-        children: [
+        propertyDefinitions: [
           {
             arity: MandatoryArity,
             property: new Property({
@@ -526,7 +526,7 @@ const DatovaSada = new StructuredProperty({
 const Katalog = new StructuredProperty({
   name: "Katalog",
   description: "Třída reprezentující datový katalog. Odpovídá třídě dcat:Catalog.",
-  children: [
+  propertyDefinitions: [
     // 3.2.1 Název
     {
       arity: MandatoryArity,
@@ -561,7 +561,7 @@ const Katalog = new StructuredProperty({
       property: new StructuredProperty({
         name: "Kontaktní bod - jméno a email",
         description: "Tato vlastnost obsahuje kontaktní informace, které mohou být využity pro zasílání připomínek ke katalogu. Odpovídá vlastnosti dcat:contactPoint.",
-        children: [
+        propertyDefinitions: [
           {
             arity: MandatoryArity,
             property: new Property({
