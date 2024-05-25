@@ -23,7 +23,7 @@ export const JSONSchemaProcessorOutputFormat = new MetaFormat(
   })
 )
 
-export default class JSONSchemaProcessor implements Processor {
+class JSONSchemaProcessor implements Processor {
 
   config?: MetaModel;
 
@@ -31,8 +31,12 @@ export default class JSONSchemaProcessor implements Processor {
     return 'JSONSchemaProcessor'
   }
 
+  getDescription(): string {
+    return 'Processor compressing (potentially partial) loaded JSON data into representing JSON Schema.'
+  }
+
   initialize(targetFormat: MetaFormat, knownFormats: MetaFormat[], config?: MetaModel): void {
-    this.config = config;
+    this.config = config
   }
 
   getInputFormats(): MetaFormat[] {
@@ -40,14 +44,16 @@ export default class JSONSchemaProcessor implements Processor {
   }
 
   getConfigFormat(): MetaFormat {
-    return JSONSchemaProcessorConfigFormat;
+    return JSONSchemaProcessorConfigFormat
   }
 
   getOutputFormat(): MetaFormat {
-    return JSONSchemaProcessorOutputFormat;
+    return JSONSchemaProcessorOutputFormat
   }
 
   execute(dataSource: DataSource, inputModels: Map<MetaFormat, MetaModel[]>): Promise<MetaModel> {
     throw new Error('Method not implemented.')
   }
 }
+
+export default new JSONSchemaProcessor();

@@ -6,66 +6,64 @@ import MetaFormat from '../../../../../common/dto/MetaFormat'
 import { useNavigate, useParams } from 'react-router-dom'
 import { MetaUrl } from '../../../../../common/constants'
 import { createMetaUrl } from '../../../../../common/utils/url'
-import { useKnowledgeBase } from '../../hooks/use-knowledge-base'
+import { useKnowledgeBase } from '../../hooks/use-knowledge-base.js'
 import MetaFormatSelect from '../../common/MetaFormatSelect'
 import { FormatFormNode } from '../../common/FormatFormNode.js'
 
 export default function KnowledgeBaseEditor(): ReactElement {
-  const kbId = useParams()['kb'];
+  const kbId = useParams()['kb']
 
-  const {
-    knowledgeBase,
-    setKnowledgeBase: setKnowledgeBase
-  } = useKnowledgeBase(kbId)
+  const { knowledgeBase, setKnowledgeBase } = useKnowledgeBase(kbId)
 
   function copyKnowledgeBase(kb: KnowledgeBase): KnowledgeBase {
     return new KnowledgeBase(kb.id, kb.name, kb.format, kb.model, kb.changedOn)
   }
 
   function setKnowledgeBaseProp<T extends keyof KnowledgeBase>(key: T, val: KnowledgeBase[T]) {
-    const copy = copyKnowledgeBase(knowledgeBase!);
-    copy[key] = val;
-    setKnowledgeBase(copy);
-    setIsChanged(true);
+    const copy = copyKnowledgeBase(knowledgeBase!)
+    copy[key] = val
+    setKnowledgeBase(copy)
+    setIsChanged(true)
     updateDocumentTitle()
   }
 
   function setModelProp(path: string, val: any) {
-    const copy = copyKnowledgeBase(knowledgeBase!);
-    copy.model.setValue(path, val);
-    setIsChanged(true);
-    setKnowledgeBase(copy);
-    console.log("setModelProp(", path, ",", val, ") ", knowledgeBase, " -->", copy);
+    const copy = copyKnowledgeBase(knowledgeBase!)
+    copy.model.setValue(path, val)
+    setIsChanged(true)
+    setKnowledgeBase(copy)
+    console.log('setModelProp(', path, ',', val, ') ', knowledgeBase, ' -->', copy)
   }
 
   function extendModelProp(path: string) {
-    const copy = copyKnowledgeBase(knowledgeBase!);
-    copy.model.addValue(path);
-    setIsChanged(true);
-    setKnowledgeBase(copy);
-    console.log("extendModelProp(", path, ") ", knowledgeBase, " -->", copy);
+    const copy = copyKnowledgeBase(knowledgeBase!)
+    copy.model.addValue(path)
+    setIsChanged(true)
+    setKnowledgeBase(copy)
+    console.log('extendModelProp(', path, ') ', knowledgeBase, ' -->', copy)
   }
 
   function deleteModelProp(path: string) {
-    const copy = copyKnowledgeBase(knowledgeBase!);
-    copy.model.deleteValue(path);
-    setIsChanged(true);
-    setKnowledgeBase(copy);
-    console.log("deleteModelProp(", path, ") ", knowledgeBase, " -->", copy);
+    const copy = copyKnowledgeBase(knowledgeBase!)
+    copy.model.deleteValue(path)
+    setIsChanged(true)
+    setKnowledgeBase(copy)
+    console.log('deleteModelProp(', path, ') ', knowledgeBase, ' -->', copy)
   }
 
   function setActiveFormat(format: MetaFormat) {
-    console.log('setActiveFormat', format.name);
+    console.log('setActiveFormat', format.name)
 
-    if (format.name === knowledgeBase?.format.name)
-      return;
+    if (format.name === knowledgeBase?.format.name) return
 
-    setKnowledgeBase(KnowledgeBase.Empty(format));
-    updateDocumentTitle();
+    setKnowledgeBase(KnowledgeBase.Empty(format))
+    updateDocumentTitle()
   }
 
   function updateDocumentTitle() {
-    document.title = knowledgeBase ? `${knowledgeBase.name} - ${knowledgeBase.format.name}${isChanged ? '*' : ''}` : 'Knowledge Base Editor';
+    document.title = knowledgeBase
+      ? `${knowledgeBase.name} - ${knowledgeBase.format.name}${isChanged ? '*' : ''}`
+      : 'Knowledge Base Editor'
   }
 
   const [isModalShown, setIsModalShown] = useState(false)
@@ -98,7 +96,7 @@ export default function KnowledgeBaseEditor(): ReactElement {
           {knowledgeBase ? (
             <FormatFormNode
               model={knowledgeBase.model}
-              path=''
+              path=""
               setProperty={setModelProp}
               extendProperty={extendModelProp}
               deleteProperty={deleteModelProp}

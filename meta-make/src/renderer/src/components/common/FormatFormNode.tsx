@@ -8,6 +8,36 @@ import Property, { StructuredProperty } from '../../../../common/dto/Property.js
 import { VscAdd } from 'react-icons/vsc'
 import { Input, OptionData, Select } from './Inputs'
 
+type FormatFormProps = {
+  model: MetaModel,
+  onChange: (model: MetaModel) => void
+}
+
+export function ModelForm({model, onChange}: FormatFormProps): ReactElement {
+  function setModelProp(path: string, val: any) {
+    model.setValue(path, val);
+    onChange(model);
+  }
+
+  function extendModelProp(path: string) {
+    model.addValue(path);
+    onChange(model);
+  }
+
+  function deleteModelProp(path: string) {
+    model.deleteValue(path);
+    onChange(model);
+  }
+
+  return <FormatFormNode
+    model={model}
+    path=''
+    setProperty={setModelProp}
+    extendProperty={extendModelProp}
+    deleteProperty={deleteModelProp}
+  />
+}
+
 type NodeProps = {
   model: MetaModel,
   metaBase?: MetaBase,

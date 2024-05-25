@@ -5,9 +5,17 @@ import DataSource from "../data/DataSource.js";
 // TODO: Constraints
 // TODO: Settings
 
+export interface ProcessorInfo {
+  name: string;
+  description: string;
+  configFormat: MetaFormat;
+}
+
 export interface Processor {
 
   getName(): string;
+
+  getDescription(): string;
 
   /**
    * Initialize this processor for processing.

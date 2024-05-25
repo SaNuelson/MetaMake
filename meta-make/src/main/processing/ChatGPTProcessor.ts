@@ -77,6 +77,10 @@ class ChatGPTProcessor implements Processor {
     return 'ChatGPTProcessor'
   }
 
+  getDescription(): string {
+    return "Processor using OpenAI's ChatGPT API"
+  }
+
   initialize(targetFormat: MetaFormat, _knownFormats: MetaFormat[], config?: MetaModel): void {
     this.outputFormat = targetFormat
     this.config = config

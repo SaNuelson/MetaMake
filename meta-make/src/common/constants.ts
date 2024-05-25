@@ -13,6 +13,11 @@ export enum EventType {
   KnowledgeBaseListRequested = 'KnowledgeBaseListRequested',
   KnowledgeBaseRequested = 'KnowledgeBaseRequested',
 
+  PipelineListRequested = 'PipelineListRequested',
+  PipelineRequested = 'PipelineRequested',
+
+  ProcessorListRequested = 'ProcessorListRequested',
+
   LoadDataModalRequested = 'LoadDataModalRequested',
   //endregion
 
@@ -20,6 +25,8 @@ export enum EventType {
   KnowledgeBaseUpdated = 'KnowledgeBaseUpdated',
   KnowledgeBaseDeleted = 'KnowledgeBaseDeleted',
   SaveMetaModelRequested = 'SaveMetaModelRequested',
+
+  PipelineUpdated = 'PipelineUpdated',
   //endregion
 
   //region CALL

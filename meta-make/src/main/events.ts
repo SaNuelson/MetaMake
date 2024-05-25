@@ -9,6 +9,8 @@ import MetaBaseManager from "./manager/MetaBaseManager";
 import metaBaseManager from "./manager/MetaBaseManager";
 import MetaStore from "./data/MetaStore.js";
 import MetaFormatManager from './manager/MetaFormatManager.js'
+import PipelineManager from './manager/PipelineManager.js'
+import ProcessorManager from './manager/ProcessorManager.js'
 
 type MainElectronEventHandler = (event: IpcMainInvokeEvent, ...args: any[]) => Promise<any> | any
 type RendererElectronEventHandler = (event: IpcRendererEvent, ...args: any[]) => (Promise<any>) | (any);
@@ -29,6 +31,11 @@ export const indexMainEventHandlers: { [type in EventType]?: MainElectronEventHa
   [EventType.KnowledgeBaseListRequested]: (_, formatName?: string) => KnowledgeBaseManager.getKnowledgeBaseList(formatName),
   [EventType.KnowledgeBaseRequested]: (_, id: string) => KnowledgeBaseManager.getKnowledgeBase(id),
 
+  [EventType.PipelineListRequested]: () => PipelineManager.getPipelineList(),
+  [EventType.PipelineRequested]: (_, id: string) => PipelineManager.getPipeline(id),
+
+  [EventType.ProcessorListRequested]: () => ProcessorManager.getProcessorList(),
+
   [EventType.MetaBaseRequested]: () => MetaBaseManager.metaBase,
   //endregion
 
@@ -36,6 +43,8 @@ export const indexMainEventHandlers: { [type in EventType]?: MainElectronEventHa
   [EventType.KnowledgeBaseUpdated]: (_, kb: KnowledgeBase) => KnowledgeBaseManager.setKnowledgeBase(kb),
   [EventType.KnowledgeBaseDeleted]: (_, kbId: string) => KnowledgeBaseManager.deleteKnowledgeBase(kbId),
   [EventType.SaveMetaModelRequested]: (_, model) => saveMetaModelFile(BrowserWindow.getFocusedWindow()!, model),
+
+  [EventType.PipelineUpdated]: (_, pipeline) => PipelineManager.setPipeline(pipeline),
   //endregion
 
   //region CALL

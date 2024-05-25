@@ -1,8 +1,9 @@
-import Pipeline, { PipelineInfo } from '../dto/Pipeline.js'
+import Pipeline, { PipelineInfo } from '../../common/dto/Pipeline.js'
 import MetaStore from '../data/MetaStore.js'
 import { Config, LogLevel } from '../../common/constants.js'
 import { readdirSync } from 'node:fs'
 import { existsSync, mkdirSync } from 'fs'
+import PipelineModel from '../dto/PipelineModel.js'
 
 
 class PipelineManager {
@@ -49,8 +50,9 @@ class PipelineManager {
   }
 
   private async createPipeline(pipeline: Pipeline) {
-    this.pipelines[pipeline.id] = pipeline;
-    await pipeline.save();
+    const newPipe = new PipelineModel(pipeline.id, pipeline.name, pipeline.changedOn, pipeline.processorConfigs)
+    this.pipelines[pipeline.id] = newPipe;
+    await newPipe.save();
   }
 
   deletePipeline(pipeId: string) {
@@ -74,7 +76,7 @@ class PipelineManager {
       .map(item => item.name.slice(0, item.name.length - ".json".length));
 
     const loadedPipes = await Promise.allSettled(
-      pipelineIds.map((pipeId) => Pipeline.load(pipeId)));
+      pipelineIds.map((pipeId) => PipelineModel.load(pipeId)));
 
     for (let i = 0; i < loadedPipes.length; i++){
       const pipeId = pipelineIds[i];
