@@ -3,7 +3,7 @@ import { SelectData } from 'tw-elements-react/dist/types/forms/Select/types'
 import { ReactElement, useEffect, useState } from "react";
 import MetaFormat from "../../../../common/dto/MetaFormat";
 import { KnowledgeBaseInfo } from "../../../../common/dto/KnowledgeBase";
-import { useKnowledgeBaseInfos } from "../hooks/use-knowledge-base-infos";
+import { useKnowledgeBaseList } from "../hooks/use-knowledge-base-list.js";
 
 type Props = {
   onKBSelected: (kbInfo?: KnowledgeBaseInfo) => void,
@@ -13,7 +13,7 @@ type Props = {
 
 export default function KnowledgeBaseSelect({ onKBSelected, onlyFormat, allowEmpty } : Props): ReactElement {
 
-  const { knowledgeBaseInfos, isComplete } = useKnowledgeBaseInfos(onlyFormat);
+  const { knowledgeBaseInfos, isComplete } = useKnowledgeBaseList(onlyFormat);
   const [ activeKnowledgeBaseInfo, setActiveKnowledgeBaseInfo] = useState<KnowledgeBaseInfo | undefined>();
 
   useEffect(() => {

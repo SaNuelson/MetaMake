@@ -7,7 +7,7 @@ type useKnowledgeBaseInfoReturn = {
   isComplete: boolean
 }
 
-export function useKnowledgeBaseInfos(format?: MetaFormat): useKnowledgeBaseInfoReturn {
+export function useKnowledgeBaseList(format?: MetaFormat): useKnowledgeBaseInfoReturn {
   console.log(`useKnowledgeBaseInfos(${format?.name})`);
   const [knowledgeBaseInfos, setKnowledgeBaseInfo] = useState<KnowledgeBaseInfo[]>([]);
   const [isComplete, setIsComplete] = useState<boolean>(false);

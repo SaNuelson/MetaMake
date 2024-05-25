@@ -1,8 +1,8 @@
-import MetaFormat from '../../common/dto/MetaFormat'
+import MetaFormat from '../../../common/dto/MetaFormat.js'
 import Property, {
   StructuredProperty
-} from '../../common/dto/Property.js'
-import { MandatoryArity } from '../../common/dto/ArityBounds'
+} from '../../../common/dto/Property.js'
+import { MandatoryArity } from '../../../common/dto/ArityBounds.js'
 
 const Long = new MetaFormat(
   'Long',

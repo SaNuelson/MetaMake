@@ -51,3 +51,4 @@ $ npm run build:linux
 - [ ] Delete on list UI editors doesn't shift values
 - [ ] Won't run if open ai key is not in env variables
 - [ ] DCAT-AP-CZ periodicity has no name and desc.
+- [ ] Add ListProperty holding sub-Property

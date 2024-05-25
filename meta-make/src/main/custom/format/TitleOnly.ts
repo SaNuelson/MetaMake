@@ -1,6 +1,6 @@
-import MetaFormat from '../../common/dto/MetaFormat'
-import Property, { StructuredProperty } from '../../common/dto/Property.js'
-import { MandatoryArity } from '../../common/dto/ArityBounds'
+import MetaFormat from '../../../common/dto/MetaFormat.js'
+import Property, { StructuredProperty } from '../../../common/dto/Property.js'
+import { MandatoryArity } from '../../../common/dto/ArityBounds.js'
 
 const TitleOnly = new MetaFormat(
   'TitleOnly',

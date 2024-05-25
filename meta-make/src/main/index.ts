@@ -2,8 +2,6 @@ import { app, BrowserWindow, globalShortcut, Menu } from "electron";
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { createIndexWindow } from './windows'
 import InitDtos from './dto/Init'
-import MetaStore from "./data/MetaStore";
-import { Config, LogLevel } from "../common/constants";
 import { attachIndexEventHandlers } from "./events";
 import { createMainNavigation } from "./menu";
 import KnowledgeBaseManager from './manager/KnowledgeBaseManager.js'

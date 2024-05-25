@@ -1,4 +1,4 @@
-import Property, { StructuredProperty } from "./Property.js";
+import Property from "./Property.js";
 import Restructurable from './Restructurable'
 
 export default class MetaFormat extends Restructurable {

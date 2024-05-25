@@ -6,7 +6,7 @@ import { papaStream } from '../utils/io'
 import DataInfo from '../../common/dto/DataInfo'
 
 export class LocalCsvDataSource extends DataSource {
-  private dataStream?: Readable
+  private dataStream!: Readable
 
   constructor(filePath: string) {
     super(filePath)

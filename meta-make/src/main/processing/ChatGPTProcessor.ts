@@ -4,7 +4,7 @@ import { Processor } from './Processor'
 import Property, { StructuredProperty } from "../../common/dto/Property.js";
 import DataSource from "../data/DataSource.js";
 import { ThreadController } from "./openaiconnector.js";
-import DcatApCz from "../format/DcatApCz.js";
+import DcatApCz from "../custom/format/DcatApCz.js"
 import MetaStore from "../data/MetaStore.js";
 import { LogLevel } from "../../common/constants.js";
 import { MandatoryArity } from '../../common/dto/ArityBounds.js'

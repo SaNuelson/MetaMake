@@ -1,14 +1,14 @@
 import $rdf, { BlankNode, NamedNode, Namespace } from "rdflib";
 import { promisify } from "util";
 import { Literal } from "rdflib/lib/tf-types.js";
-import { CodebookEntry } from "../../../common/dto/CodebookEntry.js";
-import MetaModel, { MetaDatum, PrimitiveMetaDatum, StructuredMetaDatum } from "../../../common/dto/MetaModel.js";
+import { CodebookEntry } from "../../../../common/dto/CodebookEntry.js";
+import MetaModel, { MetaDatum, PrimitiveMetaDatum, StructuredMetaDatum } from "../../../../common/dto/MetaModel.js";
 import DcatApCz from "../DcatApCz.js";
-import Property, { StructuredProperty } from "../../../common/dto/Property.js";
-import { ArityBounds, MandatoryArity } from "../../../common/dto/ArityBounds.js";
-import knowledgeBaseManager from "../../manager/KnowledgeBaseManager.js";
-import MetaStore from "../../data/MetaStore.js";
-import { LogLevel } from "../../../common/constants.js";
+import Property, { StructuredProperty } from "../../../../common/dto/Property.js";
+import { ArityBounds, MandatoryArity } from "../../../../common/dto/ArityBounds.js";
+import knowledgeBaseManager from "../../../manager/KnowledgeBaseManager.js";
+import MetaStore from "../../../data/MetaStore.js";
+import { LogLevel } from "../../../../common/constants.js";
 
 const parseRdf = promisify($rdf.parse);
 

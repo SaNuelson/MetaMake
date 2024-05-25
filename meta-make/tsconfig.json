@@ -7,7 +7,10 @@
     "target": "ESNext",
     "allowSyntheticDefaultImports": true,
     "lib": ["ES2021"],
-    "module": "nodenext"
+    "module": "nodenext",
+    "types": [
+      "mocha"
+    ]
   },
   "ts-node": {
     "experimentalSpecifierResolution": "node",

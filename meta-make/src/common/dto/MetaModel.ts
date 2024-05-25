@@ -26,7 +26,7 @@ export default class MetaModel extends Restructurable {
    * @throws Error if index out of arity or out of existing length
    */
   private stepIndex(arity: ArityBounds, property: Property, data: MetaDatum[], index: number): MetaDatum {
-    const minArity = (arity.min ?? 0);
+    // const minArity = (arity.min ?? 0);
     const maxArity = (arity.max ?? Number.MAX_SAFE_INTEGER);
 
     if (index < 0 || index >= maxArity) {

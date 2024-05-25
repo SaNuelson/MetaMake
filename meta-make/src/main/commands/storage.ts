@@ -1,7 +1,7 @@
 import { BrowserWindow, dialog } from 'electron'
 import DataManager from '../manager/DataManager.js'
 import {writeTextToFile} from "../utils/io.js";
-import {exportDCAT} from "../format/fetchers/dcat.js";
+import { exportDCAT } from '../custom/format/fetchers/dcat'
 import MetaModel from "../../common/dto/MetaModel.js";
 
 export async function selectFilesDialog(

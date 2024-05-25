@@ -1,16 +1,16 @@
 import Property, {
   StructuredProperty
-} from "../../common/dto/Property.js";
-import MetaFormat from "../../common/dto/MetaFormat";
+} from "../../../common/dto/Property.js";
+import MetaFormat from "../../../common/dto/MetaFormat.js";
 import {
   MandatoryArity,
   OneOrMoreArity,
   OptionalArity,
   UnboundedArity
-} from "../../common/dto/ArityBounds";
+} from "../../../common/dto/ArityBounds.js";
 import { getEuCodebook } from "./fetchers/dcat.js";
-import MetaStore from "../data/MetaStore.js";
-import { CodebookEntry } from "../../common/dto/CodebookEntry.js";
+import MetaStore from "../../data/MetaStore.js";
+import { CodebookEntry } from "../../../common/dto/CodebookEntry.js";
 
 // region Codebooks
 const ThemeCodebook: CodebookEntry[] = await MetaStore.getCached(
