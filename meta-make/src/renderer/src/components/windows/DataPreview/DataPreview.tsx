@@ -10,6 +10,7 @@ import { KnowledgeBaseInfo } from "../../../../../common/dto/KnowledgeBase";
 import { useNavigate } from "react-router-dom";
 import { createMetaUrl } from "../../../../../common/utils/url";
 import { MetaUrl } from "../../../../../common/constants";
+import { CsvDataInfo, JsonDataInfo } from '../../../../../common/dto/DataInfo.js'
 
 export default function DataPreview(): ReactElement {
   const { preview } = useDataPreview()
@@ -33,18 +34,22 @@ export default function DataPreview(): ReactElement {
     )
   }
 
-  const rowsData = [preview.header, ...preview.data]
-    .map((row) => row.map((item, i) => <TableItem title={item} key={i} />))
-    .map((row, i) => <TableRow key={i}>{row}</TableRow>)
+  let dataPreview;
+  switch(preview.type) {
+    case 'csv':
+      dataPreview = <CsvDataPreview preview={preview as CsvDataInfo} />
+      break;
+    case 'json':
+      dataPreview = <JsonDataPreview preview={preview as JsonDataInfo} />
+      break;
+    default:
+      dataPreview = <div>Unknown data type.</div>
+  }
 
   return (
     <div>
       <div className="rounded-t-[15px] border-2 border-b-0 bg-gradient-to-b from-secondary-100 to-white m-2">
-        <div className="p-2">
-          <Table hasHeader={!!preview.header}>{rowsData}</Table>
-          <p className="text-right">(... {preview.rowCount - 5} additional rows)</p>
-          <p className="text-right">Width: {preview.width}</p>
-        </div>
+        {dataPreview}
       </div>
 
       <div className="flex justify-center">
@@ -59,10 +64,31 @@ export default function DataPreview(): ReactElement {
             text='Process'
             onClick={() =>
               window.api.requestProcessing(selectedFormat!.name, selectedKbInfo?.id)
-              .then(()=>navigation(createMetaUrl(MetaUrl.MetaBase)))}
+                .then(()=>navigation(createMetaUrl(MetaUrl.MetaBase)))}
           />
         </div>
       </div>
     </div>
   )
+}
+
+function CsvDataPreview({preview}: {preview: CsvDataInfo}): ReactElement {
+  const rowsData = [preview.header, ...preview.data]
+    .map((row) => row.map((item, i) => <TableItem title={item} key={i} />))
+    .map((row, i) => <TableRow key={i}>{row}</TableRow>)
+
+  return <div className="p-2">
+    <Table hasHeader={!!preview.header}>{rowsData}</Table>
+    <p className="text-right">(... {preview.rowCount - 5} additional rows)</p>
+    <p className="text-right">Width: {preview.width}</p>
+  </div>;
+}
+
+function JsonDataPreview({preview}: {preview: JsonDataInfo}): ReactElement {
+  console.log("preview:" , preview)
+  const rowsData = preview.tokens.map(token => <TableRow>{JSON.stringify(token)}</TableRow>)
+  return <div className="p-2">
+    <Table>{rowsData}</Table>
+    <p className="text-right">(... {preview.tokenCount - 5} additional rows)</p>
+  </div>;
 }

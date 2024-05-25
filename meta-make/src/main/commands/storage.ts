@@ -1,8 +1,9 @@
 import { BrowserWindow, dialog } from 'electron'
 import DataManager from '../manager/DataManager.js'
 import {writeTextToFile} from "../utils/io.js";
-import { exportDCAT } from '../custom/format/fetchers/dcat'
 import MetaModel from "../../common/dto/MetaModel.js";
+import { exportDCAT } from '../custom/format/fetchers/dcat.js'
+import DcatApCz from '../custom/format/DcatApCz.js'
 
 export async function selectFilesDialog(
   window: BrowserWindow,
@@ -38,7 +39,7 @@ export async function loadLocalDataFile(window: BrowserWindow): Promise<boolean>
   try {
     const paths = await selectFilesDialog(window, {
       title: 'Load data file',
-      filters: [{ name: 'Tabular data', extensions: ['csv', 'xml', 'xslt'] }],
+      filters: [{ name: 'Open data format', extensions: ['csv', 'xml', 'json', 'rdf'] }],
       properties: ['openFile'],
     });
     return await DataManager.loadData(paths[0]);
@@ -51,9 +52,13 @@ export async function loadLocalDataFile(window: BrowserWindow): Promise<boolean>
 export async function saveMetaModelFile(window: BrowserWindow, model: MetaModel) {
   try {
     const path = await selectSaveFileDialog(window, {
-      title: 'Save MetaData File'
+      title: 'Save MetaData File',
+      defaultPath: `./${model.metaFormat.name}_exported.jsonld.txt`
     });
-    writeTextToFile(path, exportDCAT(model))
+    // TODO:
+    if (model.metaFormat.name === DcatApCz.name) {
+      await writeTextToFile(path, await exportDCAT(model))
+    }
   }
   catch (e: any) {
     console.error(`Failed to save model of ${model.metaFormat.name}: ${e.message}`);

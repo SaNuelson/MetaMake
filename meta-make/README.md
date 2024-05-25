@@ -52,3 +52,4 @@ $ npm run build:linux
 - [ ] Won't run if open ai key is not in env variables
 - [ ] DCAT-AP-CZ periodicity has no name and desc.
 - [ ] Add ListProperty holding sub-Property
+- [ ] Make buttons on bottom of page floating

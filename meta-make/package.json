@@ -38,7 +38,8 @@
     "rdf-data-factory": "^1.1.2",
     "rdflib": "^2.2.35",
     "react-icons": "^5.2.1",
-    "react-router-dom": "^6.22.3"
+    "react-router-dom": "^6.22.3",
+    "stream-json": "^1.8.0"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "^2.0.0",
@@ -50,6 +51,7 @@
     "@types/rdfjs__serializer-jsonld-ext": "^4.0.1",
     "@types/react": "^18.2.47",
     "@types/react-dom": "^18.2.18",
+    "@types/stream-json": "^1.7.7",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.16",
     "electron": "^29.3.3",

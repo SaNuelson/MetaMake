@@ -7,17 +7,17 @@ export default class DataSource {
   protected dataPath: PathLike
 
   protected previewRowCount: number = 5
-  protected __preview: DataInfo | undefined = undefined
+  private _preview: DataInfo | undefined = undefined
 
   public get preview(): DataInfo | undefined {
-    return this.__preview
+    return this._preview
   }
 
   public set preview(value: DataInfo) {
     if (this.preview == value) return
     // TODO: compare by value
 
-    this.__preview = value
+    this._preview = value
     broadcastToWindows(EventType.DataChanged)
   }
 
@@ -30,7 +30,7 @@ export default class DataSource {
     return this.preview
   }
 
-  getData(rowCount: number): Promise<Array<Array<string>>> {
-    return [];
+  getData(dataCount: number): Promise<any> {
+    throw new Error("Abstract method.");
   }
 }

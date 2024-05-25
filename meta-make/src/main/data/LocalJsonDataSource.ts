@@ -2,10 +2,12 @@ import { Readable } from 'stream'
 import { isString } from '@sniptt/guards'
 import { isURL } from '../../common/typeguards'
 import DataSource from './DataSource'
-import { papaStream } from '../utils/io'
-import { CsvDataInfo } from '../../common/dto/DataInfo'
+import Parser from "stream-json/Parser.js";
+import fs from "fs";
+import { JsonDataInfo } from "../../common/dto/DataInfo.js";
+import { JsonToken } from "../../common/dto/JsonTokens.js";
 
-export class LocalCsvDataSource extends DataSource {
+export class LocalJsonDataSource extends DataSource {
   private dataStream!: Readable
 
   constructor(filePath: string) {
@@ -23,7 +25,8 @@ export class LocalCsvDataSource extends DataSource {
     // TODO: Check if exists and validate
 
     console.log(`${this}::reset()`)
-    this.dataStream = papaStream(this.dataPath)
+    const parser = new Parser({packKeys: true, packStrings: false, packNumbers: true});
+    this.dataStream = fs.createReadStream(this.dataPath).pipe(parser)
   }
 
   private loadPreview(): void {
@@ -32,35 +35,35 @@ export class LocalCsvDataSource extends DataSource {
     }
 
     console.log(`${this}::preview()`)
-    let headerRowCounter = 0
-    const preview = [] as string[][]
+    let tokenCounter = 0
+    const preview = [] as JsonToken[]
 
-    const previewReader = (data: string[]) => {
-      console.log(`++ (${headerRowCounter})(${this.previewRowCount}) '${data.join("', '")}'`);
-      preview.push(data)
-      if (headerRowCounter++ >= this.previewRowCount) {
+    const previewReader = (data: JsonToken) => {
+      if (!['startKey', 'stringChunk', 'endKey', 'startString', 'endString', 'startNumber', 'numberChunk', 'endNumber'].includes(data.name)) {
+        preview.push(data);
+        tokenCounter++;
+      }
+      if (tokenCounter >= this.previewRowCount) {
         console.log(`${this}::preview() done.`)
         this.resetStream()
         this.dataStream.off('data', previewReader);
-        this.preview = new CsvDataInfo(preview[0], preview.slice(1), -1)
+        this.preview = new JsonDataInfo(preview, -1);
       }
     }
-
     this.dataStream.on('data', previewReader);
-    // TODO: data source with less than 6 lines never triggers
     this.dataStream.resume()
   }
 
-  async getData(dataCount: number): Promise<Array<Array<string>>> {
-    const result: Array<Array<string>> = [];
-    return new Promise<Array<Array<string>>>(resolve => {
+  async getData(dataCount: number): Promise<JsonToken[]> {
+    const result: JsonToken[] = [];
+    return new Promise(resolve => {
 
-      let rowsLeft = dataCount;
-      const dataReader = (data: string[]) => {
-        console.log(`++ '${data.join("', '")}'`);
-        result.push(data)
-        if (rowsLeft-- <= 0) {
-          console.log(`${this}::getData() done.`)
+      let tokensLeft = dataCount;
+      const dataReader = (data: JsonToken) => {
+        if (!['startKey', 'stringChunk', 'endKey', 'startString', 'endString', 'startNumber', 'numberChunk', 'endNumber'].includes(data.name)) {
+          result.push(data);
+        }
+        if (tokensLeft-- <= 0) {
           this.resetStream()
           this.dataStream.off('data', dataReader);
           this.dataStream.on('end', readEndListener);
@@ -79,17 +82,16 @@ export class LocalCsvDataSource extends DataSource {
       this.dataStream.on('end', readEndListener);
       this.dataStream.resume();
     })
-
   }
 
   override toString(): string {
     if (isString(this.dataPath)) {
       //const fileName = this.dataPath.split(/[\\\/]/).slice(-1)[0]
-      return `LocalCsvDataSource(file::${this.dataPath})`
+      return `LocalJsonDataSource(file::${this.dataPath})`
     } else if (isURL(this.dataPath)) {
-      return `LocalCsvDataSource(${this.dataPath})`
+      return `LocalJsonDataSource(${this.dataPath})`
     } else {
-      return `LocalCsvDataSource(buff::${this.dataPath})`
+      return `LocalJsonDataSource(buff::${this.dataPath})`
     }
   }
 }
