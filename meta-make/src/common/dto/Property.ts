@@ -101,7 +101,7 @@ export class ListProperty extends Property {
 }
 
 export interface StructuredPropertyParams extends Omit<PropertyParams, 'type'> {
-  propertyDefinitions: Array<PropertyDefinition>
+  propertyDefinitions: {[key: string]: PropertyDefinition}
 }
 
 export class StructuredProperty extends Property {
@@ -113,7 +113,7 @@ export class StructuredProperty extends Property {
   }: StructuredPropertyParams) {
     super({type: 'object', ...rest});
 
-    this.propertyDefinitions = Object.fromEntries(propertyDefinitions.map(propDef => [propDef.property.name, propDef]));
+    this.propertyDefinitions = propertyDefinitions;
   }
 
   isValid(..._: any[]): boolean {
