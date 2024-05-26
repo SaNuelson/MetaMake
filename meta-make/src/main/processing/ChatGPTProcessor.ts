@@ -69,20 +69,26 @@ const queryLocalization = {
   }
 }
 
-class ChatGPTProcessor implements Processor {
-  outputFormat!: MetaFormat
+class ChatGPTProcessor<T extends MetaFormat> implements Processor {
+  outputFormat: T
   config?: MetaModel
 
+  constructor(outputFormat: T) {
+    this.outputFormat = outputFormat;
+  }
+
   getName() {
-    return 'ChatGPTProcessor'
+    return `ChatGPTProcessor<${this.outputFormat.name}>`
   }
 
   getDescription(): string {
-    return "Processor using OpenAI's ChatGPT API"
+    return `Processor using OpenAI's ChatGPT API which creates a ${this.outputFormat.name} model using ChatGPT's guesses.`
   }
 
-  initialize(targetFormat: MetaFormat, _knownFormats: MetaFormat[], config?: MetaModel): void {
-    this.outputFormat = targetFormat
+  initialize(targetFormat: T, _knownFormats: MetaFormat[], config?: MetaModel): void {
+    if (targetFormat.name !== this.outputFormat.name)
+      throw new Error(`${this.getName()} incompatible with ${targetFormat.name}`);
+
     this.config = config
   }
 
@@ -95,9 +101,6 @@ class ChatGPTProcessor implements Processor {
   }
 
   getOutputFormat(): MetaFormat {
-    if (!this.outputFormat)
-      throw new Error(`ChatGPTProcessor.getOutputFormat called before initialize`)
-
     return this.outputFormat
   }
 
@@ -145,4 +148,4 @@ class ChatGPTProcessor implements Processor {
   }
 }
 
-export default new ChatGPTProcessor();
+export const ChatGPTDcatApCzProcessor = new ChatGPTProcessor(DcatApCz);

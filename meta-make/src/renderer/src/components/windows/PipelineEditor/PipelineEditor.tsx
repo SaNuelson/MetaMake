@@ -11,6 +11,8 @@ import MetaModel from '../../../../../common/dto/MetaModel.js'
 import { useProcessorList } from '../../hooks/use-processor-list.js'
 import { Select } from '../../common/Inputs.js'
 import { ProcessorInfo } from '../../../../../main/processing/Processor.js'
+import { Button } from '../../common/Buttons.js'
+import { VscAdd } from 'react-icons/vsc'
 
 export default function PipelineEditor(): ReactElement {
   const pipeId = useParams()['pipe']
@@ -89,6 +91,17 @@ export default function PipelineEditor(): ReactElement {
         ) : (
           <div>Pipelines are loading...</div>
         )}
+        {pipeline && (
+          <div className="p-2 flex justify-center">
+            <Button
+              xl
+              className="rounded-lg"
+              onClick={() => setIsNewProcessorModalShown(true)}
+            >
+              <VscAdd />
+            </Button>
+          </div>
+        )}
       </div>
       <hr className="h-px my-4 bg-gray-200 border-0 dark:bg-gray-700" />
       <div className="flex justify-around">
@@ -131,7 +144,7 @@ export default function PipelineEditor(): ReactElement {
       >
         <Select
           data={processorList.map((proc, i) => ({ text: proc.name, value: i }))}
-          onChange={(e) => setSelectedNewProcessorIdx(processorList[e.target.value])}
+          onChange={(e) => setSelectedNewProcessorIdx(+e.target.value)}
           value={selectedNewProcessorIdx}
         />
       </Modal>

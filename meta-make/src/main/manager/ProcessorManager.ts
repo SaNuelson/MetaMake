@@ -1,10 +1,10 @@
 import { Processor, ProcessorInfo } from '../processing/Processor.js'
-import ChatGPTProcessor from '../processing/ChatGPTProcessor.js'
+import { ChatGPTDcatApCzProcessor } from '../processing/ChatGPTProcessor.js'
 import JSONSchemaProcessor from '../processing/JSONSchemaProcessor.js'
 
 class ProcessorManager {
   private processors: {[name: string]: Processor} = {
-    ChatGPTProcessor: ChatGPTProcessor,
+    ChatGPTDcatApCzProcessor: ChatGPTDcatApCzProcessor,
     JSONSchemaProcessor: JSONSchemaProcessor,
   }
 
@@ -13,7 +13,9 @@ class ProcessorManager {
       .map(proc => ({
         name: proc.getName(),
         description: proc.getDescription(),
-        configFormat: proc.getConfigFormat()
+        inputFormatNames: proc.getInputFormats().map(f => f.name),
+        configFormat: proc.getConfigFormat(),
+        outputFormatName: proc.getOutputFormat().name
       }));
   }
 

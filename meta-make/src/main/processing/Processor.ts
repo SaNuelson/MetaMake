@@ -8,7 +8,9 @@ import DataSource from "../data/DataSource.js";
 export interface ProcessorInfo {
   name: string;
   description: string;
+  inputFormatNames: string[];
   configFormat: MetaFormat;
+  outputFormatName: string;
 }
 
 export interface Processor {

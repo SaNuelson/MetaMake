@@ -7,7 +7,7 @@ import MetaModel from '../../common/dto/MetaModel'
 import { Processor } from '../processing/Processor.js'
 import MetaStore from "../data/MetaStore.js";
 import DataManager from "./DataManager.js";
-import ChatGPTProcessor from "../processing/ChatGPTProcessor.js";
+import { ChatGPTDcatApCzProcessor } from '../processing/ChatGPTProcessor.js'
 
 class MetaBaseManager {
   private _format?: MetaFormat
@@ -24,7 +24,7 @@ class MetaBaseManager {
 
   // TODO
   private _processors: Processor[] = [
-    ChatGPTProcessor
+    ChatGPTDcatApCzProcessor
   ]
 
   getModels(formatName?: string): [MetaModel, MetaModelSource][] {
