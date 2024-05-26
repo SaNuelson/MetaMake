@@ -1,11 +1,11 @@
 import Restructurable from './Restructurable'
-import { ArityBounds } from "./ArityBounds";
 
 type PropertyType = 'string' | 'number' | 'object' | 'array' | 'boolean' | 'date';
 
 export interface PropertyDefinition {
-  arity: ArityBounds
-  property: Property
+  mandatory: boolean,
+  property: Property,
+  uri?: string,
 }
 
 export interface DomainEntry {
@@ -70,8 +70,38 @@ export default class Property extends Restructurable {
   }
 }
 
+export interface ListPropertyParams extends Omit<PropertyParams, 'type'> {
+  minSize?: number,
+  maxSize?: number,
+  property: Property
+}
+
+export class ListProperty extends Property {
+  minSize: number;
+  maxSize: number;
+  itemProperty: Property;
+
+  constructor({
+    property,
+    minSize,
+    maxSize,
+    ...rest
+  }: ListPropertyParams) {
+    super({type: 'array', ...rest});
+    this.itemProperty = property;
+    this.minSize = minSize ?? 0;
+    this.maxSize = maxSize ?? Number.MAX_SAFE_INTEGER;
+  }
+
+  [Restructurable.from](obj: StructuredProperty): StructuredProperty {
+    const prop = Object.create(ListProperty.prototype);
+    Object.assign(prop, obj);
+    return prop;
+  }
+}
+
 export interface StructuredPropertyParams extends Omit<PropertyParams, 'type'> {
-  propertyDefinitions: Array<PropertyDefinition>
+  propertyDefinitions: {[key: string]: PropertyDefinition}
 }
 
 export class StructuredProperty extends Property {
@@ -83,7 +113,7 @@ export class StructuredProperty extends Property {
   }: StructuredPropertyParams) {
     super({type: 'object', ...rest});
 
-    this.propertyDefinitions = Object.fromEntries(propertyDefinitions.map(propDef => [propDef.property.name, propDef]));
+    this.propertyDefinitions = propertyDefinitions;
   }
 
   isValid(..._: any[]): boolean {

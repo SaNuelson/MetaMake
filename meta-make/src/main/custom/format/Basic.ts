@@ -1,6 +1,5 @@
 import MetaFormat from '../../../common/dto/MetaFormat'
 import Property, { StructuredProperty } from '../../../common/dto/Property'
-import { MandatoryArity } from '../../../common/dto/ArityBounds'
 
 const Basic = new MetaFormat(
   'Basic',
@@ -9,7 +8,7 @@ const Basic = new MetaFormat(
     description: 'Basic meta format',
     propertyDefinitions: [
       {
-        arity: MandatoryArity,
+        mandatory: true,
         property: new Property({
           name: 'Title',
           description: 'Name of the dataset',
@@ -17,7 +16,7 @@ const Basic = new MetaFormat(
         })
       },
       {
-        arity: MandatoryArity,
+        mandatory: true,
         property: new Property({
           name: 'Description',
           description: 'Short description about the contents of the dataset',

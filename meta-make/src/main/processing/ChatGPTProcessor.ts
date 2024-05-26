@@ -1,13 +1,12 @@
 import MetaFormat from "../../common/dto/MetaFormat";
 import MetaModel from '../../common/dto/MetaModel'
 import { Processor } from './Processor'
-import Property, { StructuredProperty } from "../../common/dto/Property.js";
+import Property, { ListProperty, StructuredProperty } from '../../common/dto/Property.js'
 import DataSource from "../data/DataSource.js";
 import { ThreadController } from "./openaiconnector.js";
 import DcatApCz from "../custom/format/DcatApCz.js"
 import MetaStore from "../data/MetaStore.js";
 import { LogLevel } from "../../common/constants.js";
-import { MandatoryArity } from '../../common/dto/ArityBounds.js'
 
 export const ChatGPTConfigFormat = new MetaFormat(
   "ChatGPTConfigFormat",
@@ -16,7 +15,7 @@ export const ChatGPTConfigFormat = new MetaFormat(
     description: "Configuration for the JSON Schema processor",
     propertyDefinitions: [
       {
-        arity: MandatoryArity,
+        mandatory: true,
         property: new Property({
           name: "Language",
           description: "Language of the ChatGPT prompts (ideally identical to MetaFormat)",
@@ -26,7 +25,7 @@ export const ChatGPTConfigFormat = new MetaFormat(
         })
       },
       {
-        arity: MandatoryArity,
+        mandatory: true,
         property: new Property({
           name: "Minimal confidence",
           description: "Confidence of the ChatGPT's responses below which guesses won't be considered.",
@@ -120,8 +119,8 @@ class ChatGPTProcessor<T extends MetaFormat> implements Processor {
     await connector.addMessage(localization.initialMessage(dataPreview.join('  \n')))
 
     let answerLimit = 0
-    for (const [path, arity, prop, data] of newModel.preOrderTraversal()) {
-      if (prop instanceof StructuredProperty) {
+    for (const [path, prop, datum] of newModel.preOrderTraversal()) {
+      if (prop instanceof StructuredProperty || prop instanceof ListProperty) {
         continue
       }
 

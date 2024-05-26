@@ -4,6 +4,8 @@ import Essential from '../custom/format/Essential'
 import Basic from '../custom/format/Basic'
 import Long from '../custom/format/Long'
 import DcatApCz from '../custom/format/DcatApCz'
+import SchemaOrg from '../custom/format/SchemaOrg.js'
+import VoID from '../custom/format/VoID.js'
 
 class MetaFormatManager {
   private __metaFormats: {[name: string]: MetaFormat} = {
@@ -11,6 +13,8 @@ class MetaFormatManager {
     [Essential.name]: Essential,
     [Basic.name]: Basic,
     [Long.name]: Long,
+    [SchemaOrg.name]: SchemaOrg,
+    [VoID.name]: VoID,
     [DcatApCz.name]: DcatApCz
   }
 
