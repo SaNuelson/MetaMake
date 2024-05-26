@@ -71,8 +71,8 @@ export default class Property extends Restructurable {
 }
 
 export interface ListPropertyParams extends Omit<PropertyParams, 'type'> {
-  minSize: number,
-  maxSize: number,
+  minSize?: number,
+  maxSize?: number,
   property: Property
 }
 
@@ -89,8 +89,8 @@ export class ListProperty extends Property {
   }: ListPropertyParams) {
     super({type: 'array', ...rest});
     this.itemProperty = property;
-    this.minSize = minSize;
-    this.maxSize = maxSize;
+    this.minSize = minSize ?? 0;
+    this.maxSize = maxSize ?? Number.MAX_SAFE_INTEGER;
   }
 
   [Restructurable.from](obj: StructuredProperty): StructuredProperty {

@@ -1,6 +1,5 @@
 import MetaFormat from '../../../common/dto/MetaFormat.js'
 import Property, { StructuredProperty } from '../../../common/dto/Property.js'
-import { MandatoryArity } from '../../../common/dto/ArityBounds.js'
 
 const Essential = new MetaFormat(
   'Essential',
@@ -9,7 +8,7 @@ const Essential = new MetaFormat(
     description: 'Essential meta format',
     propertyDefinitions: [
       {
-        arity: MandatoryArity,
+        mandatory: true,
         property: new Property({
           name: 'Title',
           description: 'Name of the dataset',
@@ -17,7 +16,7 @@ const Essential = new MetaFormat(
         })
       },
       {
-        arity: MandatoryArity,
+        mandatory: true,
         property: new Property({
           name: 'Description',
           description: 'Short description about the contents of the dataset',
@@ -25,13 +24,13 @@ const Essential = new MetaFormat(
         })
       },
       {
-        arity: MandatoryArity,
+        mandatory: true,
         property: new StructuredProperty({
           name: 'Author',
           description: 'Creator of the dataset',
           propertyDefinitions: [
             {
-              arity: MandatoryArity,
+              mandatory: true,
               property: new Property({
                 name: 'Name',
                 description: 'Name of the author',
@@ -39,7 +38,7 @@ const Essential = new MetaFormat(
               })
             },
             {
-              arity: MandatoryArity,
+              mandatory: true,
               property: new Property({
                 name: 'Email',
                 description: 'Contact email',
