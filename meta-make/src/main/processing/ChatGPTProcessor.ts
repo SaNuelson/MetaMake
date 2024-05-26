@@ -1,43 +1,44 @@
-import MetaFormat from "../../common/dto/MetaFormat";
+import MetaFormat from '../../common/dto/MetaFormat'
 import MetaModel from '../../common/dto/MetaModel'
 import { Processor } from './Processor'
 import Property, { ListProperty, StructuredProperty } from '../../common/dto/Property.js'
-import DataSource from "../data/DataSource.js";
-import { ThreadController } from "./openaiconnector.js";
-import DcatApCz from "../custom/format/DcatApCz.js"
-import MetaStore from "../data/MetaStore.js";
-import { LogLevel } from "../../common/constants.js";
+import DataSource from '../data/DataSource.js'
+import { ThreadController } from './openaiconnector.js'
+import DcatApCz from '../custom/format/DcatApCz.js'
+import MetaStore from '../data/MetaStore.js'
+import { LogLevel } from '../../common/constants.js'
 
 export const ChatGPTConfigFormat = new MetaFormat(
-  "ChatGPTConfigFormat",
+  'ChatGPTConfigFormat',
   new StructuredProperty({
-    name: "ChatGPTConfig",
-    description: "Configuration for the JSON Schema processor",
-    propertyDefinitions: [
-      {
+    name: 'ChatGPTConfig',
+    description: 'Configuration for the JSON Schema processor',
+    propertyDefinitions: {
+      language: {
         mandatory: true,
         property: new Property({
-          name: "Language",
-          description: "Language of the ChatGPT prompts (ideally identical to MetaFormat)",
+          name: 'Language',
+          description: 'Language of the ChatGPT prompts (ideally identical to MetaFormat)',
           type: 'string',
-          domain: [{value: 'en'}, {value: 'cs'}],
+          domain: [{ value: 'en' }, { value: 'cs' }],
           isDomainStrict: true
         })
       },
-      {
+      confidence: {
         mandatory: true,
         property: new Property({
-          name: "Minimal confidence",
-          description: "Confidence of the ChatGPT's responses below which guesses won't be considered.",
+          name: 'Minimal confidence',
+          description:
+            "Confidence of the ChatGPT's responses below which guesses won't be considered.",
           type: 'number'
         })
       }
-    ]
+    }
   })
 )
 
 interface GuessResponse {
-  value: string,
+  value: string
   confidence: number
 }
 
@@ -52,10 +53,13 @@ const queryLocalization = {
       process: "Your thought process behind the assumption."
   }
   `,
-    guessRequest: (prop: Property) => `Provide your best guess in form of mentioned JSON for metadata ${prop.name} (${prop.description}):`
+    guessRequest: (prop: Property) =>
+      `Provide your best guess in form of mentioned JSON for metadata ${prop.name} (${prop.description}):`
   },
   cz: {
-    initialMessage: (dataSlice: string) => `Zde je malá ukázka - prvních 20 řádků z většího datasetu:
+    initialMessage: (
+      dataSlice: string
+    ) => `Zde je malá ukázka - prvních 20 řádků z většího datasetu:
   \`\`\`\n${dataSlice}\n\`\`\`
   Na následující otázky odpovídej ve formátu:
   {
@@ -64,7 +68,8 @@ const queryLocalization = {
       process: "Proč si myslíš, že je tvá odpověď správná."
   }
   `,
-    guessRequest: (prop: Property) => `Jaký je tvůj tip na metadata ${prop.name} (${prop.description})? Odpověz v JSON ve formátu zmíněným výše.`
+    guessRequest: (prop: Property) =>
+      `Jaký je tvůj tip na metadata ${prop.name} (${prop.description})? Odpověz v JSON ve formátu zmíněným výše.`
   }
 }
 
@@ -73,7 +78,7 @@ class ChatGPTProcessor<T extends MetaFormat> implements Processor {
   config?: MetaModel
 
   constructor(outputFormat: T) {
-    this.outputFormat = outputFormat;
+    this.outputFormat = outputFormat
   }
 
   getName() {
@@ -86,7 +91,7 @@ class ChatGPTProcessor<T extends MetaFormat> implements Processor {
 
   initialize(targetFormat: T, _knownFormats: MetaFormat[], config?: MetaModel): void {
     if (targetFormat.name !== this.outputFormat.name)
-      throw new Error(`${this.getName()} incompatible with ${targetFormat.name}`);
+      throw new Error(`${this.getName()} incompatible with ${targetFormat.name}`)
 
     this.config = config
   }
@@ -147,4 +152,4 @@ class ChatGPTProcessor<T extends MetaFormat> implements Processor {
   }
 }
 
-export const ChatGPTDcatApCzProcessor = new ChatGPTProcessor(DcatApCz);
+export const ChatGPTDcatApCzProcessor = new ChatGPTProcessor(DcatApCz)

@@ -200,11 +200,12 @@ function PrimitiveNode(
     value: value ?? 'UNKNOWN',
   }));
 
-  if (property.domain) {
+  if (property.domain && property.isDomainStrict) {
     return (
       <Select
         data={property.domain.map(x => ({text: x.value, value: x.value}))}
-
+        onChange={ev => setValue(ev.target.value)}
+        value={value}
       />
     )
   }

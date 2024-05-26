@@ -4,10 +4,23 @@ import { Config, LogLevel } from '../../common/constants.js'
 import { readdirSync } from 'node:fs'
 import { existsSync, mkdirSync } from 'fs'
 import PipelineModel from '../dto/PipelineModel.js'
+import { ChatGPTDcatApCzProcessor } from '../processing/ChatGPTProcessor.js'
+import MetaModel from '../../common/dto/MetaModel.js'
 
+
+// TODO: Remove
+const dcatApCzPipelineId = crypto.randomUUID()
+const dcatApCzPipeline = new Pipeline(dcatApCzPipelineId, "DcatApCz with ChatGPT in CZ", new Date(), [
+  {
+    name: ChatGPTDcatApCzProcessor.getName(),
+    config: new MetaModel(ChatGPTDcatApCzProcessor.getConfigFormat())
+  }
+])
+dcatApCzPipeline.processorConfigs[0].config.setValue(".language", "cs")
+dcatApCzPipeline.processorConfigs[0].config.setValue(".confidence", 0.25)
 
 class PipelineManager {
-  private pipelines: {[id: string]: Pipeline} = {}
+  private pipelines: {[id: string]: Pipeline} = { [dcatApCzPipelineId]: dcatApCzPipeline }
   private arePipelinesLoaded: boolean = false;
 
   getPipelineList(): PipelineInfo[] {
