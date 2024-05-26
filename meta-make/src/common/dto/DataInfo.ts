@@ -41,3 +41,61 @@ export class JsonDataInfo extends DataInfo {
     this.tokenCount = tokenCount
   }
 }
+
+export function wrapJsonTokenStream(data: JsonToken[]): object {
+  const nestStack: string[] = [];
+  const objStack : object[] = [{}];
+  let key: string | undefined = undefined;
+  let heldObject: object | undefined = objStack[0];
+  for (const token of data.slice(1)) {
+    switch (token.name) {
+      case 'keyValue':
+        key = token.value;
+        break;
+      case 'startArray':
+        nestStack.push("[");
+        const newArr = [];
+        heldObject[key] = newArr;
+        objStack.push(heldObject);
+        heldObject = newArr;
+        break;
+      case 'endArray':
+        nestStack.pop()
+        heldObject = objStack.pop()
+        break;
+      case 'startObject':
+        nestStack.push('{')
+        const newObj = {};
+        if (Array.isArray(heldObject))
+          heldObject.push(newObj);
+        else
+          heldObject[key] = newObj;
+        objStack.push(heldObject)
+        heldObject = newObj;
+        break;
+      case 'endObject':
+        nestStack.pop()
+        heldObject = objStack.pop()
+        break;
+      case 'nullValue':
+      case 'trueValue':
+      case 'falseValue':
+      case 'stringValue':
+        if (Array.isArray(heldObject))
+          heldObject.push(token.value);
+        else
+          heldObject[key] = token.value;
+        break;
+      case 'numberValue':
+        if (Array.isArray(heldObject))
+          heldObject.push(+token.value);
+        else
+          heldObject[key] = +token.value;
+        break;
+      default:
+        throw new Error("How");
+    }
+  }
+
+  return objStack[0] ?? heldObject;
+}

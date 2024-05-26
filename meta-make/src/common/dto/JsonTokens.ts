@@ -1,8 +1,8 @@
 type JsonSimpleToken = {
-  name: string;
+  name: 'startObject' | 'endObject' | 'startArray' | 'endArray';
 }
 type JsonValueToken = {
-  name: string;
+  name: 'keyValue' | 'stringValue' | 'numberValue' | 'nullValue' | 'trueValue' | 'falseValue';
   value: string;
 }
 export type JsonToken = JsonSimpleToken | JsonValueToken;

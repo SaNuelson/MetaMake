@@ -25,7 +25,7 @@ export class LocalJsonDataSource extends DataSource {
     // TODO: Check if exists and validate
 
     console.log(`${this}::reset()`)
-    const parser = new Parser({packKeys: true, packStrings: false, packNumbers: true});
+    const parser = new Parser({packKeys: true, packStrings: true, packNumbers: true});
     this.dataStream = fs.createReadStream(this.dataPath).pipe(parser)
   }
 
@@ -43,7 +43,7 @@ export class LocalJsonDataSource extends DataSource {
         preview.push(data);
         tokenCounter++;
       }
-      if (tokenCounter >= this.previewRowCount) {
+      if (tokenCounter >= 10 * this.previewRowCount) {
         console.log(`${this}::preview() done.`)
         this.resetStream()
         this.dataStream.off('data', previewReader);

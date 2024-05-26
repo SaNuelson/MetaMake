@@ -40,7 +40,7 @@ class JSONSchemaProcessor implements Processor {
   }
 
   getInputFormats(): MetaFormat[] {
-    throw new Error('Method not implemented.')
+    return [];
   }
 
   getConfigFormat(): MetaFormat {

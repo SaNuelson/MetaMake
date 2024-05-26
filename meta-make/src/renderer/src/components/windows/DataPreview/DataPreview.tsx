@@ -10,7 +10,7 @@ import { KnowledgeBaseInfo } from "../../../../../common/dto/KnowledgeBase";
 import { useNavigate } from "react-router-dom";
 import { createMetaUrl } from "../../../../../common/utils/url";
 import { MetaUrl } from "../../../../../common/constants";
-import { CsvDataInfo, JsonDataInfo } from '../../../../../common/dto/DataInfo.js'
+import { CsvDataInfo, JsonDataInfo, wrapJsonTokenStream } from '../../../../../common/dto/DataInfo.js'
 
 export default function DataPreview(): ReactElement {
   const { preview } = useDataPreview()
@@ -86,6 +86,11 @@ function CsvDataPreview({preview}: {preview: CsvDataInfo}): ReactElement {
 
 function JsonDataPreview({preview}: {preview: JsonDataInfo}): ReactElement {
   console.log("preview:" , preview)
+
+  return <pre>
+    {JSON.stringify(wrapJsonTokenStream(preview.tokens), null, "  ")}
+  </pre>
+
   const rowsData = preview.tokens.map(token => <TableRow>{JSON.stringify(token)}</TableRow>)
   return <div className="p-2">
     <Table>{rowsData}</Table>
