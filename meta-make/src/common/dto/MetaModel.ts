@@ -1,7 +1,6 @@
 import MetaFormat from "./MetaFormat";
 import Property, { ListProperty, StructuredProperty } from './Property.js'
 import Restructurable from "./Restructurable";
-import { ArityBounds, MandatoryArity } from "./ArityBounds";
 
 export type Primitive = number | string | boolean | Date;
 
