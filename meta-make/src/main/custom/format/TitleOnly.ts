@@ -6,8 +6,8 @@ const TitleOnly = new MetaFormat(
   new StructuredProperty({
     name: 'TitleOnly',
     description: 'TitleOnly meta format',
-    propertyDefinitions: [
-      {
+    propertyDefinitions: {
+      "title": {
         mandatory: true,
         property: new Property({
           name: 'Title',
@@ -15,7 +15,7 @@ const TitleOnly = new MetaFormat(
           type: 'string'
         })
       }
-    ]
+    }
   })
 )
 

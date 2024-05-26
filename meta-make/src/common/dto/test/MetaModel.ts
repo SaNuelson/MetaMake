@@ -1,8 +1,7 @@
-import Property, { StructuredProperty } from '../Property.js'
+import Property, { ListProperty, StructuredProperty } from '../Property.js'
 import MetaFormat from '../MetaFormat'
-import MetaModel, { MetaDatum, PrimitiveMetaDatum, StructuredMetaDatum } from "../MetaModel";
+import MetaModel from "../MetaModel";
 import { strict as assert } from 'node:assert'
-import { MandatoryArity, OneOrMoreArity, OptionalArity } from '../ArityBounds'
 import Restructurable from "../Restructurable.js";
 
 describe('MetaModel, when constructed', () => {
@@ -11,10 +10,10 @@ describe('MetaModel, when constructed', () => {
   const authorsProp = new StructuredProperty({
     name: 'Author',
     description: 'Author of the data',
-    propertyDefinitions: [
-      { arity: MandatoryArity, property: authorNameProp },
-      { arity: OptionalArity, property: authorAgeProp }
-    ]
+    propertyDefinitions: {
+      "name": { mandatory: true, property: authorNameProp },
+      "age": { mandatory: false, property: authorAgeProp }
+    }
   })
 
   const titleProp = new Property({ name: 'Title', description: '', type: 'string' })
@@ -23,11 +22,29 @@ describe('MetaModel, when constructed', () => {
   const testFormatProps = new StructuredProperty({
     name: 'Props',
     description: '',
-    propertyDefinitions: [
-      { arity: MandatoryArity, property: titleProp },
-      { arity: { min: 3, max: 10 }, property: keywordProp },
-      { arity: OneOrMoreArity, property: authorsProp }
-    ]
+    propertyDefinitions: {
+      "title": {
+        mandatory: true,
+        property: titleProp
+      },
+      "keywords": {
+        mandatory: true,
+        property: new ListProperty({
+          name: "Keyword list",
+          property: keywordProp,
+          minSize: 3,
+          maxSize: 10,
+        })
+      },
+      "authors": {
+        mandatory: true,
+        property: new ListProperty({
+          name: "Authors",
+          minSize: 1,
+          property: authorsProp,
+        })
+      }
+    }
   })
 
   const testFormat = new MetaFormat('TestFormat', testFormatProps)
@@ -35,34 +52,37 @@ describe('MetaModel, when constructed', () => {
   it('should be able to create & fill meta format', () => {
     const model = new MetaModel(testFormat)
 
-    assert.deepEqual(model.getValue('Author[0].Name'), undefined)
-    model.setValue('Author[0].Name', 'Jack')
-    assert.deepEqual(model.getValue('Author[0].Name'), 'Jack')
+    assert.deepEqual(model.getValue('authors[0].name'), null)
+    model.setValue('authors[0].name', 'Jack')
+    assert.deepEqual(model.getValue('authors[0].name'), 'Jack')
 
-    assert.deepEqual(model.getValue('Author[1].Age'), undefined)
-    model.setValue('Author[1].Name', 'Jill')
-    assert.deepEqual(model.getValue('Author[1].Name'), 'Jill')
-    model.setValue('Author[1].Age', 32)
-    assert.deepEqual(model.getValue('Author[1].Age'), 32)
+    assert.deepEqual(model.getValue('authors[1].age'), null)
+    model.setValue('authors[1].name', 'Jill')
+    assert.deepEqual(model.getValue('authors[1].name'), 'Jill')
+    model.setValue('authors[1].age', 32)
+    assert.deepEqual(model.getValue('authors[1].age'), 32)
   })
 
   it('should be able to be restructured', () => {
     Restructurable.addClass(MetaFormat)
 
     Restructurable.addClass(Property)
+    Restructurable.addClass(ListProperty)
     Restructurable.addClass(StructuredProperty)
 
     Restructurable.addClass(MetaModel)
-    Restructurable.addClass(MetaDatum)
-    Restructurable.addClass(PrimitiveMetaDatum)
-    Restructurable.addClass(StructuredMetaDatum)
 
     const model = new MetaModel(testFormat)
+
+    model.setValue('authors[0].name', 'Jack');
+    model.setValue('authors[1].name', 'Jill');
+    model.setValue('authors[1].age', 32);
+
     const modelClone = structuredClone(model);
     const restructuredModel: MetaModel = Restructurable.restructure(modelClone);
 
-    assert.deepEqual(restructuredModel.getValue('Author[0].Name'), 'Jack');
-    assert.deepEqual(restructuredModel.getValue('Author[1].Name'), 'Jill');
-    assert.deepEqual(restructuredModel.getValue('Author[1].Age'), 32);
+    assert.deepEqual(restructuredModel.getValue('authors[0].name'), 'Jack');
+    assert.deepEqual(restructuredModel.getValue('authors[1].name'), 'Jill');
+    assert.deepEqual(restructuredModel.getValue('authors[1].age'), 32);
   })
 })
