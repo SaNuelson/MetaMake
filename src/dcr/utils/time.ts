@@ -1,26 +1,20 @@
 /**
  * Array of numbers in format [hours, minutes, seconds [, milliseconds]]
- * @typedef {number[]} TimeOfDay
  */
+type TimeOfDay = [number, number, number, number?];
 
 /**
  * Checks if provided variable is a valid Date
- * @param {any} date 
- * @returns {boolean}
  */
-export function isValidDate(date) {
-    if (date instanceof Date && !isNaN(date))
-        return true;
-    return false;
+export function isValidDate(date: any): date is Date {
+    return date instanceof Date && !isNaN(+date);
 }
 
 /**
- * Checks if provided variable is a valid Timeofday (according to Google Charts)
- * @param {*} tod 
- * @returns {boolean}
+ * Checks if provided variable is a valid time of day (according to Google Charts)
  */
-export function isValidTimeOfDay(tod) {
-    if (!tod instanceof Array)
+export function isValidTimeOfDay(tod: any): tod is TimeOfDay {
+    if (!(tod instanceof Array))
         return false;
 
     if (tod.length < 3 || tod.length > 4)
@@ -42,19 +36,19 @@ export function isValidTimeOfDay(tod) {
 }
 
 /**
- * Extracts timeofday data from a valid date object.
+ * Extracts time of day data from a valid date object.
  * @param {Date} date
- * @returns {TimeOfDay} timeofday if successful
+ * @returns {TimeOfDay} time of day
  */
-export function dateToTimeOfDay(date) {
+export function dateToTimeOfDay(date: Date): TimeOfDay {
     return [date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds()];
 }
 
-export function compareDates(date1, date2) {
-    return date1 - date2;
+export function compareDates(date1: Date, date2: Date): number {
+    return +date1 - +date2;
 }
 
-export function compareTods(tod1, tod2) {
+export function compareTods(tod1: TimeOfDay, tod2: TimeOfDay): number {
     let hrs = tod1[0] - tod2[0];
     if (hrs !== 0) return hrs;
     let mns = tod1[1] - tod2[1];

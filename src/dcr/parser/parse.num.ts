@@ -1,15 +1,14 @@
-import { Usetype } from './usetype.js';
-import { getCutPattern } from '../utils/patterns.js';
-import { unicodeConstants, numberConstants } from './parse.constants.js';
-import { areEqual, findIndexes, unique } from '../utils/array.js';
-import { escapeRegExp } from '../utils/string.js';
+import { DomainType, UseType, UseTypeArgs } from './useType';
+import { numberConstants } from './parse.constants';
+import { unique } from '../utils/array';
+import { escapeRegExp } from '../utils/string';
 
 /**
  * Try to recognize possible formats of string-represented numbers in source array.
  * @param {string[]} source strings upon which format should be determined
- * @returns {Number[]} possible number formats of specified strings
+ * @returns {NumberUseType[]} possible number formats of specified strings
  */
-export function recognizeNumbers(source, args) {
+export function recognizeNumbers(source: string[], args): NumberUseType[] {
 	const initialBatchSize = 5;
 
 	if (!source || source.length === 0) {
@@ -20,6 +19,7 @@ export function recognizeNumbers(source, args) {
 	let initialBatch = source.slice(0, 5);
 
 	let nuts = extractPossibleFormats(initialBatch, args);
+	let isNutDisabled = nuts.map(_=> false);
 	let matches = nuts.map(() => 0);
 	let disabled = 0;
 	for (let i = 0, il = source.length; i < il; i++) {
@@ -27,7 +27,7 @@ export function recognizeNumbers(source, args) {
 		// cache of recovery use-types
 		let potentialExpansion = undefined;
 		for (let j = 0, jl = nuts.length; j < jl; j++) {
-			if (!nuts[j].disabled) {
+			if (!isNutDisabled[j]) {
 				let num = nuts[j].deformat(token);
 				if (num !== null) {
 					matches[j]++;
@@ -54,7 +54,7 @@ export function recognizeNumbers(source, args) {
 						}
 					}
 					if (!foundExpansion) {
-						nuts[j].disabled = true;
+						isNutDisabled[j] = true;
 					}
 				}
 			}
@@ -62,19 +62,17 @@ export function recognizeNumbers(source, args) {
 		if (disabled === nuts.length)
 			return [];
 	}
-	nuts.forEach((nut, idx) => nut.confidence = matches[idx] / source.length)
-	nuts = nuts.filter(nut => !nut.disabled);
+	// nuts.forEach((nut, idx) => nut.confidence = matches[idx] / source.length)
+	nuts = nuts.filter((nut, i) => !isNutDisabled[i]);
 
 	return nuts;
 }
 
 /**
  * Slow method to be used on a small number of samples to generate all possible numeric use-types.
- * @param {string[]} source small set of samples
- * @param {object} args
- * @returns {Number[]}
  */
-function extractPossibleFormats(source, args) {
+function extractPossibleFormats(source: string[], args): NumberUseType[] {
+
 	/* Unicode character not currently working well, need to find a workaround */
 	const knownThousandSeparators = ['.', ',', ' ', '\xa0']; //...unicodeConstants.getUtf16Whitespace()];
 	const knownDecimalSeparators = ['.', ','];
@@ -126,7 +124,7 @@ function extractPossibleFormats(source, args) {
 			potentialScientific = true;
 			sample = sample.replace(potentialScientificMatch[0], "");
 		}
-		// sample now without scienfitic notation
+		// sample now without scientific notation
 
 		let potentialMinus = false;
 		let potentialPlus = false;
@@ -203,30 +201,29 @@ function extractPossibleFormats(source, args) {
 		// let potentialRightEllipsis = false;
 		// let potentialRightEllipsisMatch = sample.match(/\.$/);
 
-		/* TODO: Potential strict mode where inconsitencies are considered errors */
+		/* TODO: Potential strict mode where inconsistencies are considered errors */
 		if (potentialPrefix)
 			determinedPrefixes.push(potentialPrefix);
 		if (potentialSuffix)
 			determinedSuffixes.push(potentialSuffix);
 
-		determinedMinus &= potentialMinus;
-		determinedPlus &= potentialPlus;
+		determinedMinus &&= potentialMinus;
+		determinedPlus &&= potentialPlus;
 
 		determinedLeftEllipsis = false;
 		determinedRightEllipsis = false;
 
-		determinedScientific &= potentialScientific;
+		determinedScientific &&= potentialScientific;
 		determinedDelimiterSets = determinedDelimiterSets.concat(potentialSeparatorSets);
 
 	}
 
 	let numutypes = [];
 	for (let delimset of determinedDelimiterSets) {
-		let numutype = new Number({
+		let numutype = new NumberUseType({
 			prefixes: determinedPrefixes,
 			suffixes: determinedSuffixes,
 			separators: delimset,
-			integral: !delimset[1],
 			scientific: determinedScientific,
 			explicitSign: determinedPlus
 		}, args);
@@ -258,7 +255,7 @@ function extractPossibleFormats(source, args) {
 	return numutypes;
 }
 
-function isValidThousandSeparator(string, sep) {
+function isValidThousandSeparator(string: string, sep: string): boolean {
 	// thousands separator is valid only if it separates groups of 3 digits,
 	// with the exception of first part, last part, and the part with decimal separator
 	let split = string.split(sep);
@@ -269,7 +266,7 @@ function isValidThousandSeparator(string, sep) {
 	return split.slice(1, -1).every(part => part.length === 3 || part.match(/\D/));
 }
 
-function isValidDecimalSeparator(string, sep) {
+function isValidDecimalSeparator(string: string, sep: string): boolean {
 	// decimal separator is valid only if it occurs once
 	let decimalMatch = string.match(new RegExp(escapeRegExp(sep), "g"));
 	return decimalMatch && decimalMatch.length === 1;
@@ -281,26 +278,26 @@ function isValidDecimalSeparator(string, sep) {
  * @param {import('./usetype.js').Number} format Usetype.Number instance containing format info
  * @returns Parsed num if possible, NaN otherwise
  */
-export function parseNum(source, format) {
-	if (source.length)
+export function parseNum(source: string, format: NumberUseType): number;
+export function parseNum(source: string[], format: NumberUseType): number[];
+export function parseNum(source: string | string[], format: NumberUseType): number | number[] {
+	if (Array.isArray(source))
 		return source.map(format.deformat);
 	return format.deformat(source);
 }
 
-/**
- * @typedef NumberUsetypeArgs
- * Argument object used to construct {@see Number}.
- * @property {number} [min] minimal value, if none provided, max is treated as a sample
- * @property {number} [max] maximal value, if none provided, min is treated as a sample
- * @property {string} [decimalSeparator] default ".", replaces dot in e.g. $13.59
- * @property {string} [thousandSeparator] default "", inserted between thousands, e.g. 15.000.000 pcs
- * @property {boolean} [separateDecimalThousands] default false, if thousands should be separated on right-side as well
- * @property {string} [prefix] default none, prefixes all numbers
- * @property {string} [suffix] default none, suffixes all numbers
- * @property {number} [integerPlaces] default 0, minimal length to be padded on the left
- * @property {number} [decimalPlaces] default 0, minimal length to be padded on the right
- * @property {boolean} [integral] default true, if number is whole (no decimal places)
-*/
+interface NumberUsetypeArgs {
+	min?: number;
+	max?: number;
+	decimalSeparator?: string;
+	thousandSeparator?: string;
+	separateDecimalThousands?: boolean;
+	prefix?: string;
+	suffix?: string;
+	integerPlaces?: number;
+	decimalPlaces?: number;
+	integral?: boolean;
+}
 
 const nullNum = () => 1234567.654321;
 
@@ -308,9 +305,34 @@ const nullNum = () => 1234567.654321;
  * Number usetype. Mostly any numerical formats can be wrapped by this.
  * Usetypes such as prices, numbers...
  * @todo ratios, fractions
- * @implements {Usetype}
  */
-export class Number extends Usetype {
+export class NumberUseType extends UseType<number> {
+
+	prefixes: string[] = [];
+	suffixes: string[] = [];
+
+	decimalSeparator: string = "";
+	thousandSeparator: string = "";
+	separateDecimalThousands: boolean = false;
+
+	scientific: boolean = false;
+	explicit: boolean = false;
+	integral: boolean = false;
+	strictlyPositive: boolean = false;
+
+	min: number | undefined = undefined;
+	max: number | undefined = undefined;
+
+	integerPlaces: number | undefined = undefined;
+	decimalPlaces: number | undefined = undefined;
+
+	private prefixPlaceholder: string | undefined;
+	private suffixPlaceholder: string | undefined;
+
+	compatibleTypes: string[] = ["number"];
+	type = "number";
+	domainType: DomainType = 'ordinal';
+	priority = 2;
 
 	constructor({
 		separators = [],
@@ -319,7 +341,7 @@ export class Number extends Usetype {
 		scientific = false,
 		strictlyPositive = false,
 		explicitSign = false
-	}, args) {
+	}, args: UseTypeArgs) {
 		super(args);
 		if (separators.length > 0 && separators[0] !== "") {
 			this.thousandSeparator = separators[0];
@@ -330,20 +352,16 @@ export class Number extends Usetype {
 		else {
 			this.integral = true;
 		}
+
 		if (separators.length > 2 && separators[2] === separators[0]) {
 			this.separateDecimalThousands = true;
 		}
-		if (scientific) {
-			this.scientific = true;
-		}
-		if (strictlyPositive) {
-			this.strictlyPositive = true;
-		}
-		if (explicitSign) {
-			this.explicit = true;
-		}
 
+		this.scientific = !!scientific;
+		this.strictlyPositive = !!strictlyPositive;
+		this.explicit = !!explicitSign;
 		this.prefixes = prefixes;
+
 		let prefixIndicators = recognizeIndicators(this.prefixes);
 		if (prefixIndicators.type !== 'unknown') {
 			this.prefixes = prefixIndicators.domain;
@@ -357,34 +375,21 @@ export class Number extends Usetype {
 			this.suffixPlaceholder = suffixIndicators.type;
 		}
 
-		if (this.hasNoval) {
-			if (this.deformat(this.novalVal) !== null) {
-				this.hasNoval = false;
-				delete this.novalVal;
+		if (this.hasNull) {
+			if (this.deformat(this.nullVal) !== null) {
+				this.hasNull = false;
+				delete this.nullVal;
 			}
 		}
 	}
 
-	//#region Defaults
-	prefixes = [];
-	suffixes = [];
-	decimalSeparator = "";
-	thousandSeparator = "";
-	separateDecimalThousands = false;
-	scientific = false;
-	explicit = false;
-
-	min = undefined;
-	max = undefined;
-	//#endregion
-
 	/**
-	 * Format passed in number as a string, using this Usetype's config.
-	 * @param {number} num number to convert to formatted string
-	 * @returns {string} formatted number as string using self
+	 * Format passed in number as a string, using this UseType's config.
+	 * @param num number to convert to formatted string
+	 * @returns formatted number as string using self
 	 */
-	format(num) {
-		function _addSeparator(str, sep, leftAligned) {
+	format(num: number): string {
+		function _addSeparator(str: string, sep: string, leftAligned: boolean): string {
 			let bits = leftAligned ?
 				str.match(/.{1,3}/g) :
 				str.match(/.{1,3}(?=(.{3})*$)/g)
@@ -397,19 +402,20 @@ export class Number extends Usetype {
 		if (this.scientific) {
 			let exponent = num.toFixed(1).indexOf(".") - 1;
 			num /= 10 ** exponent;
-			suffix = "e" + exponent + suffix;
+			outSuffix = "e" + exponent + outSuffix;
 		}
 
 		if (this.explicit && num >= 0) {
-			prefix += "+";
+			outPrefix += "+";
 		}
 
 		var numString;
 		if (this.decimalPlaces)
 			numString = num.toFixed(this.decimalPlaces);
-
-		else
+		else {
 			numString = num.toString();
+		}
+
 		var numParts = numString.split(".");
 
 		var wholePart = numParts[0];
@@ -438,10 +444,10 @@ export class Number extends Usetype {
 
 	/**
 	 * Transform formatted string to number
-	 * @param {string} x to try to parse
+	 * @param str to try to parse
 	 * @returns {number} number represented by input string
 	 */
-	deformat(str) {
+	deformat(str: string): number {
 		// TODO
 		let temp = str;
 		this.prefixes.forEach(prefix => temp.startsWith(prefix) && (temp = temp.slice(prefix.length)));
@@ -450,7 +456,7 @@ export class Number extends Usetype {
 			temp = temp.split(this.decimalSeparator).join('.');
 		if (this.thousandSeparator)
 			temp = temp.split(this.thousandSeparator).join('');
-		if (isNaN(temp))
+		if (isNaN(+temp))
 			return null;
 
 		this._checkDomain(+temp);
@@ -458,7 +464,11 @@ export class Number extends Usetype {
 		return +temp;
 	}
 
-	isSupersetOf(other) {
+	isSupersetOf(other: UseType<any>): boolean {
+		if (!(other instanceof NumberUseType)) {
+			return false;
+		}
+
 		if (!other.prefixes.every(prefix => this.prefixes.includes(prefix))) {
 			let exceptions = other.prefixes.filter(prefix => !this.prefixes.includes(prefix));
 			return false;
@@ -482,23 +492,25 @@ export class Number extends Usetype {
 		return true;
 	}
 
-	_checkDomain(num) {
+	_checkDomain(num: number) {
 		if (this.min === undefined || this.min > num)
 			this.min = num;
 		if (this.max === undefined || this.max < num)
 			this.max = num;
 	}
 
-	isSubsetOf(other) {
+	isSubsetOf(other: UseType<any>): boolean {
 		return other.isSupersetOf(this);
 	}
 
-	isEqualTo(other) {
+	isEqualTo(other: UseType<any>): boolean {
 		return this.isSupersetOf(other) && other.isSupersetOf(this);
 	}
 
-	isSimilarTo(other) {
-		if (!this.isEqualTo(other))
+	isSimilarTo(other: UseType<any>): boolean {
+		if (this.isEqualTo(other))
+			return false;
+		if (!(other instanceof NumberUseType))
 			return false;
 		let thisSize = this.max - this.min;
 		let otherSize = other.max - other.min;
@@ -526,24 +538,8 @@ export class Number extends Usetype {
 	}
 	toDebugString() { return "Usetype::Number()"; }
 
-	/**
-	 * Possible underlying types for this Usetype subclass.
-	 * @type {string}
-	 * @todo Set as static
-	 */
-	compatibleTypes = [];
-
-	/**
-	 * Underlying type for this Usetype instance.
-	 * @type {string}
-	 */
-	compatibleTypes = ["number"];
-	type = "number";
-	domainType = 'ordinal';
-	priority = 2;
-
 	static getIdUsetype() {
-		return new Number({ strictlyPositive: true }, { potentialIds: true });
+		return new NumberUseType({ strictlyPositive: true }, { potentialIds: true });
 	}
 }
 

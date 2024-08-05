@@ -1,11 +1,11 @@
 import { Quad, Store, DataFactory as df, NamedNode, DataFactory } from 'n3';
 import Papa from 'papaparse';
 import fs from 'node:fs';
-import { Catalogue } from './dcr/core/Main.js';
 import * as voc from './memory/constants';
 import literal = DataFactory.literal;
 import store from './memory/store';
 import path from 'node:path';
+import { Catalogue } from './dcr/core/Catalogue';
 
 function readCsvFile(filePath: string): Promise<Papa.ParseResult<unknown>> {
     return new Promise((resolve, reject) => {
@@ -40,7 +40,8 @@ function dcrProcessor(data: Papa.ParseResult<any>, store: Store, root: NamedNode
     const catalogue = new Catalogue();
     catalogue.setData(data);
 
-    for (const useType of catalogue.usetypes) {
+    for (const useType of catalogue.useTypes) {
+        console.log(useType.type)
     }
 }
 
@@ -62,11 +63,7 @@ async function main() {
     )
 
     localFileProcessor(fileName, store, root);
-
-    const catalogue = new Catalogue();
-    catalogue.setData(data);
-
-    console.log(catalogue.usetypes);
+    dcrProcessor(data, store, root);
 
 
 }

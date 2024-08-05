@@ -1,4 +1,4 @@
-import { Usetype } from './usetype.js';
+import { UseType } from './useType.ts';
 
 export function recognizeStrings(source, args) {
     // TODO: internal logic and string recognization
@@ -8,7 +8,7 @@ export function recognizeStrings(source, args) {
     return [new String(stringArgs)];
 }
 
-class String extends Usetype {
+class String extends UseType {
 	constructor(args) {
 		super(args);
 		if (args.potentialIds) {
@@ -65,7 +65,7 @@ class String extends Usetype {
     compatibleTypes = ["string"];
 
     /**
-     * Underlying type for this Usetype instance.
+     * Underlying type for this UseType instance.
      * @type {string}
      */
     type = "string";

@@ -2,18 +2,18 @@
 /**
  * Escape any RegExp characters present in a string.
  * Beneficial when such string is used in construction of another RegExp (to avoid broken code).
- * @param {string} string
- * @returns {string} provided string with backslashed RegExp operators
+ * @param string to sanitize
+ * @returns provided string with back-slashed RegExp operators
  * @example
  * let a = "test.string?"
  * escapeRegExp(a);
  * // "test\\.string\\?"
  */
-export function escapeRegExp(string) {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+export function escapeRegExp(string: string) {
+    return string.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 
-export function getCommonPrefix(str1, str2) {
+export function getCommonPrefix(str1: string, str2: string): string {
     let len = Math.min(str1.length, str2.length);
     let prefix = [];
     for (let i = 0; i < len; i++) {
@@ -25,7 +25,7 @@ export function getCommonPrefix(str1, str2) {
     return prefix.join("");
 }
 
-export function getCommonSuffix(str1, str2) {
+export function getCommonSuffix(str1: string, str2: string): string {
     let len = Math.min(str1.length, str2.length);
     let str1l = str1.length;
     let str2l = str2.length;

@@ -1,12 +1,18 @@
 import * as utils from '../utils/utils.js';
 
-import { recognizeNumbers } from './parse.num.js';
-import { recognizeTimestamps } from './parse.timestamp.js';
-import { Enum, recognizeEnums } from './parse.enum.js';
-import { recognizeStrings } from './parse.string.js';
+import { recognizeNumbers } from './parse.num';
+import { recognizeTimestamps } from './parse.timestamp';
+import { Enum, recognizeEnums } from './parse.enum';
+import { recognizeStrings } from './parse.string';
 
-import { numberConstants, enumConstants, timestampConstants } from './parse.constants.js';
-import { getCommonPrefix, getCommonSuffix } from '../utils/string.js';
+import { numberConstants, enumConstants, timestampConstants } from './parse.constants';
+import { getCommonPrefix, getCommonSuffix } from '../utils/string';
+
+type RecognizerArgs = {
+	skipConstants: boolean,
+	sizeHardLimit: number | undefined,
+	sampleSize: number | undefined
+}
 
 const defaultRecognizerArgs = {
 	skipConstants: false,
@@ -17,36 +23,36 @@ const defaultRecognizerArgs = {
 /**
  * Try to recognize possible types of provided strings in data array.
  * @param {string[]} data array of strings to recognize, usually column from SourceData
- * @returns {import('./usetype.js').Usetype} list of possible usetypes
+ * @returns {import('./useType.ts').UseType} list of possible useTypes
  */
 export function determineType(data, args) {
 	args = Object.assign((args ?? {}), defaultRecognizerArgs);
 
-	let gatheredUsetypes = [];
+	let gatheredUseTypes = [];
 
 	let isValid = preprocessHardLimitSize(data, args);
 
-	let enumUsetypes = [];
+	let enumUseTypes = [];
 	if (isValid) {
-		[data, enumUsetypes] = preprocessEnumlikeness(data, args);
-		gatheredUsetypes.push(...enumUsetypes);
+		[data, enumUseTypes] = preprocessEnumlikeness(data, args);
+		gatheredUseTypes.push(...enumUseTypes);
 	}
 
 	// [data, args] = preprocessIndicators(data, args);
 	
 	if ((!args.skipConstants || !args.isConstant) && isValid) {
-		let numUsetypes = recognizeNumbers(data, args);
-		gatheredUsetypes.push(...numUsetypes);	
+		let numUseTypes = recognizeNumbers(data, args);
+		gatheredUseTypes.push(...numUseTypes);	
 
-		let timestampUsetypes = recognizeTimestamps(data, args);
-		gatheredUsetypes.push(...timestampUsetypes);
+		let timestampUseTypes = recognizeTimestamps(data, args);
+		gatheredUseTypes.push(...timestampUseTypes);
 	}
-	if (gatheredUsetypes.length === 0) {
-		let stringUsetypes = recognizeStrings(data, args);
-		gatheredUsetypes = stringUsetypes;
+	if (gatheredUseTypes.length === 0) {
+		let stringUseTypes = recognizeStrings(data, args);
+		gatheredUseTypes = stringUseTypes;
 	}
 
-	return gatheredUsetypes;
+	return gatheredUseTypes;
 }
 
 /**
@@ -73,7 +79,7 @@ function preprocessHardLimitSize(source, args) {
  * @returns {[string[], Enum[]]}
  */
 function preprocessEnumlikeness(source, args) {
-	let enumUsetypes = recognizeEnums(source, args);
+	let enumUseTypes = recognizeEnums(source, args);
 	
 	if (args.hasNoval) {
 		source = source.filter(value => value !== args.novalVal);
@@ -83,7 +89,7 @@ function preprocessEnumlikeness(source, args) {
 		source = [source[0]];
 	}
 	
-	return [source, enumUsetypes];
+	return [source, enumUseTypes];
 }
 
 // Not implemented, would require internal changes to respective parsers
@@ -111,7 +117,7 @@ function preprocessIndicators(source, args) {
 			change = true;
 		}
 		if (suffix) {
-			args.suffixes = (args.suffixes || []).push([suffx]);
+			args.suffixes = (args.suffixes || []).push([suffix]);
 			source = source.map(value => value.substring(value.length - suffix.length));
 			change = true;
 		}

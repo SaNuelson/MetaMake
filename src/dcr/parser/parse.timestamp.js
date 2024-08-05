@@ -1,11 +1,11 @@
 import { must } from '../utils/logic.js';
 import { clamp, conditionalCartesian } from '../utils/utils.js';
-import { Usetype } from './usetype.js';
-import { getCutPattern } from '../utils/patterns.js';
+import { UseType } from './useType.ts';
+import { getCutPattern } from '../utils/patterns.ts';
 import { infill, areEqual, groupBy, hasDuplicates } from '../utils/array.js';
-import { escapeRegExp } from '../utils/string.js';
+import { escapeRegExp } from '../utils/string.ts';
 import { timestampConstants } from './parse.constants.js';
-import { compareDates, compareTods } from '../utils/time.js';
+import { compareDates, compareTods } from '../utils/time.ts';
 
 /**
  * @file Holds timestsamp parsing, recognizing logic along with format wrapper
@@ -16,35 +16,35 @@ import { compareDates, compareTods } from '../utils/time.js';
  * Recognize possible timestamp formats in provided strings.
  * @param {string[]} source array of strings with expected uniform formatting
  * @param {*} args NYI, additional parameters for recognizer
- * @returns {Timestamp[]} array of extracted timestamp usetypes
+ * @returns {Timestamp[]} array of extracted timestamp useTypes
  */
 export function recognizeTimestamps(source, args) {
     const initialBatchSize = 5;
 
     // first try the most frequently used timestamps
-    let expectedUsetypes = getExpectedUsetypes(args);
-    expectedUsetypes = filterTimestampUsetypes(source, expectedUsetypes);
-    expectedUsetypes = filterDuplicatesAndSubtypes(expectedUsetypes);
+    let expectedUseTypes = getExpectedUseTypes(args);
+    expectedUseTypes = filterTimestampUseTypes(source, expectedUseTypes);
+    expectedUseTypes = filterDuplicatesAndSubtypes(expectedUseTypes);
 
-    if (expectedUsetypes.length > 0) {
-        return expectedUsetypes;
+    if (expectedUseTypes.length > 0) {
+        return expectedUseTypes;
     }
 
     // otherwise do it the hard way
     let initialBatch = source.slice(0, initialBatchSize);
-    let extractedUsetypes = extractTimestampUsetypes(initialBatch, args);
+    let extractedUseTypes = extractTimestampUseTypes(initialBatch, args);
     
-    extractedUsetypes = filterInvalidUsetypes(extractedUsetypes);
+    extractedUseTypes = filterInvalidUseTypes(extractedUseTypes);
     
-    extractedUsetypes = filterTimestampUsetypes(source, extractedUsetypes);
+    extractedUseTypes = filterTimestampUseTypes(source, extractedUseTypes);
     
-    extractedUsetypes = filterDuplicatesAndSubtypes(extractedUsetypes);
+    extractedUseTypes = filterDuplicatesAndSubtypes(extractedUseTypes);
 
-    return extractedUsetypes;
+    return extractedUseTypes;
 }
 
 /** For each string in source, find all possible mappable formattings */
-function extractTimestampUsetypes(source, args) {
+function extractTimestampUseTypes(source, args) {
 
     let formattings = [];
     let memo = {};
@@ -60,8 +60,8 @@ function extractTimestampUsetypes(source, args) {
         })
     }
 
-    let usetypes = formattings.map(f => new Timestamp({ formatting: f }, args));
-    return usetypes;
+    let useTypes = formattings.map(f => new Timestamp({ formatting: f }, args));
+    return useTypes;
 
     function extractTokenRecursive(string, usedCategories = [], startingIndex = 0) {
 
@@ -116,56 +116,56 @@ function extractTimestampUsetypes(source, args) {
     }
 }
 
-/** For each string in source, check if each usetype is applicable and correct */
-function filterTimestampUsetypes(source, usetypes) {
+/** For each string in source, check if each useType is applicable and correct */
+function filterTimestampUseTypes(source, useTypes) {
     for (let i = 0; i < source.length; i++) {
-        for (let usetype of usetypes) {
-            let val = usetype.deformat(source[i]);
+        for (let useType of useTypes) {
+            let val = useType.deformat(source[i]);
             if (val === null) {
-                usetype.disabled = true;
+                useType.disabled = true;
             }
         }
 
-        let nextUsetypes = usetypes.filter(usetype => !usetype.disabled);
+        let nextUseTypes = useTypes.filter(useType => !useType.disabled);
 
-        // False positive on [1000, 1000, 5000, ...] with single usetype ['{YYYY}']
-        // if (nextUsetypes.length === 1) {
-        //     return nextUsetypes;
+        // False positive on [1000, 1000, 5000, ...] with single useType ['{YYYY}']
+        // if (nextUseTypes.length === 1) {
+        //     return nextUseTypes;
         // }
-        if (nextUsetypes.length === 0) {
+        if (nextUseTypes.length === 0) {
             return [];
         }
-        usetypes = nextUsetypes;
+        useTypes = nextUseTypes;
     }
-    return usetypes;
+    return useTypes;
 }
 
-function filterInvalidUsetypes(usetypes) {
-    return usetypes.filter(hasValidFormat);
+function filterInvalidUseTypes(useTypes) {
+    return useTypes.filter(hasValidFormat);
 }
 
-/** For each usetype, check if there is more specific usetype in the set */
-function filterDuplicatesAndSubtypes(usetypes) {
-    for (let i = 0; i < usetypes.length; i++) {
+/** For each useType, check if there is more specific useType in the set */
+function filterDuplicatesAndSubtypes(useTypes) {
+    for (let i = 0; i < useTypes.length; i++) {
         let subtypes = [];
-        for (let j = i + 1; j < usetypes.length; j++) {
-            if (usetypes[i].isSupersetOf(usetypes[j]))
+        for (let j = i + 1; j < useTypes.length; j++) {
+            if (useTypes[i].isSupersetOf(useTypes[j]))
                 subtypes.push(j);
         }
-        usetypes = usetypes.filter((_, i) => !subtypes.includes(i));
+        useTypes = useTypes.filter((_, i) => !subtypes.includes(i));
     }
 
-    return usetypes;
+    return useTypes;
 }
 
-/** If present, select usetypes which belong to the expected set of timestamp formats */
-var expectedUsetypesCache;
-function getExpectedUsetypes(args) {
-    if (!expectedUsetypesCache)
-        generateExpectedUsetypes();
-    return expectedUsetypesCache.map(format => new Timestamp({formatting: format, skipValidation: true}, args));
+/** If present, select useTypes which belong to the expected set of timestamp formats */
+var expectedUseTypesCache;
+function getExpectedUseTypes(args) {
+    if (!expectedUseTypesCache)
+        generateExpectedUseTypes();
+    return expectedUseTypesCache.map(format => new Timestamp({formatting: format, skipValidation: true}, args));
 
-    function generateExpectedUsetypes() {
+    function generateExpectedUseTypes() {
         // TODO: Move to json and fetch from there.
         let cache = [];
 
@@ -254,13 +254,13 @@ function getExpectedUsetypes(args) {
 
         //#endregion
 
-        expectedUsetypesCache = cache;
+        expectedUseTypesCache = cache;
     }
 
 }
 
 /**********************\
-   Timestamp::Usetype   
+   Timestamp::UseType   
 \**********************/
 
 const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -863,11 +863,11 @@ const TimestampLabelToToken = (() => {
 
 function nullDate() { return new Date(2000, 3, 21, 15, 20, 25, 30) }
 function nullTod() { return [15, 20, 25, 30] }
-export class Timestamp extends Usetype {
+export class Timestamp extends UseType {
 
     /**
      * 
-     * @param {DatetimeUsetypeArgs} args 
+     * @param {DatetimeUseTypeArgs} args 
      */
     constructor(args, superArgs) {
         super(superArgs);
@@ -959,10 +959,10 @@ export class Timestamp extends Usetype {
         this._pattern = pattern;
         this._appliers = appliers;
 
-		if (this.hasNoval) {
-			if (this.deformat(this.novalVal) !== null) {
-				this.hasNoval = false;
-				delete this.novalVal;
+		if (this.hasNull) {
+			if (this.deformat(this.nullVal) !== null) {
+				this.hasNull = false;
+				delete this.nullVal;
 			}
 		}
     }
@@ -1088,7 +1088,7 @@ export class Timestamp extends Usetype {
     }
 
     /**
-     * Try to generate timestamp usetype from short string formatting
+     * Try to generate timestamp useType from short string formatting
      * @param {string} string usual formatting joined into string (without curly brackets)
      * @warning volatile, should be used only for debugging purposes.
      */

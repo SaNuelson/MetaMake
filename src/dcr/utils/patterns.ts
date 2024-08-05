@@ -5,14 +5,25 @@
  */
 
 const patternBits = {
-    letters: "\\p{L}",
-    marks: "\\p{M}",
-    punctuations: "\\p{P}",
-    symbols: "\\p{S}",
-    numbers: "\\p{N}",
-    separators: "\\p{Z}",
-    wspaces: "\\s"
-}
+    letters: '\\p{L}',
+    marks: '\\p{M}',
+    punctuations: '\\p{P}',
+    symbols: '\\p{S}',
+    numbers: '\\p{N}',
+    separators: '\\p{Z}',
+    wspaces: '\\s',
+} as const;
+
+export type CutPatternArgs = {
+    letters: boolean,
+    punctuations: boolean,
+    symbols: boolean,
+    numbers: boolean,
+    separators: boolean,
+    rest: boolean,
+    matchall: boolean,
+    custom: object
+};
 
 /**
  * Generate a multi-language compatible Unicode regex pattern.
@@ -29,23 +40,23 @@ const patternBits = {
  * @param {object} args.custom optional custom set of matchers. key is used as label, value can be string or array (signifying disjunction).
  * If defined, these take priority over other matchers.
  * @todo args.custom needs to allow non-repeatable character sequences to avoid unexpected behaviour.
- * @returns {RegExpStringIterator|String[]} If matchall is true, returns regex result iterator,
+ * @returns If matchall is true, returns regex result iterator,
  * else returns simple array of matches.
  * @example
  * let str = "Jake wrote 'g3t šr3kt' 1.000.000 times"
  * str.match(getCutPattern({letters = true, numbers = true, matchall = false}));
  * // ["Jake", "wrote", "g", "3", "t", "šr", "3", "kt", "1", "000", "000"]
  */
-export const getCutPattern = function({
-    letters = false,
-    punctuations = false,
-    symbols = false,
-    numbers = false,
-    separators = false,
-    rest = false,
-    matchall = true,
-    custom = {}
-}) {
+export function getCutPattern({
+                                  letters = false,
+                                  punctuations = false,
+                                  symbols = false,
+                                  numbers = false,
+                                  separators = false,
+                                  rest = false,
+                                  matchall = true,
+                                  custom = {},
+                              }: CutPatternArgs): RegExp | string {
     let used = [];
 
     // custom regex capture groups
@@ -54,42 +65,42 @@ export const getCutPattern = function({
     if (custom) {
         for (let label in custom) {
             if (custom[label] instanceof Array) {
-                used.push({name:label, val:custom[label]});
+                used.push({name: label, val: custom[label]});
             }
-            used.push({name:label, val:[custom[label]]});
+            used.push({name: label, val: [custom[label]]});
         }
     }
 
     if (letters)
-        used.push({name:"letters", val:[patternBits.letters, patternBits.marks]});
-    
+        used.push({name: 'letters', val: [patternBits.letters, patternBits.marks]});
+
     if (punctuations)
-        used.push({name:"punctuations", val:[patternBits.punctuations]});
+        used.push({name: 'punctuations', val: [patternBits.punctuations]});
 
     if (symbols)
-        used.push({name:"symbols", val:[patternBits.symbols]});
+        used.push({name: 'symbols', val: [patternBits.symbols]});
 
     if (numbers)
-        used.push({name:"numbers", val:[patternBits.numbers]});
+        used.push({name: 'numbers', val: [patternBits.numbers]});
 
     if (separators)
-        used.push({name:"separators", val:[patternBits.separators, patternBits.wspaces]});
+        used.push({name: 'separators', val: [patternBits.separators, patternBits.wspaces]});
 
     if (rest && used.length > 0) {
-        let nonother = ["^", ...used.map(o => o.val)].flat();
-        used.push({name:"rest", val:nonother});
+        let nonother = ['^', ...used.map(o => o.val)].flat();
+        used.push({name: 'rest', val: nonother});
+    } else if (used.length === 0) {
+        used.push({name: 'rest', val: ['.']});
     }
-    else if (used.length == 0)
-        used.push({name:"rest", val:["."]});
 
     const toReg = (bit) => {
-        let arr = ["("];
-        if (matchall) arr.push("?<", bit.name, ">");
-        if (bit.val.length > 1) arr.push("[", ...bit.val, "]+)");
-        else arr.push(bit.val[0], "+)");
-        return arr.join("");
-    }
+        let arr = ['('];
+        if (matchall) arr.push('?<', bit.name, '>');
+        if (bit.val.length > 1) arr.push('[', ...bit.val, ']+)');
+        else arr.push(bit.val[0], '+)');
+        return arr.join('');
+    };
 
-    let regstr = used.map(toReg).join("|");
-    return new RegExp(regstr, "gus");
+    let regstr = used.map(toReg).join('|');
+    return new RegExp(regstr, 'gus');
 }
