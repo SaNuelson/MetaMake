@@ -1,0 +1,21 @@
+{
+  "devDependencies": {
+    "@types/n3": "^1.16.4",
+    "@types/papaparse": "^5.3.14",
+    "typescript": "^5.5.4"
+  },
+  "name": "metamake",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "n3": "^1.20.4",
+    "papaparse": "^5.4.1"
+  }
+}
