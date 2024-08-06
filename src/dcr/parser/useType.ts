@@ -1,4 +1,4 @@
-export type UseTypeArgs = {
+export interface UseTypeArgs {
     hasNull?: boolean,
     nullVal?: string,
     isConstant?: boolean,

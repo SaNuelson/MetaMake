@@ -2,45 +2,51 @@ import * as utils from '../utils/utils.js';
 
 import { recognizeNumbers } from './parse.num';
 import { recognizeTimestamps } from './timestamp/parse';
-import { Enum, recognizeEnums } from './parse.enum';
+import { EnumUseType, recognizeEnums } from './parse.enum';
 import { recognizeStrings } from './parse.string';
 
 import { numberConstants, enumConstants, timestampConstants } from './parse.constants';
 import { getCommonPrefix, getCommonSuffix } from '../utils/string';
+import { UseType, UseTypeArgs, UseTypeType } from './useType';
+import { logger } from '../../logger';
 
-type RecognizerArgs = {
-	skipConstants: boolean,
-	sizeHardLimit: number | undefined,
-	sampleSize: number | undefined
+interface RecognizerArgs extends UseTypeArgs {
+	skipConstants?: boolean,
+	sizeHardLimit?: number,
+	sampleSize?: number,
+	label?: string
 }
 
-const defaultRecognizerArgs = {
+const defaultRecognizerArgs: RecognizerArgs = {
 	skipConstants: false,
 	sizeHardLimit: 50,
-	sampleSize: 500
+	sampleSize: 500,
 }
 
 /**
  * Try to recognize possible types of provided strings in data array.
- * @param {string[]} data array of strings to recognize, usually column from SourceData
- * @returns {import('./useType.ts').UseType} list of possible useTypes
+ * @param data array of strings to recognize, usually column from SourceData
+ * @param args configuring arguments
+ * @returns list of possible useTypes
  */
-export function determineType(data, args) {
+export function determineType(data: string[], args: RecognizerArgs): UseType<any>[] {
+	logger.info(`determineType for ${args.label} started`, {args});
+
 	args = Object.assign((args ?? {}), defaultRecognizerArgs);
 
-	let gatheredUseTypes = [];
+	let gatheredUseTypes: UseType<any>[] = [];
 
-	let isValid = preprocessHardLimitSize(data, args);
+	let isDataWithinLimit: boolean = preprocessHardLimitSize(data, args);
 
-	let enumUseTypes = [];
-	if (isValid) {
+	let enumUseTypes: EnumUseType[] = [];
+	if (isDataWithinLimit) {
 		[data, enumUseTypes] = preprocessEnumlikeness(data, args);
 		gatheredUseTypes.push(...enumUseTypes);
 	}
 
 	// [data, args] = preprocessIndicators(data, args);
 	
-	if ((!args.skipConstants || !args.isConstant) && isValid) {
+	if ((!args.skipConstants || !args.isConstant) && isDataWithinLimit) {
 		let numUseTypes = recognizeNumbers(data, args);
 		gatheredUseTypes.push(...numUseTypes);	
 
@@ -51,6 +57,9 @@ export function determineType(data, args) {
 		let stringUseTypes = recognizeStrings(data, args);
 		gatheredUseTypes = stringUseTypes;
 	}
+
+	logger.info(`determineType for ${args.label} finished`,
+		{args, useTypes: gatheredUseTypes.map(ut => ut.toString())});
 
 	return gatheredUseTypes;
 }
@@ -76,7 +85,7 @@ function preprocessHardLimitSize(source, args) {
  * Created due to its different nature and required additional preprocessing in some cases.
  * @param {string[]} source 
  * @param {object} args 
- * @returns {[string[], Enum[]]}
+ * @returns {[string[], EnumUseType[]]}
  */
 function preprocessEnumlikeness(source, args) {
 	let enumUseTypes = recognizeEnums(source, args);

@@ -1,7 +1,8 @@
 import { DomainType, UseType, UseTypeArgs, UseTypeType } from './useType';
-import { numberConstants } from './parse.constants';
+import { LocaleEn, numberConstants } from './parse.constants';
 import { unique } from '../utils/array';
 import { escapeRegExp } from '../utils/string';
+import { logger } from '../../logger';
 
 /**
  * Try to recognize possible formats of string-represented numbers in source array.
@@ -9,6 +10,8 @@ import { escapeRegExp } from '../utils/string';
  * @returns {NumberUseType[]} possible number formats of specified strings
  */
 export function recognizeNumbers(source: string[], args): NumberUseType[] {
+	logger.info(`recognizeNumbers for label ${args.label} started`, {args});
+
 	const initialBatchSize = 5;
 
 	if (!source || source.length === 0) {
@@ -19,6 +22,13 @@ export function recognizeNumbers(source: string[], args): NumberUseType[] {
 	let initialBatch = source.slice(0, 5);
 
 	let nuts = extractPossibleFormats(initialBatch, args);
+	logger.info(`recognizeNumbers for lable ${args.label} found initial batch of number formats.`,
+		{
+			args,
+			data: source.slice(0,5),
+			useTypes: nuts.map(nut => nut.toString())
+		});
+
 	let isNutDisabled = nuts.map(_=> false);
 	let matches = nuts.map(() => 0);
 	let disabled = 0;
@@ -59,8 +69,10 @@ export function recognizeNumbers(source: string[], args): NumberUseType[] {
 				}
 			}
 		}
-		if (disabled === nuts.length)
+		if (disabled === nuts.length) {
+			logger.info(`recognizeNumbers for label ${args.label} did not find any suitable number formats.`, {args});
 			return [];
+		}
 	}
 	// nuts.forEach((nut, idx) => nut.confidence = matches[idx] / source.length)
 	nuts = nuts.filter((nut, i) => !isNutDisabled[i]);
@@ -562,14 +574,14 @@ function recognizeIndicators(indicators) {
 		return { type: 'currency', format: 'symbol', domain: [...currSymbols] };
 	}
 
-	let metricPrefixSymbols = numberConstants.getMetricPrefixSymbols();
-	let cardinalityPrefixSymbols = numberConstants.getCardinalityPrefixSymbols();
+	let metricPrefixSymbols = numberConstants.getMetricPrefixSymbols(LocaleEn);
+	let cardinalityPrefixSymbols = numberConstants.getCardinalityPrefixSymbols(LocaleEn);
 	let magnitudePrefixSymbols = [].concat(metricPrefixSymbols, cardinalityPrefixSymbols);
 	if (indicators.every(indicator => magnitudePrefixSymbols.includes(indicator))) {
 		return { type: 'magnitude', format: 'symbol', domain: [...magnitudePrefixSymbols] };
 	}
 
-	let metricPrefixNames = numberConstants.getMetricPrefixes();
+	let metricPrefixNames = numberConstants.getMetricPrefixes(LocaleEn);
 	if (indicators.every(indicator => metricPrefixNames.includes(indicator)))
 		return { type: 'magnitude', format: 'prefix', domain: [...metricPrefixNames] };
 

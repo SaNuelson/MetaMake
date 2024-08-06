@@ -6,6 +6,7 @@ import literal = DataFactory.literal;
 import store from './memory/store';
 import path from 'node:path';
 import { Catalogue } from './dcr/core/Catalogue';
+import { logger } from './logger';
 
 function readCsvFile(filePath: string): Promise<Papa.ParseResult<unknown>> {
     return new Promise((resolve, reject) => {
@@ -40,8 +41,10 @@ function dcrProcessor(data: Papa.ParseResult<any>, store: Store, root: NamedNode
     const catalogue = new Catalogue();
     catalogue.setData(data);
 
-    for (const useType of catalogue.useTypes) {
-        console.log(useType.type)
+    for (let i = 0; i < catalogue.useTypes.length; i++){
+        const useType = catalogue.useTypes[i];
+        const allUseTypes = catalogue.allUseTypes[i];
+        logger.info(useType.type, "from", allUseTypes.map(ut => ut.type));
     }
 }
 

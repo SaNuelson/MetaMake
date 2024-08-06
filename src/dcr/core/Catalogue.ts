@@ -2,13 +2,13 @@ import { bindEventSystemMixin } from '../utils/events.js';
 import { UseType } from '../parser/useType';
 import { NumberUseType } from '../parser/parse.num';
 import { determineType } from '../parser/parse.main';
-import { determinePrimaryKeys } from '../mapper/mapper.main.js';
+import { determinePrimaryKeys } from '../mapper/mapper.main';
 import {
     count,
     toKvp,
     intersection,
     filterInclusionMinimas,
-} from '../utils/array.js';
+} from '../utils/array';
 import Papa from 'papaparse';
 
 // Hard limit to prevent OOM in cases of large files
@@ -76,12 +76,19 @@ export class Catalogue {
     }
 
     private _useTypes: UseType<any>[] = [];
+    private _allUseTypes: UseType<any>[][] = [];
     private _areUseTypesLoaded: boolean = false;
 
     get useTypes() {
         if (!this._areUseTypesLoaded && this._auto)
             this._determineUseTypes();
         return this._useTypes;
+    }
+
+    get allUseTypes() {
+        if (!this._areUseTypesLoaded && this._auto)
+            this._determineUseTypes()
+        return this._allUseTypes;
     }
 
     /** Metadata output from Papa Parse library */
@@ -150,9 +157,9 @@ export class Catalogue {
         let firstRows = data.slice(0, 20);
         let lastRows = data.slice(data.length - 20, data.length);
         let columnCounts = count(firstRows.concat(lastRows).map(row => row.length));
-        columnCounts = toKvp(columnCounts);
-        columnCounts.sort((a, b) => b[1] - a[1]);
-        let determinedColumnSize = columnCounts[0][0];
+        let columnCountsKvp = toKvp(columnCounts);
+        columnCountsKvp.sort((a, b) => b[1] - a[1]);
+        let determinedColumnSize = columnCountsKvp[0][0];
 
         // first and last few rows non-tabular
         let i = 0;
@@ -170,20 +177,21 @@ export class Catalogue {
 
     _determineUseTypes() {
         this._useTypes = [];
-        let allUseTypes = [];
+        this._allUseTypes = [];
+
         for (let i = 0, len = this.width; i < len; i++) {
-            let determinedUseTypes = determineType(this.col(i), {header: this._header[i]});
-            allUseTypes.push(determinedUseTypes);
+            let determinedUseTypes = determineType(this.col(i), {label: this._header[i]});
+            this._allUseTypes[i] = determinedUseTypes;
 
-            if (determinedUseTypes.length === 1)
+            if (determinedUseTypes.length === 1) {
                 this._useTypes[i] = determinedUseTypes[0];
-
+            }
             // TODO: Confidence-level based selection
             else {
                 // often single number will get detected as multiple kinds of timestamps
-                if (determinedUseTypes.filter(u => u.type === 'timestamp').length > 1) {
-                    determinedUseTypes = determinedUseTypes.filter(u => u.type !== 'timestamp');
-                }
+                // if (determinedUseTypes.filter(u => u.type === 'timestamp').length > 1) {
+                //    determinedUseTypes = determinedUseTypes.filter(u => u.type !== 'timestamp');
+                // }
 
                 determinedUseTypes.sort((u, v) => v.priority - u.priority);
                 this._useTypes[i] = determinedUseTypes[0];

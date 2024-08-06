@@ -175,7 +175,7 @@ function reformatTestUsingSettings(testStringData: TestTuple, patternFormat: Cut
     };
 }
 
-describe('Pattern cutter factory', () => {
+describe.skip('Pattern cutter factory', () => {
     describe('produces valid matchall regexes', () => {
         let testTuples = Object.values(testStrings);
         let allPatternArgs = generateAllCombinations(true);

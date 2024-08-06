@@ -1,22 +1,27 @@
-import { UseType } from './useType.ts';
+import { DomainType, UseType, UseTypeType } from './useType';
 
-export function recognizeStrings(source, args) {
-    // TODO: internal logic and string recognization
+export function recognizeStrings(source, args): StringUseType[] {
+    // TODO: internal logic and string recognition
 	let stringArgs = Object.assign({}, args);
 	if (source.slice(0, 10).every(string => validateUrl(string)))
 		stringArgs.type = 'url';
-    return [new String(stringArgs)];
+    return [new StringUseType(stringArgs)];
 }
 
-class String extends UseType {
+class StringUseType extends UseType<string> {
+	isUnique: boolean;
+	constantValue: string;
+
+	kind: string;
+
 	constructor(args) {
 		super(args);
 		if (args.potentialIds) {
-			this.unique = true;
+			this.isUnique = true;
 		}
 
 		if (args.constant) {
-			this.constant = true;
+			this.isConstant = true;
 			this.constantValue = args.constant;
 		}
 
@@ -25,52 +30,52 @@ class String extends UseType {
 		}
 	}
 	
-	format(x) { return x.toString(); } 
-	deformat(x) { return x.toString(); }
+	format(x: string): string { return x.toString(); }
+	deformat(x: string): string { return x.toString(); }
 
-	isSubsetOf(other) {
+	isSubsetOf(other: UseType<any>): boolean {
 		return (other.type === this.type) || (this.type && !other.type);
 	}
 
-	isSupersetOf(other) {
+	isSupersetOf(other: UseType<any>): boolean {
 		return other.isSubsetOf(this);
 	}
 
-	isEqualTo(other) {
+	isEqualTo(other: UseType<any>): boolean {
 		return this.isSubsetOf(other) && this.isSupersetOf(other);
 	}
 
-	isSimilarTo(other) {
+	isSimilarTo(other: UseType<any>): boolean {
 		return this.isSubsetOf(other) || this.isSupersetOf(other);
 	}
 
-	toString() {
-		if (this.unique) {
+	toString(): string {
+		if (this.isUnique) {
 			return "SID{" + (this.type ?? "") + "}";
 		}
 
-		if (this.constant) {
+		if (this.isConstant) {
 			return "SC(" + this.constantValue + "){" + (this.type ?? "") + "}";
 		}
 
 		return "S{" + (this.kind ?? "") + "}";
 	}
 
-	toFormatString() {
+	toFormatString(): string {
 		let ret = "Custom/Unknown";
 		if (this.kind) ret += " of kind " + this.kind;
 		return ret;
 	}
 	
-    compatibleTypes = ["string"];
+    compatibleTypes: UseTypeType[] = ["string"];
 
     /**
      * Underlying type for this UseType instance.
      * @type {string}
      */
-    type = "string";
+    type: UseTypeType = "string";
 
-	domainType = 'nominal';
+	domainType: DomainType = 'nominal';
 
 	priority = 0;
 }

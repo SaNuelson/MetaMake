@@ -3,29 +3,39 @@
  * @todo locales, currently the usual param 'locale' has no use and is simply ignored, returning english/global constants
  */
 
+export const LocaleEn = 'en-US';
+
 const fetchList = {
     countries: {
         url: 'https://raw.githubusercontent.com/samayo/country-json/master/src/country-by-abbreviation.json',
         extract: (json) => {
             fetchList.countries.names = json.map(country => country.country);
             fetchList.countries.codes = json.map(country => country.abbreviation);
-        }
+        },
+        names: [] as string[],
+        codes: [] as string[],
     },
-    // currencies: {
-    //     url: 'https://gist.githubusercontent.com/Fluidbyte/2973986/raw/8bb35718d0c90fdacb388961c98b8d56abc392c9/Common-Currency.json',
-    //     extract: (json) => {
-    //         let codes = Object.keys(json);
-    //         fetchList.currencies.codes = codes;
-    //         fetchList.currencies.symbols = codes.map(code => json[code].symbol);
-    //         fetchList.currencies.nativeSymbols = codes.map(code => json[code].symbol_native)
-    //     }
-    // },
+    currencies: {
+        url: 'https://raw.githubusercontent.com/ourworldincode/currency/main/currencies.json',
+        extract: (json) => {
+            let codes = Object.keys(json);
+            fetchList.currencies.codes = codes;
+            fetchList.currencies.symbols = codes.map(code => json[code].symbol);
+            fetchList.currencies.nativeSymbols = codes.map(code => json[code].symbol_native)
+        },
+        names: [] as string[],
+        codes: [] as string[],
+        symbols: [] as string[],
+        nativeSymbols: [] as string[],
+    },
     cities: {
         url: 'https://raw.githubusercontent.com/lutangar/cities.json/master/cities.json',
         extract: (json) => {
             fetchList.cities.names = json.map(country => country.name);
             fetchList.cities.codes = json.map(country => country.country);
-        }
+        },
+        names: [] as string[],
+        codes: [] as string[],
     }
 }
 
@@ -92,9 +102,9 @@ function getCurrencySymbols() {
 
 function getCurrencyCodes() {
     let fetchItem = fetchList.currencies;
-    if (!fetchItem || !fetchItem.abbreviations)
+    if (!fetchItem || !fetchItem.codes)
         return [];
-    return fetchItem.abbreviations;
+    return fetchItem.codes;
 }
 
 function getMetricPrefixes(locale) {

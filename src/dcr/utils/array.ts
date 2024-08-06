@@ -1,72 +1,71 @@
 
-export const unique = function (arr) {
+export function unique(arr: any[]): any[] {
     return [...new Set(arr)];
 }
 
-export const charsToRegex = function (arr) {
+export function charsToRegex (arr: string[]): RegExp {
     return new RegExp('[' + arr.join('') + ']');
 }
 
+
 /**
  * Reduce array into object containing its values as keys with values being occurences
- * @param {any[]} arr 
- * @param {object} object with keys equal to unique values in arr, their values being number of occurences
+ * @param arr
+ * @returns object with keys equal to unique values in arr, their values being number of occurences
  */
-export const count = function (arr) {
+export function count(arr: any[]): object {
     return arr.reduce((acc, next) => {
         acc[next] ? acc[next]++ : acc[next] = 1;
         return acc;
     }, {});
 }
 
+
 /**
  * Sum elements in array (concat if strings)
- * @param {number[]} arr 
- * @returns {number}
  */
-export const sum = function (arr) {
-    return arr.reduce((a,b) => a + b)
+export function sum(arr: number[]): number {
+    return arr.reduce((a, b) => a + b);
 }
+
 
 /**
  * Average elements in array
- * @param {number[]} arr 
- * @returns {number}
  */
-export const avg = function(arr) {
+export function avg(arr: number[]): number {
     return sum(arr) / arr.length;
 }
 
+
 /**
  * Find indexes using the lambda function provided
- * @param {Iterable} domain domain (e.g. array or string) to search the element in
- * @param {function(any): boolean} [callbackFn] function taking (element, index, array) as parameters, returning boolean
- * @param {any} [thisArg] object to use as "this" when calling callbackFn
+ * @param domain domain (e.g. array or string) to search the element in
+ * @param [callbackFn] function taking (element, index, array) as parameters, returning boolean
+ * @param [thisArg] object to use as "this" when calling callbackFn
  * @returns {number[]} indexes of elements for which callbackFn returns true
  */
-export const findIndexes = function (arr, callbackFn, thisArg){
+export function findIndexes(domain: any[] | string, callbackFn: (item: any) => boolean, thisArg: any): number[] {
     if (!callbackFn)
         callbackFn = (el) => !!el;
     if (!thisArg)
         thisArg = this;
     let idxs = [];
-    for (let i = 0; i < arr.length; i++) {
-        if (callbackFn.call(thisArg, arr[i], i, arr))
+    for (let i = 0; i < domain.length; i++) {
+        if (callbackFn.call(thisArg, domain[i], i, domain))
             idxs.push(i);
     }
     return idxs;
 }
 
+
 /**
  * Convert object to array with elements in form [key, object[key]]
- * @param {object} obj
- * @returns {Array.<[string, any]>}
  * @example
  * let o = {a: 1, b: "2", c: {d: "three"}};
  * let a = toKvp(o);
  * // [["a", 1], ["b", "2"], ["c", {d: "three"}]]
  */
-export const toKvp = function(obj) {
+export function toKvp(obj: object): [string, any][] {
     let arr = [];
     for (let key in obj) {
         arr.push([key, obj[key]]);
@@ -75,36 +74,9 @@ export const toKvp = function(obj) {
 }
 
 /**
- * 
- * @param {any[]} arr 
- * @param {any[]|string} against either array to use as other distribution 
- * or string specifying kind of distribution with same domain as arr
- * @returns {number} cross-entropy value for specified empirical distributions
- */
-export const crossEntropy = function(arr, against) {
-    // H(x) = - sum_x p1(x) * log p2(x) 
-    if (Array.isArray(against)) {
-        throw "NotImplemented";
-    }
-    else {
-        if (["u", "uni", "uniform"].includes(against)) {
-            let as = count(arr);
-            let fac = Math.log(1 / Object.keys(as).length) / array.length;
-            let cross = 0;
-            for (let k in as) {
-                cross -= as[k] / size * fac;
-            }
-            return cross;
-        }
-    }
-}
-
-/**
  * Check if array has any duplicates (shallow?)
- * @param {*[]} array 
- * @returns {boolean} true if has any duplicates 
  */
-export function hasDuplicates(array) {
+export function hasDuplicates(array: any[]): boolean {
     return (new Set(array)).size !== array.length;
 }
 
@@ -119,7 +91,7 @@ export function hasDuplicates(array) {
  * let grouped = groupBy(objs, 'a', true);
  * // {'5':[{'a':5}], '10':[{'a':10}], 'false':{'a':false}]}
  */
-export function groupBy(xs, key, dropKeyless = true) {
+export function groupBy(xs: any[], key: any, dropKeyless: boolean = true): object {
     if (dropKeyless)
         xs = xs.filter(x => x[key] || x[key] === 0);
 
@@ -137,7 +109,7 @@ export function groupBy(xs, key, dropKeyless = true) {
  * @param {*[]} bx 
  * @returns {boolean} true if of same size and all eleements equal, false otherwise
  */
-export function areEqual(ax, bx) {
+export function areEqual(ax: any[], bx: any[]): boolean {
     if (ax.length !== bx.length)
         return false;
     for (let i in ax)

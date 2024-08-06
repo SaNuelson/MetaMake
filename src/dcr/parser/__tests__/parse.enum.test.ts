@@ -1,4 +1,4 @@
-import { Enum, recognizeEnums } from '../parse.enum';
+import { EnumUseType, recognizeEnums } from '../parse.enum';
 
 describe('parse.enum', () => {
 
@@ -30,7 +30,7 @@ describe('parse.enum', () => {
 
 describe('EnumUseType', () => {
     test('formats items properly', () => {
-        const enumUseType = new Enum({
+        const enumUseType = new EnumUseType({
             domain:
                 [
                     'Gryffindor',
@@ -50,7 +50,7 @@ describe('EnumUseType', () => {
     })
 
     test('deformats items properly', () => {
-        const enumUseType = new Enum({
+        const enumUseType = new EnumUseType({
             domain:
                 [
                     'Gryffindor',

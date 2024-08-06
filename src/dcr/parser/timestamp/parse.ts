@@ -2,6 +2,8 @@ import { infill } from '../../utils/array';
 import { Timestamp } from './timestamp';
 import { getTokenDetailsByLabel, TimestampCategory, TimestampTokenDetails } from './tokens';
 import { hasValidFormat } from './format';
+import { UseTypeArgs } from '../useType';
+import { logger } from '../../../logger';
 
 /**
  * @file Holds timestsamp parsing, recognizing logic along with format wrapper
@@ -14,15 +16,17 @@ import { hasValidFormat } from './format';
  * @param args NYI, additional parameters for recognizer
  * @returns array of extracted timestamp useTypes
  */
-export function recognizeTimestamps(source: string[], args): Timestamp[] {
+export function recognizeTimestamps(source: string[], args: UseTypeArgs): Timestamp[] {
     const initialBatchSize = 5;
 
     // first try the most frequently used timestamps
     let expectedUseTypes = getExpectedUseTypes(args);
-    expectedUseTypes = filterTimestampUseTypes(source, expectedUseTypes);
+    expectedUseTypes = filterTimestampUseTypes(source, expectedUseTypes, args.hasNull ? args.nullVal : undefined);
     expectedUseTypes = filterDuplicatesAndSubtypes(expectedUseTypes);
 
     if (expectedUseTypes.length > 0) {
+        logger.info("recognizeTimestamps - recognized a frequently used timestamp format",
+            {data: source.slice(0,5), formats: expectedUseTypes.map(ut => ut.formatting)});
         return expectedUseTypes;
     }
 
@@ -32,7 +36,7 @@ export function recognizeTimestamps(source: string[], args): Timestamp[] {
 
     extractedUseTypes = filterInvalidUseTypes(extractedUseTypes);
 
-    extractedUseTypes = filterTimestampUseTypes(source, extractedUseTypes);
+    extractedUseTypes = filterTimestampUseTypes(source, extractedUseTypes, args.hasNull ? args.nullVal : undefined);
 
     extractedUseTypes = filterDuplicatesAndSubtypes(extractedUseTypes);
 
@@ -113,16 +117,23 @@ function extractTimestampUseTypes(source: string[], args): Timestamp[] {
 }
 
 /** For each string in source, check if each useType is applicable and correct */
-function filterTimestampUseTypes(source, useTypes) {
+function filterTimestampUseTypes(source: string[], useTypes: Timestamp[], skipVal?: string): Timestamp[] {
     for (let i = 0; i < source.length; i++) {
-        for (let useType of useTypes) {
+
+        if (skipVal !== undefined && source[i] === skipVal)
+            continue;
+
+        let areUseTypesDisabled = useTypes.map(_ => false);
+
+        for (let j = 0; j < useTypes.length; j++){
+            let useType = useTypes[j];
             let val = useType.deformat(source[i]);
             if (val === null) {
-                useType.disabled = true;
+                areUseTypesDisabled[j] = true;
             }
         }
 
-        let nextUseTypes = useTypes.filter(useType => !useType.disabled);
+        let nextUseTypes = useTypes.filter((useType, j) => !areUseTypesDisabled[j]);
 
         // False positive on [1000, 1000, 5000, ...] with single useType ['{YYYY}']
         // if (nextUseTypes.length === 1) {
@@ -141,7 +152,7 @@ function filterInvalidUseTypes(useTypes) {
 }
 
 /** For each useType, check if there is more specific useType in the set */
-function filterDuplicatesAndSubtypes(useTypes) {
+function filterDuplicatesAndSubtypes(useTypes: Timestamp[]): Timestamp[] {
     for (let i = 0; i < useTypes.length; i++) {
         let subtypes = [];
         for (let j = i + 1; j < useTypes.length; j++) {
@@ -157,7 +168,7 @@ function filterDuplicatesAndSubtypes(useTypes) {
 /** If present, select useTypes which belong to the expected set of timestamp formats */
 var expectedUseTypesCache;
 
-function getExpectedUseTypes(args) {
+function getExpectedUseTypes(args: UseTypeArgs): Timestamp[] {
     if (!expectedUseTypesCache)
         generateExpectedUseTypes();
     return expectedUseTypesCache.map((format: string[]) => new Timestamp({

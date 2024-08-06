@@ -1,4 +1,4 @@
-import {hasDuplicates, isSubsetOf} from '../utils/array.js';
+import {hasDuplicates, isSubsetOf} from '../utils/array.ts';
 
 /**
  * Find all possible sets of indexes, which together have empty ambiguity sets.

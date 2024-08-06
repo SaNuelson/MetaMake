@@ -18,8 +18,8 @@ type DateTimestampType = 'date' | 'datetime';
 type TodTimestampType = 'timeofday';
 type TimestampType<T = Date | TimeOfDay> = 'unknown' | (T extends Date ? DateTimestampType : TodTimestampType)
 
-function nullDate(): Date { return new Date(2000, 3, 21, 15, 20, 25, 30) }
-function nullTod(): TimeOfDay { return [15, 20, 25, 30] }
+function nullDate(): Date { return new Date(0) }
+function nullTod(): TimeOfDay { return [0, 0, 0, 0] }
 
 export type TimestampArgs<T = Date | TimeOfDay> = {
     formatting: string[],
@@ -75,7 +75,7 @@ export class Timestamp<T = Date | TimeOfDay> extends UseType<T> {
 
         let gatheredTypes = [minType, maxType, explicitType, implicitType];
 
-        gatheredTypes = gatheredTypes.filter(type => type !== 'none');
+        gatheredTypes = gatheredTypes.filter(type => type !== 'unknown');
 
         let allTypesEqual = gatheredTypes.every(type => type === gatheredTypes[0]);
 
