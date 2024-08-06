@@ -1,4 +1,4 @@
-import { DomainType, UseType, UseTypeArgs } from './useType';
+import { DomainType, UseType, UseTypeArgs, UseTypeType } from './useType';
 import { numberConstants } from './parse.constants';
 import { unique } from '../utils/array';
 import { escapeRegExp } from '../utils/string';
@@ -329,8 +329,8 @@ export class NumberUseType extends UseType<number> {
 	private prefixPlaceholder: string | undefined;
 	private suffixPlaceholder: string | undefined;
 
-	compatibleTypes: string[] = ["number"];
-	type = "number";
+	compatibleTypes: UseTypeType[] = ["number"];
+	type: UseTypeType = "number";
 	domainType: DomainType = 'ordinal';
 	priority = 2;
 

@@ -1,4 +1,4 @@
-import { UseType } from './useType';
+import { UseType, UseTypeType } from './useType';
 
 /**
  * Try to recognize possible formats of string-represented enums in source array.
@@ -70,8 +70,8 @@ export function recognizeEnums(source: string[], args): Enum[] {
 export class Enum extends UseType<string> {
 
     domain: string[] = [];
-    compatibleTypes = ['string'];
-    type = 'string';
+    compatibleTypes: UseTypeType[] = ['string'];
+    type: UseTypeType = 'string';
     domainType: 'none' | 'ordinal' | 'nominal' = 'nominal';
     priority = 1;
 

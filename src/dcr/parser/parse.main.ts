@@ -1,7 +1,7 @@
 import * as utils from '../utils/utils.js';
 
 import { recognizeNumbers } from './parse.num';
-import { recognizeTimestamps } from './parse.timestamp';
+import { recognizeTimestamps } from './timestamp/parse';
 import { Enum, recognizeEnums } from './parse.enum';
 import { recognizeStrings } from './parse.string';
 

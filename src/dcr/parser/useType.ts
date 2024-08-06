@@ -8,6 +8,7 @@ export type UseTypeArgs = {
     limitExceeded?: boolean
 }
 
+export type UseTypeType = 'undefined' | 'string' | 'number' | 'timestamp';
 export type DomainType = 'none' | 'ordinal' | 'nominal';
 
 /**
@@ -119,12 +120,12 @@ export class UseType<T> {
     /**
      * Possible underlying types for this UseType subclass.
      */
-    compatibleTypes: string[] = [];
+    compatibleTypes: UseTypeType[] = [];
 
     /**
      * Underlying type for this UseType instance.
      */
-    type: string = 'undefined';
+    type: UseTypeType = 'undefined';
 
     /**
      * Type of the universe. Can be ordinal or nominal.

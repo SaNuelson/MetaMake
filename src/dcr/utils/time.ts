@@ -1,7 +1,7 @@
 /**
  * Array of numbers in format [hours, minutes, seconds [, milliseconds]]
  */
-type TimeOfDay = [number, number, number, number?];
+export type TimeOfDay = [number, number, number, number?];
 
 /**
  * Checks if provided variable is a valid Date

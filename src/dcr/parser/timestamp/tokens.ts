@@ -1,0 +1,383 @@
+import { DateTokenApplier, DateTokenExtractor, TodTokenApplier, TodTokenExtractor } from './timestamp';
+import { timestampConstants } from '../parse.constants';
+import { TimeOfDay } from '../../utils/time';
+import { escapeRegExp } from '../../utils/string';
+
+// TODO: From constants
+const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const monthAbbrevs = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const weekDayAbbrevs = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+export enum TimestampCategory {
+    Years = 1,
+    Months = 2,
+    Days = 3,
+    Hours = 4,
+    Minutes = 5,
+    Seconds = 6,
+    Milliseconds = 7,
+    Era = 8,
+    Meridiem = 9,
+    DayOfWeek = 10,
+    Literal = 11,
+}
+
+export enum TimestampSpecificity {
+    NumericShort = 0,
+    NumericMedium = 1,
+    NumericLong = 2,
+    WordShort = 3,
+    WordLong = 4,
+}
+
+export type TimestampTokenDetail = {
+    /** Token label used within formatting string */
+    label: string,
+    /** Partial regex used to extract this token */
+    regexBit: string,
+    /** Specific category of the value of this token */
+    category: TimestampCategory,
+    /** Flag whether token's value is numeric */
+    numeric: boolean,
+    /** Optionally label of token that is identical but less strict version */
+    subtoken?: string,
+    /** Method to apply provided value to a date */
+    apply: DateTokenApplier,
+    /** Method to apply provided value to a time of day */
+    applyTod: TodTokenApplier,
+    /** Method to extract this token's value from a date */
+    extract: DateTokenExtractor,
+    /** Method to extract this token's value from a time of day */
+    extractTod: TodTokenExtractor,
+    /** Whether token is a literal */
+    literal?: boolean
+};
+
+export function createTokenLiteral(value: string): TimestampTokenDetail {
+    return {
+        label: value,
+        numeric: false,
+        regexBit: escapeRegExp(value),
+        category: TimestampCategory.Literal,
+        literal: true,
+        apply: (date: Date, value: any): void => {},
+        applyTod: (tod: TimeOfDay, value: any): void => {},
+        extract: (date: Date, format: string[] | undefined): string => '',
+        extractTod: (tod: TimeOfDay, format: string[] | undefined): string => '',
+    }
+};
+
+export const TimestampTokenDetails: { [label: string]: TimestampTokenDetail } = {
+
+    /** e.g. year 50 BC */
+    era: {
+        label: '{EE}',
+        regexBit: '(AD|BC)',
+        category: TimestampCategory.Era,
+        numeric: false,
+        // apply is valid since one can expect year preceding era in a format (BC 1500 makes little sense)
+        apply: (date, val) => date.getFullYear() > 0 && val === 'BC' && date.setFullYear(-date.getFullYear()),
+        applyTod: (tod, val) => undefined,
+        extract: (date) => date.getFullYear() >= 0 ? 'AD' : 'BC',
+        extractTod: (tod) => undefined,
+    },
+
+    /** e.g. 3.1.1998 */
+    yearFull: {
+        label: '{YYYY}',
+        regexBit: '([12][0-9]{3,})',
+        category: TimestampCategory.Years,
+        numeric: true,
+        subtoken: 'yearShort',
+        apply: (date, val) => date.setFullYear(+val),
+        applyTod: (tod, val) => undefined,
+        extract: (date) => date.getFullYear().toString().padStart(4, '0'),
+        extractTod: (tod) => undefined,
+    },
+
+    /** e.g. 3.1.'98 */
+    yearShort: {
+        label: '{YY}',
+        regexBit: '([0-9]{2})',
+        category: TimestampCategory.Years,
+        numeric: true,
+        apply: (date, val) => date.setFullYear(+val),
+        applyTod: (tod, val) => undefined,
+        extract: (date) => date.getFullYear().toString(),
+        extractTod: (tod) => undefined,
+    },
+
+    /** e.g. 03.01.1998 */
+    monthFull: {
+        label: '{MM}',
+        regexBit: '(0\\d|1[012])',
+        category: TimestampCategory.Months,
+        numeric: true,
+        apply: (date, val) => date.setMonth(val - 1),
+        applyTod: (tod, val) => undefined,
+        extract: (date) => (date.getMonth() + 1).toString().padStart(2, '0'),
+        extractTod: (tod) => undefined,
+    },
+
+    /** e.g. 3.1.1998 */
+    monthShort: {
+        label: '{M}',
+        regexBit: '(0?\\d|1[012])',
+        category: TimestampCategory.Months,
+        numeric: true,
+        subtoken: 'monthFull',
+        apply: (date, val) => date.setMonth(val - 1),
+        applyTod: (tod, val) => undefined,
+        extract: (date) => (date.getMonth() + 1).toString(),
+        extractTod: (tod) => undefined,
+    },
+
+    /** e.g. January 3rd 1998 */
+    monthName: {
+        label: '{MMMM}',
+        regexBit: '(' + monthNames.map(m => '(?:' + m + ')').join('|') + ')',
+        category: TimestampCategory.Months,
+        numeric: false,
+        apply: (date, val) => date.setMonth(monthNames.indexOf(val)),
+        applyTod: (tod, val) => undefined,
+        extract: (date) => monthNames[date.getMonth()],
+        extractTod: (tod) => undefined,
+    },
+
+    /** e.g. Jan 3rd, 1998 */
+    monthAbbrev: {
+        label: '{MMM}',
+        regexBit: '(' + monthAbbrevs.map(m => '(?:' + m + ')').join('|') + ')',
+        category: TimestampCategory.Months,
+        numeric: false,
+        apply: (date, val) => date.setMonth(monthAbbrevs.indexOf(val)),
+        applyTod: (tod, val) => undefined,
+        extract: (date) => monthAbbrevs[date.getMonth()],
+        extractTod: (tod) => undefined,
+    },
+
+    /** e.g. 03.01.1998 */
+    dayFull: {
+        label: '{DD}',
+        regexBit: '(0[1-9]|[12]\\d|3[01])',
+        category: TimestampCategory.Days,
+        numeric: true,
+        apply: (date, val) => date.setDate(+val),
+        applyTod: (tod, val) => undefined,
+        extract: (date) => date.getDate().toString().padStart(2, '0'),
+        extractTod: (tod) => undefined,
+    },
+
+    /** e.g. 3.1.1998 */
+    dayShort: {
+        label: '{D}',
+        regexBit: '(0?[1-9]|[12]\\d|3[01])',
+        category: TimestampCategory.Days,
+        numeric: true,
+        subtoken: 'dayFull',
+        apply: (date, val) => date.setDate(+val),
+        applyTod: (tod, val) => undefined,
+        extract: (date) => date.getDate().toString(),
+        extractTod: (tod) => undefined,
+    },
+
+    /** e.g. Saturday 3.1. 1998 */
+    dayOfWeekFull: {
+        label: '{DDDD}',
+        category: TimestampCategory.DayOfWeek,
+        numeric: false,
+        regexBit: '(' + weekDays.map(d => '(?:' + d + ')').join('|') + ')',
+        apply: (date, val) => undefined,
+        applyTod: (tod, val) => undefined,
+        extract: (date) => weekDays[date.getDay()],
+        extractTod: (tod) => undefined,
+    },
+
+    /** e.g. Sat 3.1. 1998 */
+    dayOfWeekShort: {
+        label: '{DDD}',
+        category: TimestampCategory.DayOfWeek,
+        numeric: false,
+        regexBit: '(' + weekDayAbbrevs.map(d => '(?:' + d + ')').join('|') + ')',
+        apply: (date, val) => undefined,
+        applyTod: (tod, val) => undefined,
+        extract: (date) => weekDayAbbrevs[date.getDay()],
+        extractTod: (tod) => undefined,
+    },
+
+    /** e.g. 7:30 AM */
+    meridiem: {
+        label: '{RR}',
+        regexBit: '(AM|PM)',
+        category: TimestampCategory.Meridiem,
+        numeric: false,
+        // same like era, it should be safe to assume meridiem won't be preceding hours (e.g. AM 7:30)
+        apply: (date, val) => {
+            let hours = date.getHours();
+            if (val === 'PM' && hours < 12)
+                date.setHours(hours + 12); // all after noon
+            else if (val === 'AM' && hours === 12)
+                date.setHours(0); // midnight
+        },
+        applyTod: (tod, val) => undefined,
+        extract: (date) => date.getHours() < 12 || date.getHours() === 0 ? 'AM' : 'PM',
+        extractTod: (tod) => tod[0] < 12 || tod[0] === 0 ? 'AM' : 'PM',
+    },
+
+    /** e.g. 07:05:32 */
+    hourFull: {
+        label: '{hh}',
+        regexBit: '([01]\\d|2[0-3])',
+        category: TimestampCategory.Hours,
+        numeric: true,
+        apply: (date, val) => date.setHours(val),
+        applyTod: (tod, val) => tod[0] = val,
+        extract: (date, format) => {
+            let extracted = date.getHours();
+            if (format && format.includes(TimestampTokenDetails.meridiem.label))
+                extracted %= 12;
+            return extracted.toString().padStart(2, '0');
+        },
+        extractTod: (tod, format) => {
+            let extracted = tod[0];
+            if (format && format.includes(TimestampTokenDetails.meridiem.label))
+                extracted %= 12;
+            return extracted.toString().padStart(2, '0');
+        },
+    },
+
+    /** e.g. 7:05 AM */
+    hourShort: {
+        label: '{h}',
+        regexBit: '([01]?\\d|2[0-3])',
+        category: TimestampCategory.Hours,
+        numeric: true,
+        subtoken: 'hourFull',
+        apply: (date, val) => date.setHours(val),
+        applyTod: (tod, val) => tod[0] = val,
+        extract: (date, format) => {
+            let extracted = date.getHours();
+            if (format && format.includes(TimestampTokenDetails.meridiem.label))
+                extracted %= 12;
+            return extracted.toString();
+        },
+        extractTod: (tod, format) => {
+            let extracted = tod[0];
+            if (format && format.includes(TimestampTokenDetails.meridiem.label))
+                extracted %= 12;
+            return extracted.toString();
+        },
+    },
+
+    /** e.g. 07:05:32 */
+    minuteFull: {
+        label: '{mm}',
+        regexBit: '([0-5]\\d)',
+        category: TimestampCategory.Minutes,
+        numeric: true,
+        apply: (date, val) => date.setMinutes(val),
+        applyTod: (tod, val) => tod[1] = val,
+        extract: (date) => date.getMinutes().toString().padStart(2, '0'),
+        extractTod: (tod) => tod[1].toString().padStart(2, '0'),
+    },
+
+    /** e.g. 5m 32s */
+    minuteShort: {
+        label: '{m}',
+        regexBit: '([0-5]?\\d)',
+        category: TimestampCategory.Minutes,
+        numeric: true,
+        subtoken: 'minuteFull',
+        apply: (date, val) => date.setMinutes(val),
+        applyTod: (tod, val) => tod[1] = val,
+        extract: (date) => date.getMinutes().toString(),
+        extractTod: (tod) => tod[1].toString(),
+    },
+
+    /** e.g. 14:15:08 */
+    secondFull: {
+        label: '{ss}',
+        regexBit: '([0-5]\\d)',
+        category: TimestampCategory.Seconds,
+        numeric: true,
+        apply: (date, val) => date.setSeconds(val),
+        applyTod: (tod, val) => tod[2] = val,
+        extract: (date) => date.getSeconds().toString().padStart(2, '0'),
+        extractTod: (tod) => tod[2].toString().padStart(2, '0'),
+    },
+
+    /** e.g. 6.32 s */
+    secondShort: {
+        label: '{s}',
+        regexBit: '([0-5]?\\d)',
+        category: TimestampCategory.Seconds,
+        numeric: true,
+        subtoken: 'secondFull',
+        apply: (date, val) => date.setSeconds(val),
+        applyTod: (tod, val) => tod[2] = val,
+        extract: (date) => date.getSeconds().toString(),
+        extractTod: (tod) => tod[2].toString(),
+    },
+
+    /** e.g. 35.027s */
+    millisecondFull: {
+        label: '{nnn}',
+        regexBit: '(\\d{3})',
+        category: TimestampCategory.Milliseconds,
+        numeric: true,
+        apply: (date, val) => date.setMilliseconds(val),
+        applyTod: (tod, val) => tod[3] = val,
+        extract: (date) => date.getMilliseconds().toString().padStart(3, '0'),
+        extractTod: (tod) => tod[3].toString().padStart(3, '0'),
+    },
+
+    /** e.g. 35s 27ms */
+    millisecondShort: {
+        label: '{n}',
+        regexBit: '(\\d{,3})',
+        category: TimestampCategory.Milliseconds,
+        numeric: true,
+        subtoken: 'millisecondFull',
+        apply: (date, val) => date.setMilliseconds(val),
+        applyTod: (tod, val) => tod[3] = val,
+        extract: (date) => date.getMilliseconds().toString(),
+        extractTod: (tod) => tod[3].toString(),
+    },
+};
+(function () {
+    delete TimestampTokenDetails.yearShort;
+    delete TimestampTokenDetails.millisecondShort;
+})();
+
+
+function getTokenByLabel(label: string): string {
+    return TimestampLabelToToken[label];
+}
+
+function getTokenDetails(token: string): TimestampTokenDetail {
+    return TimestampTokenDetails[token];
+}
+
+export function getTokenDetailsByLabel(label: string): TimestampTokenDetail {
+    let token = getTokenDetails(getTokenByLabel(label));
+    return token ? token : createTokenLiteral(label);
+}
+
+export function existsLabel(label: string): boolean {
+    return TimestampLabelToToken[label] !== undefined;
+}
+
+export function isLiteral(token: any): token is { literal: true } {
+    return token && token.literal === true;
+}
+
+/** Dictionary mapping token labels to their names/keys. */
+export const TimestampLabelToToken: { [label: string]: string } = (() => {
+    let rev = {};
+    for (let type in TimestampTokenDetails) {
+        let label = TimestampTokenDetails[type].label;
+        rev[label] = type;
+    }
+    return rev;
+})();
