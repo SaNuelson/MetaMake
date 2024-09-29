@@ -2,7 +2,7 @@ import { Store } from "n3"
 
 export interface DataSource<Data> {
     reset(): Promise<boolean>
-    readNext(n: number): Promise<Data>
+    readNext(n?: number): Promise<Data>
 }
 
 export interface CsvDataSource extends DataSource<string[][]> {

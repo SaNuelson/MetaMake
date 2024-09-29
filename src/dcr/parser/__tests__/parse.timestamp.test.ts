@@ -78,6 +78,29 @@ describe('recognizeTimestamps', () => {
         expect(result.length).toBeGreaterThanOrEqual(1);
         expect(result.some(item => item.formatting.toString() === expectedFormatting.toString())).toBeTruthy();
     })
+
+    it('should correctly recognize a format of dates with missing values in the initial batch', () => {
+        const timeStamps = [
+            '2015-11-01',
+            '2015-10-13',
+            '',
+            '2005-08-17',
+            '2000-10-17',
+            '2006-04-27',
+            '2013-05-21',
+            '2019-07-31',
+            '2019-10-23',
+            '2021-06-24',
+            '2021-07-16',
+            '2019-07-26',
+        ];
+
+        const expectedFormatting = ['{YYYY}','-','{MM}','-','{DD}']
+        const result = recognizeTimestamps(timeStamps, {hasNull:true, nullVal:''});
+
+        expect(result.length).toBeGreaterThanOrEqual(1);
+        expect(result.some(item => item.formatting.toString() === expectedFormatting.toString())).toBeTruthy();
+    })
 })
 
 

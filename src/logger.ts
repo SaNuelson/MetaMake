@@ -31,7 +31,7 @@ const consoleFormat = winston.format.printf(({level, message, timestamp, ...meta
 
     // Append all other metadata to the message
     if (Object.keys(metadata).length > 0) {
-        msg += colorizer.colorize('meta', JSON.stringify(metadata, null, 4));
+        //msg += colorizer.colorize('meta', JSON.stringify(metadata, null, 4));
     }
 
     return msg;
