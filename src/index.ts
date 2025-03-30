@@ -8,11 +8,11 @@ import path from 'node:path';
 import { Catalogue } from './dcr/core/Catalogue';
 import { logger } from './logger';
 import { dateTimeLiteral } from './memory/utils';
-import { dateTimeType, description, title } from './memory/vocabulary';
+import { dateTimeType, description, mm, title } from './memory/vocabulary';
 import { ThreadController } from './processor/helper/chatgpt-connector';
 import jsonld from 'jsonld';
 
-const dcatApCzGraph = df.namedNode('http://metamake.com/dcat-ap-cz');
+const dcatApCzGraph = mm('dcat-ap-cz');
 
 function readCsvFile(filePath: string): Promise<Papa.ParseResult<unknown>> {
     return new Promise((resolve, reject) => {
@@ -130,6 +130,12 @@ function dcrProcessor(data: Papa.ParseResult<any>, store: Store, root: NamedNode
 
 function dcatApCzExtractor(data: Papa.ParseResult<any>, store: Store, root: NamedNode) {
     // find title
+    const fileName = [...store.match(root, voc.fileName, null, null)][0];
+    if (fileName) {
+        store.addQuad(root, voc.title, fileName.object, dcatApCzGraph);
+    }
+
+    return;
     const titles = [...store.match(null, title, null, null)]
         .map(title => title.object);
     if (titles.length > 0) {
@@ -138,17 +144,21 @@ function dcatApCzExtractor(data: Papa.ParseResult<any>, store: Store, root: Name
 }
 
 function jsonldExporter(data: Papa.ParseResult<any>, store: Store, root: NamedNode) {
-    const writer = new Writer({format: 'N-Triples'})
-    store.forEach(quad => writer.addQuad(quad), null, null, null, null)
+    const writer = new Writer({format: 'N-Quads'})
+    store.forEach(quad => {
+        logger.info(`Write quad ${quad.subject.value} ${quad.predicate.value} ${quad.object.value}`)
+        writer.addQuad(quad);
+    }, null, null, null, dcatApCzGraph)
     const contextText = fs.readFileSync('resources/context/rozhraní-katalogů-otevřených-dat.jsonld', {encoding: 'utf-8'});
     const contextJson = JSON.parse(contextText);
     writer.end((error, result) => {
+        logger.info(result);
         jsonld.fromRDF(result, {format: 'application/n-quads'})
             .then(doc => jsonld.compact(doc, contextJson, {
                 skipExpansion: true,
-                compactToRelative: true
+                compactToRelative: true,
             }))
-            .then(doc => logger.info(doc))
+            .then(doc => logger.info(JSON.stringify(doc, null, 2)));
     })
 }
 
@@ -161,25 +171,18 @@ async function main() {
     const data = await readCsvFile(filePath);
     data.data.slice(0, 5)
         .forEach(row => console.log(Object.values(row).join(', ')));
-    const root = voc.resource;
-    store.addQuad(
-        root,
-        voc.isA,
-        voc.resource,
-    );
+    const root = mm('dataset');
 
     localFileProcessor(filePath, store, root);
 
-    dcrProcessor(data, store, root);
+    //dcrProcessor(data, store, root);
 
-    await llmProcessor(data, store, root);
+    //await llmProcessor(data, store, root);
 
     dcatApCzExtractor(data, store, root)
 
     jsonldExporter(data, store, root);
 }
 
-
-console.log('Start');
 main()
     .then(() => console.log('Done'));

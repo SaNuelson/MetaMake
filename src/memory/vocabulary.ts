@@ -25,3 +25,5 @@ const xsd = prefix('http://www.w3.org/2001/XMLSchema#');
 
 export const dateTimeType = xsd('dateTime');
 export const dateType = xsd('date');
+
+export const mm = prefix('http://metamake.com/');
