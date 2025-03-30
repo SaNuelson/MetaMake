@@ -58,6 +58,22 @@ function localFileProcessor(filePath: string, store: Store, root: NamedNode) {
 }
 
 async function llmProcessor(data: Papa.ParseResult<any>, store: Store, root: NamedNode) {
+
+    store.addQuad(
+        root,
+        title,
+        df.literal('ChatGPT says title')
+    );
+
+    store.addQuad(
+        root,
+        description,
+        df.literal('ChatGPT says description')
+    );
+
+    return;
+    // TODO
+
     const header = data.meta.fields;
     const dataPreview = data.data.slice(0, 5).map(x => Object.values(x));
 
@@ -122,13 +138,16 @@ function dcatApCzExtractor(data: Papa.ParseResult<any>, store: Store, root: Name
 }
 
 function jsonldExporter(data: Papa.ParseResult<any>, store: Store, root: NamedNode) {
-    const writer = new Writer({format: 'N-Quads'})
+    const writer = new Writer({format: 'N-Triples'})
     store.forEach(quad => writer.addQuad(quad), null, null, null, null)
     const contextText = fs.readFileSync('resources/context/rozhraní-katalogů-otevřených-dat.jsonld', {encoding: 'utf-8'});
     const contextJson = JSON.parse(contextText);
     writer.end((error, result) => {
         jsonld.fromRDF(result, {format: 'application/n-quads'})
-            .then(doc => jsonld.compact(doc, contextJson))
+            .then(doc => jsonld.compact(doc, contextJson, {
+                skipExpansion: true,
+                compactToRelative: true
+            }))
             .then(doc => logger.info(doc))
     })
 }

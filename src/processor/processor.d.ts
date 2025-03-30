@@ -1,13 +1,16 @@
-import { Store } from 'n3';
+import { NamedNode, Store } from 'n3';
+import { DataSource } from '../data/data-source';
 
-type Data = any;
+type Data = DataSource<any>;
 
-interface Configuration<T extends Processor> {
-    processor?: T;
+
+
+interface Configuration {
+    metaInput: Array<NamedNode>
 }
 
-interface Processor {
-    configure(config: Configuration<Processor>): void;
+interface Processor<C extends Configuration> {
+    configure(config: C): void;
 
     execute(data: Data, store: Store): void;
 }

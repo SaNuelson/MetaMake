@@ -3,7 +3,14 @@ MetaMake
 
 ## Tasklist
 
+- Working store
+- Simplest use case
+  - read CSV
+  - extract file metadata
+  - create processor to input the metadata
+
 - store
+- 
 - read & parse
   - CSV
   - XML
