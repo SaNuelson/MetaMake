@@ -1,6 +1,6 @@
 import { Quad, Store, DataFactory as df, NamedNode, DataFactory, Writer } from 'n3';
 import Papa from 'papaparse';
-import fs from 'node:fs';
+import fs, { writeFileSync } from 'node:fs';
 import * as voc from './memory/vocabulary';
 import literal = DataFactory.literal;
 import store from './memory/store';
@@ -8,11 +8,11 @@ import path from 'node:path';
 import { Catalogue } from './dcr/core/Catalogue';
 import { logger } from './logger';
 import { dateTimeLiteral } from './memory/utils';
-import { dateTimeType, description, mm, title } from './memory/vocabulary';
+import { dataSet, dateTimeType, description, isA, mmPrefix, title } from './memory/vocabulary';
 import { ThreadController } from './processor/helper/chatgpt-connector';
 import jsonld from 'jsonld';
 
-const dcatApCzGraph = mm('dcat-ap-cz');
+const dcatApCzGraph = mmPrefix('dcat-ap-cz');
 
 function readCsvFile(filePath: string): Promise<Papa.ParseResult<unknown>> {
     return new Promise((resolve, reject) => {
@@ -147,7 +147,7 @@ function jsonldExporter(data: Papa.ParseResult<any>, store: Store, root: NamedNo
     const writer = new Writer({format: 'N-Quads'})
     store.forEach(quad => {
         logger.info(`Write quad ${quad.subject.value} ${quad.predicate.value} ${quad.object.value}`)
-        writer.addQuad(quad);
+        writer.addQuad(new Quad(quad.subject, quad.predicate, quad.object, null));
     }, null, null, null, dcatApCzGraph)
     const contextText = fs.readFileSync('resources/context/rozhraní-katalogů-otevřených-dat.jsonld', {encoding: 'utf-8'});
     const contextJson = JSON.parse(contextText);
@@ -156,9 +156,12 @@ function jsonldExporter(data: Papa.ParseResult<any>, store: Store, root: NamedNo
         jsonld.fromRDF(result, {format: 'application/n-quads'})
             .then(doc => jsonld.compact(doc, contextJson, {
                 skipExpansion: true,
-                compactToRelative: true,
+                compactToRelative: true
             }))
-            .then(doc => logger.info(JSON.stringify(doc, null, 2)));
+            .then(doc => {
+                logger.info(JSON.stringify(doc, null, 2))
+                writeFileSync("out.txt", JSON.stringify(doc, null, 2))
+            });
     })
 }
 
@@ -171,7 +174,8 @@ async function main() {
     const data = await readCsvFile(filePath);
     data.data.slice(0, 5)
         .forEach(row => console.log(Object.values(row).join(', ')));
-    const root = mm('dataset');
+    const root = dataSet;
+    store.addQuad(root, isA, voc.dataSet);
 
     localFileProcessor(filePath, store, root);
 
