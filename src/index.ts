@@ -11,6 +11,8 @@ import { dateTimeLiteral } from './memory/utils';
 import { dataSet, dateTimeType, description, isA, mmPrefix, title } from './memory/vocabulary';
 import { ThreadController } from './processor/helper/chatgpt-connector';
 import jsonld from 'jsonld';
+import { IsLocalDataSource, LocalCsvDataSource } from './data/local-data-source';
+import { CsvDataSource, DataSource } from './data/data-source';
 
 const dcatApCzGraph = mmPrefix('dcat-ap-cz');
 
@@ -30,10 +32,12 @@ function readCsvFile(filePath: string): Promise<Papa.ParseResult<unknown>> {
     });
 }
 
-function localFileProcessor(filePath: string, store: Store, root: NamedNode) {
-    const fileName = path.basename(filePath);
+function localFileProcessor(source: CsvDataSource, store: Store, root: NamedNode) {
 
-    const stats = fs.statSync(filePath);
+    if (!IsLocalDataSource(source))
+        return
+
+    const localSource = source as LocalCsvDataSource;
 
     store.addQuad(
         root,
@@ -43,17 +47,17 @@ function localFileProcessor(filePath: string, store: Store, root: NamedNode) {
     store.addQuad(
         root,
         voc.fileName,
-        literal(fileName),
+        literal(localSource.filename),
     );
     store.addQuad(
         root,
         voc.modified,
-        dateTimeLiteral(stats.mtime),
+        dateTimeLiteral(source.fileStats.mtime),
     );
     store.addQuad(
         root,
         voc.created,
-        dateTimeLiteral(stats.birthtime),
+        dateTimeLiteral(source.fileStats.birthtime),
     );
 }
 
@@ -128,7 +132,7 @@ function dcrProcessor(data: Papa.ParseResult<any>, store: Store, root: NamedNode
     }
 }
 
-function dcatApCzExtractor(data: Papa.ParseResult<any>, store: Store, root: NamedNode) {
+function dcatApCzExtractor(source: CsvDataSource, store: Store, root: NamedNode) {
     // find title
     const fileName = [...store.match(root, voc.fileName, null, null)][0];
     if (fileName) {
@@ -143,7 +147,7 @@ function dcatApCzExtractor(data: Papa.ParseResult<any>, store: Store, root: Name
     }
 }
 
-function jsonldExporter(data: Papa.ParseResult<any>, store: Store, root: NamedNode) {
+function jsonldExporter(source: CsvDataSource, store: Store, root: NamedNode) {
     const writer = new Writer({format: 'N-Quads'})
     store.forEach(quad => {
         logger.info(`Write quad ${quad.subject.value} ${quad.predicate.value} ${quad.object.value}`)
@@ -169,23 +173,23 @@ async function main() {
 
     const filePath = 'resources/input/address_points.csv';
 
+
     const store: Store<Quad, Quad, Quad, Quad> = new Store();
 
-    const data = await readCsvFile(filePath);
-    data.data.slice(0, 5)
-        .forEach(row => console.log(Object.values(row).join(', ')));
+    const reader = new LocalCsvDataSource(filePath);
+
     const root = dataSet;
     store.addQuad(root, isA, voc.dataSet);
 
-    localFileProcessor(filePath, store, root);
+    localFileProcessor(reader, store, root);
 
-    //dcrProcessor(data, store, root);
+    //dcrProcessor(reader, store, root);
 
-    //await llmProcessor(data, store, root);
+    //await llmProcessor(reader, store, root);
 
-    dcatApCzExtractor(data, store, root)
+    dcatApCzExtractor(reader, store, root)
 
-    jsonldExporter(data, store, root);
+    jsonldExporter(reader, store, root);
 }
 
 main()

@@ -2,10 +2,14 @@ import { CsvDataSource, DataSource } from './data-source';
 import { openReadableStream } from '../io/stream';
 import { parseCsvStream } from '../io/csv';
 import { Transform } from 'stream';
-import { exists, existsSync } from 'node:fs';
+import { exists, existsSync, statSync } from 'node:fs';
+import { fileName } from '../memory/vocabulary';
+import { Stats } from 'fs';
 
 export abstract class LocalDataSource<Data> implements DataSource<Data> {
-    protected readonly filename: string;
+    public readonly filename: string;
+
+    public readonly fileStats: Stats;
 
     constructor(filename: string) {
         this.filename = filename;
@@ -13,11 +17,17 @@ export abstract class LocalDataSource<Data> implements DataSource<Data> {
         if(!existsSync(filename)) {
             throw new Error(`File ${this.filename} does not exist`);
         }
+
+        this.fileStats = statSync(this.filename);
     }
 
     abstract reset(): Promise<boolean>;
 
     abstract readNext(n: number): Promise<Data>;
+}
+
+export function IsLocalDataSource<T>(source: DataSource<T>): source is LocalDataSource<T> {
+    return Object.hasOwn(source, 'filename');
 }
 
 export class LocalCsvDataSource extends LocalDataSource<string[][]> implements CsvDataSource {
