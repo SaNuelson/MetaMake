@@ -1,12 +1,13 @@
 import { CsvDataSource } from '../data/data-source';
 import { MetaStore } from '../memory/store';
-import { IsLocalDataSource, LocalCsvDataSource } from '../data/local-data-source';
+import { IsLocalDataSource } from '../data/local-data-source';
 import { dataSet, isA, mm } from '../memory/vocabulary';
 import * as voc from '../memory/vocabulary';
 import { dateTimeLiteral } from '../memory/utils';
 import { DataFactory, NamedNode } from 'n3';
 import literal = DataFactory.literal;
 import { Configuration, Data, Processor } from './processor';
+import { LocalCsvDataSource } from '../data/local-csv-data-source';
 
 export class LocalFileProcessorConfiguration implements Configuration {
     metaInput: Array<NamedNode>;

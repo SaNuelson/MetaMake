@@ -1,5 +1,5 @@
-import { LocalCsvDataSource } from '../local-data-source';
 import * as path from 'path';
+import { LocalCsvDataSource } from '../local-csv-data-source';
 
 describe('LocalCsvDataSource test', () => {
     it('should read local CSV file', async () => {

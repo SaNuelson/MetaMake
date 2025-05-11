@@ -5,9 +5,9 @@ import LocalFileProcessor from './processor/local-file-processor';
 import DcrProcessor from './processor/dcr-processor';
 import LlmMockProcessor from './processor/llm-mock-processor';
 import DcatApCzExtractor, { dcatApCzGraph } from './processor/dcat-ap-cz-extractor';
-import { LocalCsvDataSource } from './data/local-data-source';
 import { dumpJsonld } from './io/jsonld';
 import fs from 'node:fs';
+import { LocalCsvDataSource } from './data/local-csv-data-source';
 
 async function main() {
 
@@ -15,7 +15,7 @@ async function main() {
 
     const store: MetaStore = new MetaStore();
 
-    const dataSource = new LocalCsvDataSource(filePath);
+    const dataSource = await LocalCsvDataSource.create(filePath);
 
     const root = dataSet;
     store.addQuad(root, isA, voc.dataSet);
