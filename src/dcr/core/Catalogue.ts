@@ -140,39 +140,48 @@ export class Catalogue {
      * Can be theoretically used from outside by simulating the Papa Parse response object.
      * @param papares Result of Papa parsing.
      */
-    setData(papares: Papa.ParseResult<any>) {
+    setData(papares: Papa.ParseResult<any> | string[][]) {
+
         this._reset();
-        let data = papares.data;
+
+        if (papares instanceof Array) {
+            this._data = papares;
+        }
+        else {
+            let data = papares.data;
+
+            this._header = data[0];
+            this._data = data.slice(1);
+            this._meta = papares.meta;
+            this._dataErr = papares.errors;
+        }
+
 
         // last row empty
-        if (data[data.length - 1].length === 1 && data[data.length - 1][0] === '') {
-            data.splice(-1);
+        if (this._data[this._data.length - 1].length === 1 && this._data[this._data.length - 1][0] === '') {
+            this._data.splice(-1);
         }
 
         // last column empty
-        if (data.every(row => row[row.length - 1].trim().length === 0)) {
-            data = data.map(row => row.slice(0, -1));
+        if (this._data.every(row => row[row.length - 1].trim().length === 0)) {
+            this._data = this._data.map(row => row.slice(0, -1));
         }
 
-        let firstRows = data.slice(0, 20);
-        let lastRows = data.slice(data.length - 20, data.length);
+        // TODO: Determine width using begin and end, and consider it potential trash? what was i thinking?
+        let firstRows = this._data.slice(0, 20);
+        let lastRows = this._data.slice(this._data.length - 20, this._data.length);
         let columnCounts = count(firstRows.concat(lastRows).map(row => row.length));
         let columnCountsKvp = toKvp(columnCounts);
         columnCountsKvp.sort((a, b) => b[1] - a[1]);
-        let determinedColumnSize = columnCountsKvp[0][0];
+        let determinedColumnSize = +columnCountsKvp[0][0];
 
         // first and last few rows non-tabular
         let i = 0;
-        while (data[i].length != determinedColumnSize) i++;
-        data.splice(0, i - 1);
-        i = data.length - 1;
-        while (data[i].length != determinedColumnSize) i--;
-        data.splice(i + 1, data.length - i);
-
-        this._header = data[0];
-        this._data = data.slice(1);
-        this._meta = papares.meta;
-        this._dataErr = papares.errors;
+        while (this._data[i].length != determinedColumnSize) i++;
+        this._data.splice(0, i - 1);
+        i = this._data.length - 1;
+        while (this._data[i].length != determinedColumnSize) i--;
+        this._data.splice(i + 1, this._data.length - i);
     }
 
     _determineUseTypes() {

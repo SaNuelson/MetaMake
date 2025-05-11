@@ -1,12 +1,15 @@
-import { Store, Writer } from 'n3';
+import { NamedNode, Quad, Store, Writer } from 'n3';
 import { ReadStream } from 'fs';
 import { JsonLdParser } from 'jsonld-streaming-parser';
-import fs from 'node:fs';
+import fs, { writeFileSync, WriteStream } from 'node:fs';
 import jsonld from 'jsonld';
 import { logger } from '../logger';
+import { MetaStore } from '../memory/store';
+import { writer } from 'node:repl';
+import { CsvDataSource } from '../data/data-source';
 
 
-async function storeJsonld(readStream: ReadStream, store: Store): Promise<void> {
+export async function storeJsonld(readStream: ReadStream, store: Store) : Promise<void> {
     const jsonLdParser = new JsonLdParser();
     const jsonStream = readStream.pipe(jsonLdParser);
     jsonStream.on('data', quad => store.addQuad(quad))
@@ -16,14 +19,31 @@ async function storeJsonld(readStream: ReadStream, store: Store): Promise<void> 
     });
 }
 
-async function dumpJsonld(writeStream: WritableStream, store: Store): Promise<void> {
+export async function dumpJsonld(
+    writeStream: WriteStream,
+    quads: Quad[],
+    contextPath: string): Promise<void> {
     const writer = new Writer({format: 'N-Quads'})
-    store.forEach(quad => writer.addQuad(quad), null, null, null, null)
-    const contextText = fs.readFileSync('resources/context/rozhraní-katalogů-otevřených-dat.jsonld', {encoding: 'utf-8'});
+
+    // Strip graph info
+    quads = quads.map(q => new Quad(q.subject, q.predicate, q.object, null));
+    writer.addQuads(quads);
+
+    const contextText = fs.readFileSync(contextPath, {encoding: 'utf-8'});
     const contextJson = JSON.parse(contextText);
     writer.end((error, result) => {
+        logger.info(result);
         jsonld.fromRDF(result, {format: 'application/n-quads'})
-            .then(doc => jsonld.compact(doc, contextJson))
-            .then(doc => logger.info(doc))
-    })
+            .then(doc => jsonld.compact(doc, contextJson, {
+                skipExpansion: true,
+                compactToRelative: true,
+            }))
+            .then(doc => {
+                logger.info(JSON.stringify(doc, null, 2));
+                const jsonString = JSON.stringify(doc, null, 2);
+                const textEncoder = new TextEncoder();
+                const uint8Array = textEncoder.encode(jsonString);
+                writeStream.write(uint8Array);
+            });
+    });
 }

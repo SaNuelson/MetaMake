@@ -13,7 +13,7 @@ export function charsToRegex (arr: string[]): RegExp {
  * @param arr
  * @returns object with keys equal to unique values in arr, their values being number of occurences
  */
-export function count(arr: any[]): object {
+export function count(arr: any[]): {[key: string]: number } {
     return arr.reduce((acc, next) => {
         acc[next] ? acc[next]++ : acc[next] = 1;
         return acc;
@@ -65,7 +65,7 @@ export function findIndexes(domain: any[] | string, callbackFn: (item: any) => b
  * let a = toKvp(o);
  * // [["a", 1], ["b", "2"], ["c", {d: "three"}]]
  */
-export function toKvp(obj: object): [string, any][] {
+export function toKvp<T>(obj: {[key: string]: T}): [string, T][] {
     let arr = [];
     for (let key in obj) {
         arr.push([key, obj[key]]);
@@ -105,8 +105,8 @@ export function groupBy(xs: any[], key: any, dropKeyless: boolean = true): objec
 
 /**
  * Check if two arrays are equal element-wise (shallow)
- * @param {*[]} ax 
- * @param {*[]} bx 
+ * @param {*[]} ax
+ * @param {*[]} bx
  * @returns {boolean} true if of same size and all eleements equal, false otherwise
  */
 export function areEqual(ax: any[], bx: any[]): boolean {
@@ -149,7 +149,7 @@ export function infill(arr, el, start = false, end = false) {
 
 /**
  * Return a subset containing only minimas with respect to inclusion
- * @param {any[][]} ass 
+ * @param {any[][]} ass
  * @example
  * filterInclusionMinimas([[1, 2], [1], [2], [3, 4, 5], [3, 4], [3, 5]]);
  * // [[1], [2], [3, 4], [3, 5]]
