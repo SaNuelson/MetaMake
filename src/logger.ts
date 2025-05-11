@@ -1,5 +1,6 @@
 import winston from 'winston';
 import fs from 'node:fs';
+import { isProduction } from './utils/env';
 
 let date = new Date();
 
@@ -46,13 +47,13 @@ export const logger = winston.createLogger({
         timestampFormat,
     ),
     transports: [
-        new winston.transports.File({filename: `logs/error-${dateStr}.log`, level: 'error'}),
-        new winston.transports.File({filename: `logs/combined-${dateStr}.log`}),
+        new winston.transports.File({filename: `logs/${dateStr}.error.log`, level: 'error'}),
+        new winston.transports.File({filename: `logs/${dateStr}.log`}),
     ],
 });
 
 // For development, also log out to console, not just to files
-if (process.env.NODE_ENV !== 'production') {
+if (!isProduction()) {
     logger.add(new winston.transports.Console({
         format: winston.format.combine(
             winston.format.colorize({all: true}),
