@@ -32,7 +32,7 @@ async function main() {
     const dcatApCzExtractor = new DcatApCzExtractor();
     dcatApCzExtractor.execute(dataSource, store);
 
-    const output = fs.createWriteStream('resources/output/address_points.jsonld');
+    const output = fs.createWriteStream('out/address_points.jsonld');
     const outQuads = store.getQuads(null, null, null, dcatApCzGraph)
     const contextPath = 'resources/context/rozhraní-katalogů-otevřených-dat.jsonld';
     await dumpJsonld(output, outQuads, contextPath);
