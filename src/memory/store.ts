@@ -2,6 +2,7 @@ import N3 = require('n3');
 import { Quad, Store, Term } from 'n3';
 import * as RDF from '@rdfjs/types';
 import * as voc from './vocabulary';
+import { Processor } from '../processor/processor';
 
 export class MetaStore extends N3.Store {
 
@@ -59,6 +60,17 @@ export class MetaStore extends N3.Store {
             return null;
 
         return [...match][0];
+    }
+
+    public addProvenanced(subject: Term, predicate: Term, object: Term, graph: Term | null,
+                          origin: Term | Quad | null, author: Processor<any>, details: [Term]) {
+        // TODO: Continue, work out details
+        // - add original quad
+        // - add quad as reified statement into some added graph (i.e. :ProvenanceGraph), to which add:
+        //   - add origin if provided as prov:wasDerivedFrom
+        //   - add author if provided as prov:wasGeneratedBy
+        //   - add current time
+        //   - add any details (i.e. confidence, reasoning...)
     }
 }
 
