@@ -9,6 +9,8 @@ import literal = DataFactory.literal;
 import { Configuration, Data, Processor } from './processor';
 import { LocalCsvDataSource } from '../data/local-csv-data-source';
 
+const localFileProcessorGraph = mm('lfp');
+
 export class LocalFileProcessorConfiguration implements Configuration {
     metaInput: Array<NamedNode>;
 
@@ -25,7 +27,6 @@ export default class LocalFileProcessor implements Processor<LocalFileProcessorC
         if (!IsLocalDataSource(data))
             return;
 
-
         const dataset = store.oneOrDefault(null, isA, dataSet);
 
         if (!dataset)
@@ -35,11 +36,11 @@ export default class LocalFileProcessor implements Processor<LocalFileProcessorC
 
         store.addQuad(dataset, voc.hasDistribution, distribution);
 
-        store.addQuad(distribution, voc.isA, voc.distribution);
-        store.addQuad(distribution, voc.isA, voc.file);
-        store.addQuad(distribution, voc.fileName, literal(data.filename));
-        store.addQuad(distribution, voc.modified, dateTimeLiteral(data.fileStats.mtime));
-        store.addQuad(distribution, voc.created, dateTimeLiteral(data.fileStats.birthtime));
+        store.addQuad(distribution, voc.isA, voc.Distribution, localFileProcessorGraph);
+        store.addQuad(distribution, voc.isA, voc.file, localFileProcessorGraph);
+        store.addQuad(distribution, voc.fileName, literal(data.filename), localFileProcessorGraph);
+        store.addQuad(distribution, voc.modified, dateTimeLiteral(data.fileStats.mtime), localFileProcessorGraph);
+        store.addQuad(distribution, voc.created, dateTimeLiteral(data.fileStats.birthtime), localFileProcessorGraph);
 
     }
 

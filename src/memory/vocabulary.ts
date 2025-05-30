@@ -5,7 +5,8 @@ import { logger } from '../logger';
 import prefixes = Util.prefixes;
 
 export const dbo = prefix('https://dbpedia.org/ontology/');
-export const rdfs = prefix('https://www.w3.org/TR/rdf-schema/#');
+export const rdf = prefix('https://www.w3.org/1999/02/22-rdf-syntax-ns#');
+export const rdfs = prefix('https://www.w3.org/2000/01/rdf-schema#');
 export const dct = prefix('http://purl.org/dc/terms/');
 export const xsd = prefix('http://www.w3.org/2001/XMLSchema#');
 export const csvw = prefix('http://www.w3.org/ns/csvw#');
@@ -27,6 +28,7 @@ export const nkod = prefix('https://data.gov.cz/slovník/nkod/');
 
 export const prefixToNamespace = {
     dbo,
+    rdf,
     rdfs,
     dct,
     xsd,
@@ -75,12 +77,21 @@ export const fileName = dbo('filename');
 /** https://dbpedia.org/ontology/file */
 export const file = dbo('file');
 
-/** https://www.w3.org/TR/rdf-schema/#type */
+export const Statement = rdf('Statement');
+export const Property = rdf('Property');
+export const hasSubject = rdf('subject');
+export const hasPredicate = rdf('predicate');
+export const hasObject = rdf('object');
+
+/** https://www.w3.org/2000/01/rdf-schema#type */
 export const type = rdfs('type');
-/** https://www.w3.org/TR/rdf-schema/#type */
+/** https://www.w3.org/2000/01/rdf-schema#type */
 export const isA = rdfs('type');
-/** https://www.w3.org/TR/rdf-schema/#resource */
+/** https://www.w3.org/2000/01/rdf-schema#resource */
 export const resource = rdfs('resource');
+
+/** http://www.w3.org/ns/prov#Entity */
+export const ProvenanceEntity = prov('Entity');
 
 /** http://purl.org/dc/terms/title */
 export const title = dct('title');
@@ -115,6 +126,8 @@ export const csvColumnEnum = csvw('enum');
 export const catalog = dcat('Catalog');
 /** http://www.w3.org/ns/dcat#DatasetSeries */
 export const datasetSeries = dcat('DatasetSeries');
+/** http://www.w3.org/ns/dcat#Dataset */
+export const DataSet = dcat('Dataset');
 /** http://www.w3.org/ns/dcat#dataset */
 export const dataSet = dcat('dataset');
 /** http://www.w3.org/ns/dcat#theme */
@@ -134,7 +147,7 @@ export const spatialResolutionInMeters = dcat('spatialResolutionInMeters');
 /** http://www.w3.org/ns/dcat#temporalResolution */
 export const temporalResolution = dcat('temporalResolution');
 /** http://www.w3.org/ns/dcat#Distribution */
-export const distribution = dcat('Distribution');
+export const Distribution = dcat('Distribution');
 /** http://www.w3.org/ns/dcat#distribution */
 export const hasDistribution = dcat('distribution');
 /** http://www.w3.org/ns/dcat#accessURL */
