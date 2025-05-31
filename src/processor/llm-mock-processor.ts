@@ -1,6 +1,6 @@
 import { CsvDataSource } from '../data/data-source';
 import { MetaStore } from '../memory/store';
-import { csvTableSchema, dataSet, description, isA, mm, title } from '../memory/vocabulary';
+import { csvTableSchema, DataSet, dataSet, description, isA, mm, title } from '../memory/vocabulary';
 import { DataFactory as df, NamedNode } from 'n3';
 import { ThreadController } from './helper/chatgpt-connector';
 import { logger } from '../logger';
@@ -20,7 +20,7 @@ export default class LlmMockProcessor implements Processor<LlmMockProcessorConfi
 
     execute(data: Data, store: MetaStore): void {
 
-        const dataset = store.oneOrDefault(null, isA, dataSet);
+        const dataset = store.one(null, isA, DataSet).subject;
 
         store.addQuad(dataset, title, df.literal('ChatGPT says title'), llmGraph);
         store.addQuad(dataset, description, df.literal('ChatGPT says description'), llmGraph);

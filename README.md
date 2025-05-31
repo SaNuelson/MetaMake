@@ -3,7 +3,7 @@ MetaMake
 
 ## Tasklist
 
-- Working store
+- [x] Working store
 - Simplest use case
   - read CSV
   - extract file metadata

@@ -29,12 +29,24 @@ export async function dumpJsonld(
     quads = quads.map(q => new Quad(q.subject, q.predicate, q.object, null));
     writer.addQuads(quads);
 
-    const contextText = fs.readFileSync(contextPath, {encoding: 'utf-8'});
-    const contextJson = JSON.parse(contextText);
+    let context: string;
+    if (contextPath.startsWith('http'))
+    {
+        context = contextPath;
+    }
+    else {
+        const contextText = fs.readFileSync(contextPath, {encoding: 'utf-8'});
+        const contextJson = JSON.parse(contextText);
+    }
+
     writer.end((error, result) => {
+        if (error) {
+            logger.error(error);
+            return;
+        }
         logger.info(result);
         jsonld.fromRDF(result, {format: 'application/n-quads'})
-            .then(doc => jsonld.compact(doc, contextJson, {
+            .then(doc => jsonld.compact(doc, context as any, {
                 skipExpansion: true,
                 compactToRelative: true,
             }))
