@@ -1,58 +1,58 @@
 import { NamedNode, PrefixedToIri, Util, Writer } from 'n3';
 
-import prefix = Util.prefix;
 import { logger } from '../logger';
-import prefixes = Util.prefixes;
 
-export const dbo = prefix('https://dbpedia.org/ontology/');
-export const rdf = prefix('https://www.w3.org/1999/02/22-rdf-syntax-ns#');
-export const rdfs = prefix('https://www.w3.org/2000/01/rdf-schema#');
-export const dct = prefix('http://purl.org/dc/terms/');
-export const xsd = prefix('http://www.w3.org/2001/XMLSchema#');
-export const csvw = prefix('http://www.w3.org/ns/csvw#');
-export const mm = prefix('http://tempuri.org/metamake/');
-export const adms = prefix('http://www.w3.org/ns/adms#');
-export const dcat = prefix('http://www.w3.org/ns/dcat#');
-export const dcatAp = prefix('http://data.europa.eu/r5r/');
-export const dcterms = prefix('http://purl.org/dc/terms/');
-export const foaf = prefix('http://xmlns.com/foaf/0.1/');
-export const location = prefix('http://www.w3.org/ns/locn#');
-export const odrl = prefix('http://www.w3.org/ns/odrl/2/');
-export const prov = prefix('http://www.w3.org/ns/prov#');
-export const pu = prefix('https://data.gov.cz/slovník/podmínky-užití/');
-export const skos = prefix('http://www.w3.org/2004/02/skos/core#');
-export const spdx = prefix('http://spdx.org/rdf/terms#');
-export const time = prefix('http://www.w3.org/2006/time#');
-export const vcard = prefix('http://www.w3.org/2006/vcard/ns#');
-export const nkod = prefix('https://data.gov.cz/slovník/nkod/');
+export const prefixToUri: {[prefix: string]: string;} = {
+    dbo: 'https://dbpedia.org/ontology/',
+    rdf: 'https://www.w3.org/1999/02/22-rdf-syntax-ns#',
+    rdfs: 'https://www.w3.org/2000/01/rdf-schema#',
+    xsd: 'http://www.w3.org/2001/XMLSchema#',
+    csvw: 'http://www.w3.org/ns/csvw#',
+    mm: 'http://tempuri.org/metamake/',
+    adms: 'http://www.w3.org/ns/adms#',
+    dcat: 'http://www.w3.org/ns/dcat#',
+    dcatAp: 'http://data.europa.eu/r5r/',
+    dcterms: 'http://purl.org/dc/terms/',
+    foaf: 'http://xmlns.com/foaf/0.1/',
+    location: 'http://www.w3.org/ns/locn#',
+    odrl: 'http://www.w3.org/ns/odrl/2/',
+    prov: 'http://www.w3.org/ns/prov#',
+    pu: 'https://data.gov.cz/slovník/podmínky-užití/',
+    skos: 'http://www.w3.org/2004/02/skos/core#',
+    spdx: 'http://spdx.or;g/rdf/terms#',
+    time: 'http://www.w3.org/2006/time#',
+    vcard: 'http://www.w3.org/2006/vcard/ns#',
+    nkod: 'https://data.gov.cz/slovník/nkod/',
+} as const;
 
-export const prefixToNamespace = {
-    dbo,
-    rdf,
-    rdfs,
-    dct,
-    xsd,
-    csvw,
-    mm,
-    adms,
-    dcat,
-    dcatAp,
-    dcterms,
-    foaf,
-    location,
-    odrl,
-    prov,
-    pu,
-    skos,
-    spdx,
-    time,
-    vcard,
-    nkod,
-}
-
-export const namespaceToPrefix = Object.fromEntries(
-    Object.entries(prefixToNamespace).map(([prefix, uri]) => [uri, prefix])
+export const prefixToNamespace: { [prefix: string]: (localName: string) => NamedNode } = Object.fromEntries(
+    Object.entries(prefixToUri).map(([p, uri]) => [p, Util.prefix(uri)])
 );
+
+export const uriToPrefix = Object.fromEntries(
+    Object.entries(prefixToUri).map(([p, uri]) => [uri, p])
+);
+
+export const dbo = Util.prefix(prefixToUri.dbo);
+export const rdf = Util.prefix(prefixToUri.rdf);
+export const rdfs = Util.prefix(prefixToUri.rdfs);
+export const xsd = Util.prefix(prefixToUri.xsd);
+export const csvw = Util.prefix(prefixToUri.csvw);
+export const mm = Util.prefix(prefixToUri.mm);
+export const adms = Util.prefix(prefixToUri.adms);
+export const dcat = Util.prefix(prefixToUri.dcat);
+export const dcatAp = Util.prefix(prefixToUri.dcatAp);
+export const dcterms = Util.prefix(prefixToUri.dcterms);
+export const foaf = Util.prefix(prefixToUri.foaf);
+export const location = Util.prefix(prefixToUri.location);
+export const odrl = Util.prefix(prefixToUri.odrl);
+export const prov = Util.prefix(prefixToUri.prov);
+export const pu = Util.prefix(prefixToUri.pu);
+export const skos = Util.prefix(prefixToUri.skos);
+export const spdx = Util.prefix(prefixToUri.spdx);
+export const time = Util.prefix(prefixToUri.time);
+export const vcard = Util.prefix(prefixToUri.vcard);
+export const nkod = Util.prefix(prefixToUri.nkod);
 
 /**
  * Add a prefix with its namespace to the lookup table. Used in logging and provenance.
@@ -61,13 +61,15 @@ export const namespaceToPrefix = Object.fromEntries(
  * @returns true if prefix was added, false if it was already present (or conflicting).
  */
 export function addPrefix(prefix: string, uri: string): boolean {
-    if (prefix in prefixes) {
-        if (prefixes[prefix] !== uri)
-            logger.error(`Prefix ${prefix} already exists with different URI ${prefixes[prefix]} and ${uri}.`);
+    if (prefix in prefixToUri) {
+        if (prefixToUri[prefix] !== uri)
+            logger.error(`Prefix ${prefix} already exists with different URI ${prefixToUri[prefix]} and ${uri}.`);
         return false;
     }
 
-    prefixes[prefix] = uri;
+    prefixToUri[prefix] = uri;
+    prefixToNamespace[prefix] = Util.prefix(uri);
+    uriToPrefix[uri] = prefix;
     return true;
 }
 
@@ -92,15 +94,17 @@ export const resource = rdfs('resource');
 
 /** http://www.w3.org/ns/prov#Entity */
 export const ProvenanceEntity = prov('Entity');
+export const wasDerivedFrom = prov('wasDerivedFrom');
+export const wasGeneratedBy = prov('wasGeneratedBy');
 
 /** http://purl.org/dc/terms/title */
-export const title = dct('title');
+export const title = dcterms('title');
 /** http://purl.org/dc/terms/description */
-export const description = dct('description');
+export const description = dcterms('description');
 /** http://purl.org/dc/terms/created */
-export const created = dct('created');
+export const created = dcterms('created');
 /** http://purl.org/dc/terms/modified */
-export const modified = dct('modified');
+export const modified = dcterms('modified');
 
 /** http://www.w3.org/2001/XMLSchema#dateTime */
 export const dateTimeType = xsd('dateTime');
