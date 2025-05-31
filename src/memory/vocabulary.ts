@@ -14,6 +14,7 @@ export const prefixToUri: {[prefix: string]: string;} = {
     dcatAp: 'http://data.europa.eu/r5r/',
     dct: 'http://purl.org/dc/terms/',
     foaf: 'http://xmlns.com/foaf/0.1/',
+    media: 'https://www.iana.org/assignments/media-types/',
     location: 'http://www.w3.org/ns/locn#',
     media: 'https://www.iana.org/assignments/media-types/',
     mm: 'http://tempuri.org/metamake/',
@@ -107,6 +108,15 @@ export const format = prefixToNamespace.dct('format');
 //#region xsd
 export const dateTimeType = prefixToNamespace.xsd('dateTime');
 export const dateType = prefixToNamespace.xsd('date');
+//#endregion
+
+//#region media
+export const CsvMediaType = prefixToNamespace.media('text/csv');
+export const JsonMediaType = prefixToNamespace.media('application/json');
+export const XmlMediaType = prefixToNamespace.media('application/xml');
+export const RdfMediaType = prefixToNamespace.media('application/rdf+xml');
+export const TurtleMediaType = prefixToNamespace.media('text/turtle');
+export const N3MediaType = prefixToNamespace.media('text/n3');
 //#endregion
 
 //#region csvw
