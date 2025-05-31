@@ -1,4 +1,4 @@
-import { DataFactory, Literal, NamedNode, Term } from 'n3';
+import { DataFactory, Literal, NamedNode, Quad, Term } from 'n3';
 import literal = DataFactory.literal;
 import { dateTimeType, dateType, uriToPrefix } from './vocabulary';
 import { logger } from '../logger';
@@ -36,9 +36,15 @@ export function getLocalName(node: NamedNode): string {
     return splitUri(node)[1];
 }
 
-export function getCompactName(node?: Term | null): string {
-    if (!node)
+export function getCompactName(node?: Quad | Term | null): string {
+    if (!node){
         return 'null';
+    }
+
+    if (node instanceof Quad){
+        return [node.subject, node.predicate, node.object, node.graph]
+            .map(n => getCompactName(n)).join(' ');
+    }
 
     switch(node.termType) {
         case 'NamedNode':

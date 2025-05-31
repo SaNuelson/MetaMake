@@ -29,8 +29,11 @@ export async function dumpJsonld(
     quads = quads.map(q => new Quad(q.subject, q.predicate, q.object, null));
     writer.addQuads(quads);
 
-    let context: string;
-    if (contextPath.startsWith('http'))
+    let context: string | object;
+    if (!contextPath) {
+        context = {};
+    }
+    else if (contextPath.startsWith('http'))
     {
         context = contextPath;
     }

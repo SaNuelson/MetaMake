@@ -1,10 +1,12 @@
 import { CsvDataSource } from '../data/data-source';
 import { MetaStore } from '../memory/store';
-import { csvTableSchema, dataSet, description, isA, mm, title } from '../memory/vocabulary';
-import { DataFactory as df, NamedNode } from 'n3';
+import { csvTableSchema, dataSet, description, isA, prefixToNamespace, title } from '../memory/vocabulary';
+import { BlankNode, DataFactory as df, NamedNode } from 'n3';
 import { ThreadController } from './helper/chatgpt-connector';
 import { logger } from '../logger';
 import { Configuration, Data, Processor } from './processor';
+
+const mm = prefixToNamespace['mm'];
 
 const llmGraph = mm('llm');
 
@@ -17,9 +19,7 @@ export default class LlmProcessor implements Processor<LlmProcessorConfiguration
     configure(config: LlmProcessorConfiguration): void {
     }
 
-    execute(data: Data, store: MetaStore): void {
-
-        const dataset = store.oneOrDefault(null, isA, dataSet);
+    execute(data: Data, store: MetaStore, dataset: BlankNode): void {
 
         store.addQuad(dataset, title, df.literal('ChatGPT says title'), llmGraph);
         store.addQuad(dataset, description, df.literal('ChatGPT says description'), llmGraph);

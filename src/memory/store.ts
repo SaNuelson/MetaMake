@@ -7,12 +7,14 @@ import {
     hasPredicate,
     hasSubject,
     isA,
-    mm,
+    prefixToNamespace,
     ProvenanceEntity,
     Statement,
     wasDerivedFrom, wasGeneratedBy,
 } from './vocabulary';
 import { getCompactName } from './utils';
+
+const mm = prefixToNamespace['mm'];
 
 const provenanceMappingGraph = mm('ProvenanceMappingGraph');
 const hasProvenanceGraph = mm('hasProvenanceGraph');

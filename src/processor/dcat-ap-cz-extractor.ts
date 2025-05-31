@@ -1,9 +1,10 @@
 import { CsvDataSource } from '../data/data-source';
 import { MetaStore } from '../memory/store';
 import * as voc from '../memory/vocabulary';
-import { fileName, mm, title } from '../memory/vocabulary';
 import { Configuration, Data, Processor } from './processor';
-import { NamedNode } from 'n3';
+import { BlankNode, NamedNode } from 'n3';
+
+const mm = voc.prefixToNamespace['mm'];
 
 export const dcatApCzGraph = mm('dcat-ap-cz');
 
@@ -16,12 +17,7 @@ export default class DcatApCzExtractor implements Processor<DcatApCzExtractorCon
     configure(config: DcatApCzExtractorConfiguration): void {
     }
 
-    execute(data: Data, store: MetaStore): void {
-
-        const dataset = store.oneOrDefault(null, voc.isA, voc.dataSet);
-
-        if (!dataset)
-            return;
+    execute(data: Data, store: MetaStore, dataset: BlankNode): void {
 
         const fileNames = store.match(null, voc.fileName, null, null);
         if (fileNames.size > 0) {

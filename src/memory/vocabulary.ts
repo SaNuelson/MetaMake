@@ -2,57 +2,49 @@ import { NamedNode, PrefixedToIri, Util, Writer } from 'n3';
 
 import { logger } from '../logger';
 
+/**
+ * Mapping of prefixes to their namespace URIs.
+ * @example prefixToUri['dcat'] === 'http://www.w3.org/ns/dcat#'
+ */
 export const prefixToUri: {[prefix: string]: string;} = {
-    dbo: 'https://dbpedia.org/ontology/',
-    rdf: 'https://www.w3.org/1999/02/22-rdf-syntax-ns#',
-    rdfs: 'https://www.w3.org/2000/01/rdf-schema#',
-    xsd: 'http://www.w3.org/2001/XMLSchema#',
-    csvw: 'http://www.w3.org/ns/csvw#',
-    mm: 'http://tempuri.org/metamake/',
     adms: 'http://www.w3.org/ns/adms#',
+    csvw: 'http://www.w3.org/ns/csvw#',
+    dbo: 'https://dbpedia.org/ontology/',
     dcat: 'http://www.w3.org/ns/dcat#',
     dcatAp: 'http://data.europa.eu/r5r/',
-    dcterms: 'http://purl.org/dc/terms/',
+    dct: 'http://purl.org/dc/terms/',
     foaf: 'http://xmlns.com/foaf/0.1/',
     location: 'http://www.w3.org/ns/locn#',
+    media: 'https://www.iana.org/assignments/media-types/',
+    mm: 'http://tempuri.org/metamake/',
+    nkod: 'https://data.gov.cz/slovník/nkod/',
     odrl: 'http://www.w3.org/ns/odrl/2/',
     prov: 'http://www.w3.org/ns/prov#',
     pu: 'https://data.gov.cz/slovník/podmínky-užití/',
+    rdf: 'https://www.w3.org/1999/02/22-rdf-syntax-ns#',
+    rdfs: 'https://www.w3.org/2000/01/rdf-schema#',
     skos: 'http://www.w3.org/2004/02/skos/core#',
     spdx: 'http://spdx.or;g/rdf/terms#',
     time: 'http://www.w3.org/2006/time#',
     vcard: 'http://www.w3.org/2006/vcard/ns#',
-    nkod: 'https://data.gov.cz/slovník/nkod/',
+    xsd: 'http://www.w3.org/2001/XMLSchema#',
 } as const;
 
+/**
+ * Mapping of prefixes to a function turning local names into named nodes.
+ * @example prefixToNamespace['dcat']('dataset') === new NamedNode('http://www.w3.org/ns/dcat#dataset')
+ */
 export const prefixToNamespace: { [prefix: string]: (localName: string) => NamedNode } = Object.fromEntries(
     Object.entries(prefixToUri).map(([p, uri]) => [p, Util.prefix(uri)])
 );
 
+/**
+ * Mapping of URIs to their commonly used namespace prefixes.
+ * @example uriToPrefix['http://www.w3.org/ns/dcat#'] === 'dcat'
+ */
 export const uriToPrefix = Object.fromEntries(
     Object.entries(prefixToUri).map(([p, uri]) => [uri, p])
 );
-
-export const dbo = Util.prefix(prefixToUri.dbo);
-export const rdf = Util.prefix(prefixToUri.rdf);
-export const rdfs = Util.prefix(prefixToUri.rdfs);
-export const xsd = Util.prefix(prefixToUri.xsd);
-export const csvw = Util.prefix(prefixToUri.csvw);
-export const mm = Util.prefix(prefixToUri.mm);
-export const adms = Util.prefix(prefixToUri.adms);
-export const dcat = Util.prefix(prefixToUri.dcat);
-export const dcatAp = Util.prefix(prefixToUri.dcatAp);
-export const dcterms = Util.prefix(prefixToUri.dcterms);
-export const foaf = Util.prefix(prefixToUri.foaf);
-export const location = Util.prefix(prefixToUri.location);
-export const odrl = Util.prefix(prefixToUri.odrl);
-export const prov = Util.prefix(prefixToUri.prov);
-export const pu = Util.prefix(prefixToUri.pu);
-export const skos = Util.prefix(prefixToUri.skos);
-export const spdx = Util.prefix(prefixToUri.spdx);
-export const time = Util.prefix(prefixToUri.time);
-export const vcard = Util.prefix(prefixToUri.vcard);
-export const nkod = Util.prefix(prefixToUri.nkod);
 
 /**
  * Add a prefix with its namespace to the lookup table. Used in logging and provenance.
@@ -73,151 +65,109 @@ export function addPrefix(prefix: string, uri: string): boolean {
     return true;
 }
 
+//#region dbo
+export const fileName = prefixToNamespace.dbo('filename');
+export const file = prefixToNamespace.dbo('file');
+//#endregion
 
-/** https://dbpedia.org/ontology/filename */
-export const fileName = dbo('filename');
-/** https://dbpedia.org/ontology/file */
-export const file = dbo('file');
+//#region rdf
+export const Statement = prefixToNamespace.rdf('Statement');
+export const Property = prefixToNamespace.rdf('Property');
+export const hasSubject = prefixToNamespace.rdf('subject');
+export const hasPredicate = prefixToNamespace.rdf('predicate');
+export const hasObject = prefixToNamespace.rdf('object');
+//#endregion
 
-export const Statement = rdf('Statement');
-export const Property = rdf('Property');
-export const hasSubject = rdf('subject');
-export const hasPredicate = rdf('predicate');
-export const hasObject = rdf('object');
+//#region rdfs
+export const type = prefixToNamespace.rdfs('type');
+export const isA = prefixToNamespace.rdfs('type');
+export const resource = prefixToNamespace.rdfs('resource');
+//#endregion
 
-/** https://www.w3.org/2000/01/rdf-schema#type */
-export const type = rdfs('type');
-/** https://www.w3.org/2000/01/rdf-schema#type */
-export const isA = rdfs('type');
-/** https://www.w3.org/2000/01/rdf-schema#resource */
-export const resource = rdfs('resource');
+//#region prov
+export const ProvenanceEntity = prefixToNamespace.prov('Entity');
+export const wasDerivedFrom = prefixToNamespace.prov('wasDerivedFrom');
+export const wasGeneratedBy = prefixToNamespace.prov('wasGeneratedBy');
+//#endregion
 
-/** http://www.w3.org/ns/prov#Entity */
-export const ProvenanceEntity = prov('Entity');
-export const wasDerivedFrom = prov('wasDerivedFrom');
-export const wasGeneratedBy = prov('wasGeneratedBy');
+//#region dct
+export const title = prefixToNamespace.dct('title');
+export const description = prefixToNamespace.dct('description');
+export const created = prefixToNamespace.dct('created');
+export const modified = prefixToNamespace.dct('modified');
+export const publisher = prefixToNamespace.dct('publisher');
+export const accrualPeriodicity = prefixToNamespace.dct('accrualPeriodicity');
+export const spatial = prefixToNamespace.dct('spatial');
+export const temporal = prefixToNamespace.dct('temporal');
+export const PeriodOfTime = prefixToNamespace.dct('PeriodOfTime');
+export const conformsTo = prefixToNamespace.dct('conformsTo');
+export const format = prefixToNamespace.dct('format');
+//#endregion
 
-/** http://purl.org/dc/terms/title */
-export const title = dcterms('title');
-/** http://purl.org/dc/terms/description */
-export const description = dcterms('description');
-/** http://purl.org/dc/terms/created */
-export const created = dcterms('created');
-/** http://purl.org/dc/terms/modified */
-export const modified = dcterms('modified');
+//#region xsd
+export const dateTimeType = prefixToNamespace.xsd('dateTime');
+export const dateType = prefixToNamespace.xsd('date');
+//#endregion
 
-/** http://www.w3.org/2001/XMLSchema#dateTime */
-export const dateTimeType = xsd('dateTime');
-/** http://www.w3.org/2001/XMLSchema#date */
-export const dateType = xsd('date');
+//#region csvw
+export const csvSchema = prefixToNamespace.csvw('schema');
+export const csvTableSchema = prefixToNamespace.csvw('TableSchema');
+export const csvColumnName = prefixToNamespace.csvw('name');
+export const csvColumnDatatype = prefixToNamespace.csvw('datatype');
+export const csvColumnRequired = prefixToNamespace.csvw('required');
+export const csvColumnUnique = prefixToNamespace.csvw('unique');
+export const csvColumnEnum = prefixToNamespace.csvw('enum');
+//#endregion
 
-/** http://www.w3.org/ns/csvw#schema */
-export const csvSchema = csvw('schema');
-/** http://www.w3.org/ns/csvw#TableSchema */
-export const csvTableSchema = csvw('TableSchema');
-/** http://www.w3.org/ns/csvw#name */
-export const csvColumnName = csvw('name');
-/** http://www.w3.org/ns/csvw#datatype */
-export const csvColumnDatatype = csvw('datatype');
-/** http://www.w3.org/ns/csvw#required */
-export const csvColumnRequired = csvw('required');
-/** http://www.w3.org/ns/csvw#unique */
-export const csvColumnUnique = csvw('unique');
-/** http://www.w3.org/ns/csvw#enum */
-export const csvColumnEnum = csvw('enum');
+//#region dcat
+export const catalog = prefixToNamespace.dcat('Catalog');
+export const datasetSeries = prefixToNamespace.dcat('DatasetSeries');
+export const DataSet = prefixToNamespace.dcat('Dataset');
+export const dataSet = prefixToNamespace.dcat('dataset');
+export const theme = prefixToNamespace.dcat('theme');
+export const keyword = prefixToNamespace.dcat('keyword');
+export const startDate = prefixToNamespace.dcat('startDate');
+export const endDate = prefixToNamespace.dcat('endDate');
+export const inSeries = prefixToNamespace.dcat('inSeries');
+export const contactPoint = prefixToNamespace.dcat('contactPoint');
+export const spatialResolutionInMeters = prefixToNamespace.dcat('spatialResolutionInMeters');
+export const temporalResolution = prefixToNamespace.dcat('temporalResolution');
+export const Distribution = prefixToNamespace.dcat('Distribution');
+export const hasDistribution = prefixToNamespace.dcat('distribution');
+export const accessURL = prefixToNamespace.dcat('accessURL');
+export const downloadURL = prefixToNamespace.dcat('downloadURL');
+export const mediaType = prefixToNamespace.dcat('mediaType');
+export const compressFormat = prefixToNamespace.dcat('compressFormat');
+export const packageFormat = prefixToNamespace.dcat('packageFormat');
+export const accessService = prefixToNamespace.dcat('accessService');
+export const dataService = prefixToNamespace.dcat('DataService');
+export const endpointURL = prefixToNamespace.dcat('endpointURL');
+export const endpointDescription = prefixToNamespace.dcat('endpointDescription');
+export const servesDataset = prefixToNamespace.dcat('servesDataset');
+//#endregion
 
-/** http://www.w3.org/ns/dcat#Catalog */
-export const catalog = dcat('Catalog');
-/** http://www.w3.org/ns/dcat#DatasetSeries */
-export const datasetSeries = dcat('DatasetSeries');
-/** http://www.w3.org/ns/dcat#Dataset */
-export const DataSet = dcat('Dataset');
-/** http://www.w3.org/ns/dcat#dataset */
-export const dataSet = dcat('dataset');
-/** http://www.w3.org/ns/dcat#theme */
-export const theme = dcat('theme');
-/** http://www.w3.org/ns/dcat#keyword */
-export const keyword = dcat('keyword');
-/** http://www.w3.org/ns/dcat#startDate */
-export const startDate = dcat('startDate');
-/** http://www.w3.org/ns/dcat#endDate */
-export const endDate = dcat('endDate');
-/** http://www.w3.org/ns/dcat#inSeries */
-export const inSeries = dcat('inSeries');
-/** http://www.w3.org/ns/dcat#contactPoint */
-export const contactPoint = dcat('contactPoint');
-/** http://www.w3.org/ns/dcat#spatialResolutionInMeters */
-export const spatialResolutionInMeters = dcat('spatialResolutionInMeters');
-/** http://www.w3.org/ns/dcat#temporalResolution */
-export const temporalResolution = dcat('temporalResolution');
-/** http://www.w3.org/ns/dcat#Distribution */
-export const Distribution = dcat('Distribution');
-/** http://www.w3.org/ns/dcat#distribution */
-export const hasDistribution = dcat('distribution');
-/** http://www.w3.org/ns/dcat#accessURL */
-export const accessURL = dcat('accessURL');
-/** http://www.w3.org/ns/dcat#downloadURL */
-export const downloadURL = dcat('downloadURL');
-/** http://www.w3.org/ns/dcat#mediaType */
-export const mediaType = dcat('mediaType');
-/** http://www.w3.org/ns/dcat#compressFormat */
-export const compressFormat = dcat('compressFormat');
-/** http://www.w3.org/ns/dcat#packageFormat */
-export const packageFormat = dcat('packageFormat');
-/** http://www.w3.org/ns/dcat#accessService */
-export const accessService = dcat('accessService');
-/** http://www.w3.org/ns/dcat#DataService */
-export const dataService = dcat('DataService');
-/** http://www.w3.org/ns/dcat#endpointURL */
-export const endpointURL = dcat('endpointURL');
-/** http://www.w3.org/ns/dcat#endpointDescription */
-export const endpointDescription = dcat('endpointDescription');
-/** http://www.w3.org/ns/dcat#servesDataset */
-export const servesDataset = dcat('servesDataset');
+//#region dcat-ap
+export const applicableLegislation = prefixToNamespace.dcatAp('applicableLegislation');
+export const hvdCategory = prefixToNamespace.dcatAp('hvdCategory');
+//#endregion
 
-/** http://data.europa.eu/r5r/applicableLegislation */
-export const applicableLegislation = dcatAp('applicableLegislation');
-/** http://data.europa.eu/r5r/hvdCategory */
-export const hvdCategory = dcatAp('hvdCategory');
+//#region foaf
+export const homepage = prefixToNamespace.foaf('homepage');
+export const page = prefixToNamespace.foaf('page');
+//#endregion
 
-/** http://purl.org/dc/terms/publisher */
-export const publisher = dcterms('publisher');
-/** http://purl.org/dc/terms/accrualPeriodicity */
-export const accrualPeriodicity = dcterms('accrualPeriodicity');
-/** http://purl.org/dc/terms/spatial */
-export const spatial = dcterms('spatial');
-/** http://purl.org/dc/terms/temporal */
-export const temporal = dcterms('temporal');
-/** http://purl.org/dc/terms/PeriodOfTime */
-export const PeriodOfTime = dcterms('PeriodOfTime');
-/** http://purl.org/dc/terms/conformsTo */
-export const conformsTo = dcterms('conformsTo');
-/** http://purl.org/dc/terms/format */
-export const format = dcterms('format');
+//#region pu
+export const specifikace = prefixToNamespace.pu('specifikace');
+export const autorskeDilo = prefixToNamespace.pu('autorské-dílo');
+export const autor = prefixToNamespace.pu('autor');
+export const databazeJakoAutorskeDilo = prefixToNamespace.pu('databáze-jako-autorské-dílo');
+export const autorDatabaze = prefixToNamespace.pu('autor-databáze');
+export const databaseChranenaZvlastnimiPracy = prefixToNamespace.pu('databáze-chráněná-zvláštními-právy');
+export const osobniUdaje = prefixToNamespace.pu('osobní-údaje');
+//#endregion
 
-/** http://xmlns.com/foaf/0.1/homepage */
-export const homepage = foaf('homepage');
-/** http://xmlns.com/foaf/0.1/page */
-export const page = foaf('page');
-
-/** https://data.gov.cz/slovník/podmínky-užití/specifikace */
-export const specifikace = pu('specifikace');
-/** https://data.gov.cz/slovník/podmínky-užití/autorské-dílo */
-export const autorskeDilo = pu('autorské-dílo');
-/** https://data.gov.cz/slovník/podmínky-užití/autor */
-export const autor = pu('autor');
-/** https://data.gov.cz/slovník/podmínky-užití/databáze-jako-autorské-dílo */
-export const databazeJakoAutorskeDilo = pu('databáze-jako-autorské-dílo');
-/** https://data.gov.cz/slovník/podmínky-užití/autor-databáze */
-export const autorDatabaze = pu('autor-databáze');
-/** https://data.gov.cz/slovník/podmínky-užití/databáze-chráněná-zvláštními-právy */
-export const databaseChranenaZvlastnimiPracy = pu('databáze-chráněná-zvláštními-právy');
-/** https://data.gov.cz/slovník/podmínky-užití/osobní-údaje */
-export const osobniUdaje = pu('osobní-údaje');
-
-/** http://www.w3.org/2006/vcard/ns#Organization */
-export const organization = vcard('Organization');
-/** http://www.w3.org/2006/vcard/ns#fn */
-export const fn = vcard('fn');
-/** http://www.w3.org/2006/vcard/ns#hasEmail */
-export const hasEmail = vcard('hasEmail');
+//#region vcard
+export const organization = prefixToNamespace.vcard('Organization');
+export const fn = prefixToNamespace.vcard('fn');
+export const hasEmail = prefixToNamespace.vcard('hasEmail');
+//#endregion

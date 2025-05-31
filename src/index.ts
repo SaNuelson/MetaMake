@@ -9,6 +9,7 @@ import { dumpJsonld } from './io/jsonld';
 import fs from 'node:fs';
 import { LocalCsvDataSource } from './data/local-csv-data-source';
 import { BlankNode, Quad } from 'n3';
+import { logger } from './logger';
 
 async function main() {
 
@@ -18,27 +19,28 @@ async function main() {
 
     const dataSource = await LocalCsvDataSource.create(filePath);
 
-    const root = new BlankNode('Dataset');
-    store.addQuad(root, isA, voc.DataSet);
+    // Create the dataset node that will be the subject of all metadata
+    const dataset = new BlankNode('Dataset');
+    store.addQuad(dataset, isA, voc.DataSet);
 
     const localFileProcessor = new LocalFileProcessor();
-    localFileProcessor.execute(dataSource, store);
+    localFileProcessor.execute(dataSource, store, dataset);
 
     const dcrProcessor = new DcrProcessor();
-    await dcrProcessor.execute(dataSource, store);
+    await dcrProcessor.execute(dataSource, store, dataset);
 
     const llmProcessor = new LlmMockProcessor();
-    llmProcessor.execute(dataSource, store);
+    llmProcessor.execute(dataSource, store, dataset);
 
     const dcatApCzExtractor = new DcatApCzExtractor();
-    dcatApCzExtractor.execute(dataSource, store);
+    dcatApCzExtractor.execute(dataSource, store, dataset);
 
     const output = fs.createWriteStream('out/address_points.jsonld');
     const outQuads = store
         .getQuads(null, null, null, dcatApCzGraph)
         .map(quad => new Quad(quad.subject, quad.predicate, quad.object));
 
-    console.log("Out quads:", outQuads);
+    logger.log("Out quads:", outQuads);
 
     // const contextPath = 'resources/context/rozhraní-katalogů-otevřených-dat.jsonld';
     const contextPath = 'https://ofn.gov.cz/dcat-ap-cz-rozhraní-katalogů-otevřených-dat/2024-05-28/kontexty/rozhraní-katalogů-otevřených-dat.jsonld';
@@ -47,9 +49,9 @@ async function main() {
     const debugOutput = fs.createWriteStream('out/address_points_debug.jsonld');
     const allQuads = store.getQuads(null, null, null, null);
 
-    console.log("All quads:", allQuads);
+    logger.log("All quads:", allQuads);
 
-    await dumpJsonld(debugOutput, allQuads, contextPath);
+    await dumpJsonld(debugOutput, allQuads, null);
 }
 
 main()

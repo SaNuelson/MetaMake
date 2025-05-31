@@ -1,5 +1,5 @@
 import { CsvDataSource } from '../data/data-source';
-import { NamedNode, Store } from 'n3';
+import { BlankNode, NamedNode, Store } from 'n3';
 import { Catalogue } from '../dcr/core/Catalogue';
 import { logger } from '../logger';
 import { Configuration, Data, Processor } from './processor';
@@ -14,7 +14,8 @@ export default class DcrProcessor implements Processor<DcrProcessorConfiguration
     configure(config: DcrProcessorConfiguration): void {
     }
 
-    async execute(data: Data, store: MetaStore): Promise<void> {
+    async execute(data: Data, store: MetaStore, dataset: BlankNode): Promise<void> {
+        logger.debug(`DcrProcessor.execute() begin`);
 
         const catalogue = new Catalogue();
         catalogue.setData(await data.readNext(50));
@@ -25,6 +26,7 @@ export default class DcrProcessor implements Processor<DcrProcessorConfiguration
             logger.info(useType.type, 'from', allUseTypes.map(ut => ut.type));
         }
 
+        logger.debug(`DcrProcessor.execute() end.`);
     }
 
 }

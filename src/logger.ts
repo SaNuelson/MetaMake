@@ -32,14 +32,14 @@ const consoleFormat = winston.format.printf(({level, message, timestamp, ...meta
 
     // Append all other metadata to the message
     if (Object.keys(metadata).length > 0) {
-        //msg += colorizer.colorize('meta', JSON.stringify(metadata, null, 4));
+        msg += colorizer.colorize('meta', JSON.stringify(metadata, null, 4));
     }
 
     return msg;
 });
 
 export const logger = winston.createLogger({
-    level: 'info',  // Set your desired default log level here
+    level: 'debug',  // Set your desired default log level here
     format: winston.format.combine(
         winston.format.timestamp({
             format: 'YYYY-MM-DD HH:mm:ss',
