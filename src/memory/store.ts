@@ -157,7 +157,7 @@ export class MetaStore extends N3.Store {
         }
 
         if (details) {
-            for (let detail of details) {
+            for (const detail of details) {
                 const [predicate, object] = detail;
                 this.add(new Quad(provenanceEntity, predicate, object, provenanceGraph));
             }

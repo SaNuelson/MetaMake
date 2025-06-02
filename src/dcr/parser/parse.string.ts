@@ -2,7 +2,7 @@ import { DomainType, UseType, UseTypeType } from './useType';
 
 export function recognizeStrings(source, args): StringUseType[] {
     // TODO: internal logic and string recognition
-	let stringArgs = Object.assign({}, args);
+	const stringArgs = Object.assign({}, args);
 	if (source.slice(0, 10).every(string => validateUrl(string)))
 		stringArgs.type = 'url';
     return [new StringUseType(stringArgs)];

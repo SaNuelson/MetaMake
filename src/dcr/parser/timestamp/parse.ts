@@ -31,7 +31,7 @@ export function recognizeTimestamps(source: string[], args: UseTypeArgs): Timest
     }
 
     // otherwise do it the hard way
-    let initialBatch = source.slice(0, initialBatchSize);
+    const initialBatch = source.slice(0, initialBatchSize);
     let extractedUseTypes = extractTimestampUseTypes(initialBatch, args);
 
     extractedUseTypes = filterInvalidUseTypes(extractedUseTypes);
@@ -46,12 +46,12 @@ export function recognizeTimestamps(source: string[], args: UseTypeArgs): Timest
 /** For each string in source, find all possible mappable formattings */
 function extractTimestampUseTypes(source: string[], args): Timestamp[] {
 
-    let formattings = [];
-    let memo: {[srcPlusCats: string]: string[][]} = {};
-    let hashTable: {[format: string]: boolean} = {};
-    let tokenHandles = Object.keys(TimestampTokenDetails);
-    for (let string of source) {
-        let combinations = extractTokenRecursive(string);
+    const formattings = [];
+    const memo: {[srcPlusCats: string]: string[][]} = {};
+    const hashTable: {[format: string]: boolean} = {};
+    const tokenHandles = Object.keys(TimestampTokenDetails);
+    for (const string of source) {
+        const combinations = extractTokenRecursive(string);
         combinations.forEach(combination => {
             if (!hashTable[combination.join('|')]) {
                 hashTable[combination.join('|')] = true;
@@ -60,7 +60,7 @@ function extractTimestampUseTypes(source: string[], args): Timestamp[] {
         });
     }
 
-    let useTypes = formattings.map(f => new Timestamp({formatting: f}, args));
+    const useTypes = formattings.map(f => new Timestamp({formatting: f}, args));
     return useTypes;
 
     function extractTokenRecursive(string: string, usedCategories: TimestampCategory[] = [], startingIndex: number = 0): string[][] {
@@ -72,33 +72,33 @@ function extractTimestampUseTypes(source: string[], args): Timestamp[] {
             return memo[[string, '|', usedCategories].join()];
         }
 
-        let retSet: string[][] = [];
+        const retSet: string[][] = [];
         for (let i = startingIndex, l = tokenHandles.length; i < l; i++) {
-            let token = TimestampTokenDetails[tokenHandles[i]];
+            const token = TimestampTokenDetails[tokenHandles[i]];
 
             if (usedCategories.includes(token.category)) {
                 continue;
             }
 
-            let pattern: RegExp = new RegExp(token.regexBit);
-            let match: RegExpMatchArray = string.match(pattern);
+            const pattern: RegExp = new RegExp(token.regexBit);
+            const match: RegExpMatchArray = string.match(pattern);
             if (match) {
-                let newUsedCategories: TimestampCategory[] = [token.category, ...usedCategories];
-                let parts: string[] = string.split(match[1]);
-                let leftPart: string = parts[0];
-                let rightPart: string = parts.slice(1).join(match[1]);
+                const newUsedCategories: TimestampCategory[] = [token.category, ...usedCategories];
+                const parts: string[] = string.split(match[1]);
+                const leftPart: string = parts[0];
+                const rightPart: string = parts.slice(1).join(match[1]);
 
-                let leftSplits = extractTokenRecursive(leftPart, newUsedCategories);
-                for (let left of leftSplits) {
+                const leftSplits = extractTokenRecursive(leftPart, newUsedCategories);
+                for (const left of leftSplits) {
 
-                    let leftUsedCategories = left
+                    const leftUsedCategories = left
                         .map((label: string) => getTokenDetailsByLabel(label).category)
                         .filter(c => c !== TimestampCategory.Literal);
-                    let newNewUsedCategories: TimestampCategory[] = [].concat(newUsedCategories, leftUsedCategories);
+                    const newNewUsedCategories: TimestampCategory[] = [].concat(newUsedCategories, leftUsedCategories);
 
-                    let rightSplits = extractTokenRecursive(rightPart, newNewUsedCategories);
-                    for (let right of rightSplits) {
-                        let comb = [].concat(left, [token.label], right);
+                    const rightSplits = extractTokenRecursive(rightPart, newNewUsedCategories);
+                    for (const right of rightSplits) {
+                        const comb = [].concat(left, [token.label], right);
                         retSet.push(comb);
                     }
                 }
@@ -123,17 +123,17 @@ function filterTimestampUseTypes(source: string[], useTypes: Timestamp[], skipVa
         if (skipVal !== undefined && source[i] === skipVal)
             continue;
 
-        let areUseTypesDisabled = useTypes.map(_ => false);
+        const areUseTypesDisabled = useTypes.map(_ => false);
 
         for (let j = 0; j < useTypes.length; j++){
-            let useType = useTypes[j];
-            let val = useType.deformat(source[i]);
+            const useType = useTypes[j];
+            const val = useType.deformat(source[i]);
             if (val === null) {
                 areUseTypesDisabled[j] = true;
             }
         }
 
-        let nextUseTypes = useTypes.filter((useType, j) => !areUseTypesDisabled[j]);
+        const nextUseTypes = useTypes.filter((useType, j) => !areUseTypesDisabled[j]);
 
         // False positive on [1000, 1000, 5000, ...] with single useType ['{YYYY}']
         // if (nextUseTypes.length === 1) {
@@ -154,7 +154,7 @@ function filterInvalidUseTypes(useTypes) {
 /** For each useType, check if there is more specific useType in the set */
 function filterDuplicatesAndSubtypes(useTypes: Timestamp[]): Timestamp[] {
     for (let i = 0; i < useTypes.length; i++) {
-        let subtypes = [];
+        const subtypes = [];
         for (let j = i + 1; j < useTypes.length; j++) {
             if (useTypes[i].isSupersetOf(useTypes[j]))
                 subtypes.push(j);
@@ -166,7 +166,7 @@ function filterDuplicatesAndSubtypes(useTypes: Timestamp[]): Timestamp[] {
 }
 
 /** If present, select useTypes which belong to the expected set of timestamp formats */
-var expectedUseTypesCache;
+let expectedUseTypesCache;
 
 function getExpectedUseTypes(args: UseTypeArgs): Timestamp[] {
     if (!expectedUseTypesCache)
@@ -205,9 +205,9 @@ function getExpectedUseTypes(args: UseTypeArgs): Timestamp[] {
         ];
         cache = cache.concat(utcTimeBasic);
 
-        let utcDatetimeBasic = [];
-        for (let date of utcDateBasic)
-            for (let time of utcTimeBasic)
+        const utcDatetimeBasic = [];
+        for (const date of utcDateBasic)
+            for (const time of utcTimeBasic)
                 utcDatetimeBasic.push(date.concat(time));
         cache = cache.concat(utcDatetimeBasic);
 
@@ -218,9 +218,9 @@ function getExpectedUseTypes(args: UseTypeArgs): Timestamp[] {
         ];
         cache = cache.concat(utcTimeExtended);
 
-        let utcDatetimeExtended = [];
-        for (let date of utcDateExtended)
-            for (let time of utcTimeExtended)
+        const utcDatetimeExtended = [];
+        for (const date of utcDateExtended)
+            for (const time of utcTimeExtended)
                 utcDatetimeExtended.push(date.concat([utcDateTimeConnector], time));
         cache = cache.concat(utcDatetimeExtended);
 
@@ -245,21 +245,21 @@ function getExpectedUseTypes(args: UseTypeArgs): Timestamp[] {
             ['{hh}', '{mm}'],
         ];
 
-        let frequentDates = [];
-        for (let date of frequentDateOrders)
-            for (let sep of frequentDateSeparators)
+        const frequentDates = [];
+        for (const date of frequentDateOrders)
+            for (const sep of frequentDateSeparators)
                 frequentDates.push(infill(date, sep));
         cache = cache.concat(frequentDates);
 
-        let frequentTimes = [];
-        for (let time of frequentTimeOrders)
-            for (let sep of frequentTimeSeparators)
+        const frequentTimes = [];
+        for (const time of frequentTimeOrders)
+            for (const sep of frequentTimeSeparators)
                 frequentTimes.push(infill(time, sep));
         cache = cache.concat(frequentTimes);
 
         let frequentDatetimes = [];
-        for (let date of frequentDates)
-            for (let time of frequentTimes)
+        for (const date of frequentDates)
+            for (const time of frequentTimes)
                 frequentDatetimes = frequentDatetimes.concat(frequentDateTimeSeparators.map(sep => [].concat(date, [sep], time)));
         cache = cache.concat(frequentDatetimes);
 

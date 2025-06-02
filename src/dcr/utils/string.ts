@@ -14,8 +14,8 @@ export function escapeRegExp(string: string) {
 }
 
 export function getCommonPrefix(str1: string, str2: string): string {
-    let len = Math.min(str1.length, str2.length);
-    let prefix = [];
+    const len = Math.min(str1.length, str2.length);
+    const prefix = [];
     for (let i = 0; i < len; i++) {
         if (str1[i] === str2[i])
             prefix.push(str1[i]);
@@ -26,10 +26,10 @@ export function getCommonPrefix(str1: string, str2: string): string {
 }
 
 export function getCommonSuffix(str1: string, str2: string): string {
-    let len = Math.min(str1.length, str2.length);
-    let str1l = str1.length;
-    let str2l = str2.length;
-    let suffix = [];
+    const len = Math.min(str1.length, str2.length);
+    const str1l = str1.length;
+    const str2l = str2.length;
+    const suffix = [];
     for (let i = 1; i <= len; i++) {
         if (str1[str1l - i] === str2[str2l - i])
             suffix.push(str1[str1l - i]);

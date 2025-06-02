@@ -148,7 +148,7 @@ export class Catalogue {
             this._data = papares;
         }
         else {
-            let data = papares.data;
+            const data = papares.data;
 
             this._header = data[0];
             this._data = data.slice(1);
@@ -168,12 +168,12 @@ export class Catalogue {
         }
 
         // TODO: Determine width using begin and end, and consider it potential trash? what was i thinking?
-        let firstRows = this._data.slice(0, 20);
-        let lastRows = this._data.slice(this._data.length - 20, this._data.length);
-        let columnCounts = count(firstRows.concat(lastRows).map(row => row.length));
-        let columnCountsKvp = toKvp(columnCounts);
+        const firstRows = this._data.slice(0, 20);
+        const lastRows = this._data.slice(this._data.length - 20, this._data.length);
+        const columnCounts = count(firstRows.concat(lastRows).map(row => row.length));
+        const columnCountsKvp = toKvp(columnCounts);
         columnCountsKvp.sort((a, b) => b[1] - a[1]);
-        let determinedColumnSize = +columnCountsKvp[0][0];
+        const determinedColumnSize = +columnCountsKvp[0][0];
 
         // first and last few rows non-tabular
         let i = 0;
@@ -189,7 +189,7 @@ export class Catalogue {
         this._allUseTypes = [];
 
         for (let i = 0, len = this.width; i < len; i++) {
-            let determinedUseTypes = determineType(this.col(i), {label: this._header[i]});
+            const determinedUseTypes = determineType(this.col(i), {label: this._header[i]});
             this._allUseTypes[i] = determinedUseTypes;
 
             if (determinedUseTypes.length === 1) {
@@ -212,7 +212,7 @@ export class Catalogue {
     _checkHeaderValidity() {
         this._isHeaderValid = false;
         for (let i = 0; i < this._header.length; i++) {
-            let ut: UseType<any> = this.useTypes[i];
+            const ut: UseType<any> = this.useTypes[i];
             if (ut.hasNull && ut.nullVal === this._header[i])
                 this._isHeaderValid = false;
             if (ut.deformat(this._header[i]) === null)
@@ -226,7 +226,7 @@ export class Catalogue {
             for (let i = 0; i < this._useTypes.length; i++) {
                 if (this._useTypes[i].ambiguousSets) {
                     this._useTypes[i].ambiguousSets = this._useTypes[i].ambiguousSets.map(set => set.map(val => +val + 1));
-                    let ambiVals = this._useTypes[i].ambiguousSets.map(set => this._data[set[0]][i]);
+                    const ambiVals = this._useTypes[i].ambiguousSets.map(set => this._data[set[0]][i]);
                     for (let j = 0; j < ambiVals.length; j++) {
                         if (this._data[0][i] === ambiVals[j])
                             this._useTypes[i].ambiguousSets[j].push(0);
@@ -237,20 +237,20 @@ export class Catalogue {
     }
 
     _generateKeySets() {
-        let representatives = this.useTypes;
-        let repLabels = [...Array(this.useTypes.length).keys()];
+        const representatives = this.useTypes;
+        const repLabels = [...Array(this.useTypes.length).keys()];
 
-        let trivialKeys = repLabels.filter(i => representatives[i].potentialIds);
-        let trivialNonKeys = repLabels.filter(i => representatives[i].isConstant);
+        const trivialKeys = repLabels.filter(i => representatives[i].potentialIds);
+        const trivialNonKeys = repLabels.filter(i => representatives[i].isConstant);
 
-        let nonDetermined = representatives.filter(rep => !rep.potentialIds && !rep.isConstant && !rep.ignored);
-        let nonDeterminedLabels = repLabels.filter(i => !representatives[i].potentialIds && !representatives[i].isConstant);
+        const nonDetermined = representatives.filter(rep => !rep.potentialIds && !rep.isConstant && !rep.ignored);
+        const nonDeterminedLabels = repLabels.filter(i => !representatives[i].potentialIds && !representatives[i].isConstant);
 
-        let ambiguitySets = nonDetermined.map(rep => rep.ambiguousSets);
-        let compositeKeys = determinePrimaryKeys(ambiguitySets);
+        const ambiguitySets = nonDetermined.map(rep => rep.ambiguousSets);
+        const compositeKeys = determinePrimaryKeys(ambiguitySets);
         let compositeKeyLabels = compositeKeys.map(key => key.map(idx => nonDeterminedLabels[idx]));
 
-        let minimal = filterInclusionMinimas(compositeKeyLabels);
+        const minimal = filterInclusionMinimas(compositeKeyLabels);
         if (minimal.length !== compositeKeyLabels.length) {
             compositeKeyLabels = minimal;
         }

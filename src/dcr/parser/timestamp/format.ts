@@ -14,7 +14,7 @@ export function determineTypeFromFormatting(format: string[]) {
 
     let tokens = format.map(label => TimestampLabelToToken[label]);
     tokens = tokens.filter(t => t);
-    let tokenCategories = tokens.map(token => TimestampTokenDetails[token].category);
+    const tokenCategories = tokens.map(token => TimestampTokenDetails[token].category);
 
     const timeCategories = [
         TimestampCategory.Hours,
@@ -60,13 +60,13 @@ function dateToTimeOfDay(date: Date): TimeOfDay {
 
 function validateTimestampFormat(format: string[]): boolean {
 
-    let tokenLabels = format.filter(label => Object.values(TimestampTokenDetails).some(token => token.label === label));
+    const tokenLabels = format.filter(label => Object.values(TimestampTokenDetails).some(token => token.label === label));
     if (hasDuplicates(tokenLabels)) {
         return false;
     }
     let tokens = format.map(label => TimestampLabelToToken[label]);
     tokens = tokens.filter(l => l);
-    let categories = tokens.map(token => TimestampTokenDetails[token].category);
+    const categories = tokens.map(token => TimestampTokenDetails[token].category);
 
     if (hasDuplicates(categories))
         return false;
@@ -89,7 +89,7 @@ function enforceCustomRules(format: string[]): boolean {
 
     function areInOrder(...cats: TimestampCategory[]) {
         return function (format: string[]) {
-            let formatCats = format.map(label => getTokenDetailsByLabel(label).category);
+            const formatCats = format.map(label => getTokenDetailsByLabel(label).category);
             return cats
                 .map(cat => formatCats.indexOf(cat))
                 .map((cat, idx, arr) => idx === arr.length - 1 || cat < arr[idx + 1])
@@ -103,11 +103,11 @@ function enforceCustomRules(format: string[]): boolean {
 
         if (Array.isArray(cat1) && Array.isArray(cat2)) {
             return function (format) {
-                let formatCats = format
+                const formatCats = format
                     .map(label => getTokenDetailsByLabel(label).category)
                     .filter(c => c);
-                let cat1idxs = cat1.map(cat => formatCats.indexOf(cat)).filter(idx => idx >= 0);
-                let cat2idxs = cat2.map(cat => formatCats.indexOf(cat)).filter(idx => idx >= 0);
+                const cat1idxs = cat1.map(cat => formatCats.indexOf(cat)).filter(idx => idx >= 0);
+                const cat2idxs = cat2.map(cat => formatCats.indexOf(cat)).filter(idx => idx >= 0);
                 return Math.max(...cat1idxs) < Math.min(...cat2idxs);
             }
         }
@@ -159,9 +159,9 @@ function enforceCustomRules(format: string[]): boolean {
             TimestampCategory.Seconds,
             TimestampCategory.Milliseconds
         ];
-        let hasCategories = categoriesInOrder.map((category) => has(category)(format));
-        let firstPresent = hasCategories.indexOf(true);
-        let lastPresent = hasCategories.lastIndexOf(true);
+        const hasCategories = categoriesInOrder.map((category) => has(category)(format));
+        const firstPresent = hasCategories.indexOf(true);
+        const lastPresent = hasCategories.lastIndexOf(true);
         return hasCategories.slice(firstPresent, lastPresent).reduce((a, n) => a && n, true);
     }
 
@@ -247,7 +247,7 @@ function enforceCustomRules(format: string[]): boolean {
         ];
 
         const startsNumerically = (label) => {
-            let token = getTokenDetailsByLabel(label);
+            const token = getTokenDetailsByLabel(label);
             if (token.literal) {
                 return /^[0-9]/.test(label);
             }
@@ -257,7 +257,7 @@ function enforceCustomRules(format: string[]): boolean {
         }
 
         const endsNumerically = (label) => {
-            let token = getTokenDetailsByLabel(label);
+            const token = getTokenDetailsByLabel(label);
             if (token.literal) {
                 return /[0-9]$/.test(label);
             }

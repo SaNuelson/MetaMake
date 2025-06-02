@@ -49,12 +49,12 @@ export function compareDates(date1: Date, date2: Date): number {
 }
 
 export function compareTods(tod1: TimeOfDay, tod2: TimeOfDay): number {
-    let hrs = tod1[0] - tod2[0];
+    const hrs = tod1[0] - tod2[0];
     if (hrs !== 0) return hrs;
-    let mns = tod1[1] - tod2[1];
+    const mns = tod1[1] - tod2[1];
     if (mns !== 0) return mns;
-    let scs = (tod1[2] ?? 0) - (tod2[2] ?? 0);
+    const scs = (tod1[2] ?? 0) - (tod2[2] ?? 0);
     if (scs !== 0) return scs;
-    let mls = (tod1[3] ?? 0) - (tod2[3] ?? 0);
+    const mls = (tod1[3] ?? 0) - (tod2[3] ?? 0);
     return mls;
 }

@@ -18,7 +18,7 @@ const fetchList = {
     currencies: {
         url: 'https://raw.githubusercontent.com/ourworldincode/currency/main/currencies.json',
         extract: (json) => {
-            let codes = Object.keys(json);
+            const codes = Object.keys(json);
             fetchList.currencies.codes = codes;
             fetchList.currencies.symbols = codes.map(code => json[code].symbol);
             fetchList.currencies.nativeSymbols = codes.map(code => json[code].symbol_native)
@@ -44,7 +44,7 @@ let isDataFetched = false;
     if (isDataFetched)
         return;
 
-    for (let fetchItem in fetchList) {
+    for (const fetchItem in fetchList) {
         let fallbackRes;
         fetch(fetchList[fetchItem].url)
             .then(res => { return res.json() })
@@ -94,14 +94,14 @@ export const timestampConstants = {
 }
 
 function getCurrencySymbols() {
-    let fetchItem = fetchList.currencies;
+    const fetchItem = fetchList.currencies;
     if (!fetchItem || !fetchItem.symbols)
         return [];
     return fetchItem.symbols;
 }
 
 function getCurrencyCodes() {
-    let fetchItem = fetchList.currencies;
+    const fetchItem = fetchList.currencies;
     if (!fetchItem || !fetchItem.codes)
         return [];
     return fetchItem.codes;
@@ -128,14 +128,14 @@ export const numberConstants = {
 }
 
 function getCountryCodes() {
-    let fetchItem = fetchList.countries;
+    const fetchItem = fetchList.countries;
     if (!fetchItem || !fetchItem.codes)
         return [];
     return fetchItem.codes;
 }
 
 function getCountryNames(locale) {
-    let fetchItem = fetchList.countries;
+    const fetchItem = fetchList.countries;
     if (!fetchItem || !fetchItem.names)
         return [];
     return fetchItem.names;

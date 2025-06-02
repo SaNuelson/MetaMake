@@ -19,7 +19,7 @@ export function recognizeNumbers(source: string[], args): NumberUseType[] {
 	}
 
 	// populate initial batch with largest samples
-	let initialBatch = source.slice(0, 5);
+	const initialBatch = source.slice(0, 5);
 
 	let nuts = extractPossibleFormats(initialBatch, args);
 	logger.info(`recognizeNumbers for lable ${args.label} found initial batch of number formats.`,
@@ -29,16 +29,16 @@ export function recognizeNumbers(source: string[], args): NumberUseType[] {
 			useTypes: nuts.map(nut => nut.toString())
 		});
 
-	let isNutDisabled = nuts.map(_=> false);
-	let matches = nuts.map(() => 0);
-	let disabled = 0;
+	const isNutDisabled = nuts.map(_=> false);
+	const matches = nuts.map(() => 0);
+	const disabled = 0;
 	for (let i = 0, il = source.length; i < il; i++) {
-		let token = source[i];
+		const token = source[i];
 		// cache of recovery use-types
 		let potentialExpansion = undefined;
 		for (let j = 0, jl = nuts.length; j < jl; j++) {
 			if (!isNutDisabled[j]) {
-				let num = nuts[j].deformat(token);
+				const num = nuts[j].deformat(token);
 				if (num !== null) {
 					matches[j]++;
 					if (nuts[j].max < num) nuts[j].max = num;
@@ -55,7 +55,7 @@ export function recognizeNumbers(source: string[], args): NumberUseType[] {
 						if (potentialExpansion[k].isSupersetOf(nuts[j])) {
 
 							foundExpansion = true;
-							let currentParsed = potentialExpansion[k].deformat(token);
+							const currentParsed = potentialExpansion[k].deformat(token);
 							potentialExpansion[k].min = Math.min(currentParsed, nuts[j].min);
 							potentialExpansion[k].max = Math.max(currentParsed, nuts[j].max);
 							nuts[j] = potentialExpansion[k];
@@ -90,8 +90,8 @@ function extractPossibleFormats(source: string[], args): NumberUseType[] {
 	const knownDecimalSeparators = ['.', ','];
 	const allKnownSeparators = unique(knownThousandSeparators.concat(knownDecimalSeparators));
 	const pureNumericFormPattern = new RegExp('^[' + allKnownSeparators.join('') + '\\d]+$');
-	let determinedPrefixes = [];
-	let determinedSuffixes = [];
+	const determinedPrefixes = [];
+	const determinedSuffixes = [];
 
 	let determinedMinus = false; // whether format contains negative numbers as well
 	let determinedPlus = false; // whether format explicitly uses plus sign
@@ -115,7 +115,7 @@ function extractPossibleFormats(source: string[], args): NumberUseType[] {
 		let sample = source[i];
 
 		let potentialPrefix = "";
-		let potentialPrefixMatch = sample.match(/^[^0-9]*[^0-9+-]/);
+		const potentialPrefixMatch = sample.match(/^[^0-9]*[^0-9+-]/);
 		if (potentialPrefixMatch) {
 			potentialPrefix = potentialPrefixMatch[0];
 			sample = sample.replace(potentialPrefixMatch[0], "");
@@ -123,7 +123,7 @@ function extractPossibleFormats(source: string[], args): NumberUseType[] {
 		// sample is now without prefix
 
 		let potentialSuffix = "";
-		let potentialSuffixMatch = sample.match(/[^.0-9][^0-9]*$/);
+		const potentialSuffixMatch = sample.match(/[^.0-9][^0-9]*$/);
 		if (potentialSuffixMatch) {
 			potentialSuffix = potentialSuffixMatch[0];
 			sample = sample.replace(potentialSuffixMatch[0], "");
@@ -131,7 +131,7 @@ function extractPossibleFormats(source: string[], args): NumberUseType[] {
 		// sample now without suffix
 
 		let potentialScientific = false
-		let potentialScientificMatch = sample.match(/[eE][0-9]+$/);
+		const potentialScientificMatch = sample.match(/[eE][0-9]+$/);
 		if (potentialScientificMatch) {
 			potentialScientific = true;
 			sample = sample.replace(potentialScientificMatch[0], "");
@@ -140,7 +140,7 @@ function extractPossibleFormats(source: string[], args): NumberUseType[] {
 
 		let potentialMinus = false;
 		let potentialPlus = false;
-		let potentialSignMatch = sample.match(/^[-+]/);
+		const potentialSignMatch = sample.match(/^[-+]/);
 		if (potentialSignMatch) {
 			if (potentialSignMatch[0] === "+")
 				potentialPlus = true;
@@ -154,10 +154,10 @@ function extractPossibleFormats(source: string[], args): NumberUseType[] {
 			continue;
 		}
 
-		let potentialThousandSeparators = knownThousandSeparators.filter(sep => sample.includes(sep));
-		let potentialDecimalSeparators = knownDecimalSeparators.filter(sep => sample.includes(sep));
-		let potentialSeparatorSets = [];
-		let containedSeparators = allKnownSeparators.filter(sep => sample.includes(sep));
+		const potentialThousandSeparators = knownThousandSeparators.filter(sep => sample.includes(sep));
+		const potentialDecimalSeparators = knownDecimalSeparators.filter(sep => sample.includes(sep));
+		const potentialSeparatorSets = [];
+		const containedSeparators = allKnownSeparators.filter(sep => sample.includes(sep));
 
 		// CASE "nothing left"
 		if (sample.length === 0) {
@@ -169,7 +169,7 @@ function extractPossibleFormats(source: string[], args): NumberUseType[] {
 		}
 		// CASE only decimal or only thousands separator
 		else if (containedSeparators.length === 1) {
-			let sep = containedSeparators[0];
+			const sep = containedSeparators[0];
 			if (isValidThousandSeparator(sample, sep)) {
 				potentialSeparatorSets.push([sep, ""]);
 			}
@@ -180,8 +180,8 @@ function extractPossibleFormats(source: string[], args): NumberUseType[] {
 		// CASE both decimal and thousands separators present
 		else {
 			let builtinParseSuccess = false;
-			for (let tsep of potentialThousandSeparators) {
-				for (let dsep of potentialDecimalSeparators) {
+			for (const tsep of potentialThousandSeparators) {
+				for (const dsep of potentialDecimalSeparators) {
 					if (tsep === dsep)
 						continue;
 
@@ -191,7 +191,7 @@ function extractPossibleFormats(source: string[], args): NumberUseType[] {
 					if (!isValidDecimalSeparator(sample, dsep))
 						continue;
 
-					let parseSample = sample.split(tsep).join("").split(dsep).join(".");
+					const parseSample = sample.split(tsep).join("").split(dsep).join(".");
 
 					if (!isNaN(parseFloat(parseSample))) {
 						potentialSeparatorSets.push([tsep, dsep]);
@@ -230,9 +230,9 @@ function extractPossibleFormats(source: string[], args): NumberUseType[] {
 
 	}
 
-	let numutypes = [];
-	for (let delimset of determinedDelimiterSets) {
-		let numutype = new NumberUseType({
+	const numutypes = [];
+	for (const delimset of determinedDelimiterSets) {
+		const numutype = new NumberUseType({
 			prefixes: determinedPrefixes,
 			suffixes: determinedSuffixes,
 			separators: delimset,
@@ -270,7 +270,7 @@ function extractPossibleFormats(source: string[], args): NumberUseType[] {
 function isValidThousandSeparator(string: string, sep: string): boolean {
 	// thousands separator is valid only if it separates groups of 3 digits,
 	// with the exception of first part, last part, and the part with decimal separator
-	let split = string.split(sep);
+	const split = string.split(sep);
 	if (split[0].length > 3)
 		return false;
 	if (split[split.length - 1].length !== 3 && split[split.length - 1].match(/^[0-9]+$/))
@@ -280,7 +280,7 @@ function isValidThousandSeparator(string: string, sep: string): boolean {
 
 function isValidDecimalSeparator(string: string, sep: string): boolean {
 	// decimal separator is valid only if it occurs once
-	let decimalMatch = string.match(new RegExp(escapeRegExp(sep), "g"));
+	const decimalMatch = string.match(new RegExp(escapeRegExp(sep), "g"));
 	return decimalMatch && decimalMatch.length === 1;
 }
 
@@ -374,14 +374,14 @@ export class NumberUseType extends UseType<number> {
 		this.explicit = !!explicitSign;
 		this.prefixes = prefixes;
 
-		let prefixIndicators = recognizeIndicators(this.prefixes);
+		const prefixIndicators = recognizeIndicators(this.prefixes);
 		if (prefixIndicators.type !== 'unknown') {
 			this.prefixes = prefixIndicators.domain;
 			this.prefixPlaceholder = prefixIndicators.type;
 		}
 
 		this.suffixes = suffixes;
-		let suffixIndicators = recognizeIndicators(this.suffixes);
+		const suffixIndicators = recognizeIndicators(this.suffixes);
 		if (suffixIndicators.type !== 'unknown') {
 			this.suffixes = suffixIndicators.domain;
 			this.suffixPlaceholder = suffixIndicators.type;
@@ -402,7 +402,7 @@ export class NumberUseType extends UseType<number> {
 	 */
 	format(num: number): string {
 		function _addSeparator(str: string, sep: string, leftAligned: boolean): string {
-			let bits = leftAligned ?
+			const bits = leftAligned ?
 				str.match(/.{1,3}/g) :
 				str.match(/.{1,3}(?=(.{3})*$)/g)
 			return bits.join(sep);
@@ -412,7 +412,7 @@ export class NumberUseType extends UseType<number> {
 		let outSuffix = this.suffixPlaceholder ?? this.suffixes;
 
 		if (this.scientific) {
-			let exponent = num.toFixed(1).indexOf(".") - 1;
+			const exponent = num.toFixed(1).indexOf(".") - 1;
 			num /= 10 ** exponent;
 			outSuffix = "e" + exponent + outSuffix;
 		}
@@ -421,16 +421,16 @@ export class NumberUseType extends UseType<number> {
 			outPrefix += "+";
 		}
 
-		var numString;
+		let numString;
 		if (this.decimalPlaces)
 			numString = num.toFixed(this.decimalPlaces);
 		else {
 			numString = num.toString();
 		}
 
-		var numParts = numString.split(".");
+		const numParts = numString.split(".");
 
-		var wholePart = numParts[0];
+		let wholePart = numParts[0];
 
 		if (this.integerPlaces > 0 && numParts[0].length < this.integerPlaces)
 			wholePart = "0".repeat(this.integerPlaces - wholePart.length) + wholePart;
@@ -440,7 +440,7 @@ export class NumberUseType extends UseType<number> {
 		if (this.integral)
 			return outPrefix + wholePart + outSuffix;
 
-		var decimalPart = "0";
+		let decimalPart = "0";
 
 		if (numParts.length > 1)
 			decimalPart = numParts[1];
@@ -482,12 +482,12 @@ export class NumberUseType extends UseType<number> {
 		}
 
 		if (!other.prefixes.every(prefix => this.prefixes.includes(prefix))) {
-			let exceptions = other.prefixes.filter(prefix => !this.prefixes.includes(prefix));
+			const exceptions = other.prefixes.filter(prefix => !this.prefixes.includes(prefix));
 			return false;
 		}
 
 		if (!other.suffixes.every(suffix => this.suffixes.includes(suffix))) {
-			let exceptions = other.suffixes.filter(suffix => !this.suffixes.includes(suffix));
+			const exceptions = other.suffixes.filter(suffix => !this.suffixes.includes(suffix));
 			return false;
 		}
 
@@ -524,9 +524,9 @@ export class NumberUseType extends UseType<number> {
 			return false;
 		if (!(other instanceof NumberUseType))
 			return false;
-		let thisSize = this.max - this.min;
-		let otherSize = other.max - other.min;
-		let intersection = Math.min(this.max, other.max) - Math.max(this.min, other.min);
+		const thisSize = this.max - this.min;
+		const otherSize = other.max - other.min;
+		const intersection = Math.min(this.max, other.max) - Math.max(this.min, other.min);
 		return intersection >= (thisSize + otherSize - intersection) / 10;
 	}
 
@@ -556,7 +556,7 @@ export class NumberUseType extends UseType<number> {
 }
 
 function recognizeIndicators(indicators) {
-	let currCodes = numberConstants.getCurrencyCodes();
+	const currCodes = numberConstants.getCurrencyCodes();
 
 	if (!indicators ||
 		!(indicators instanceof Array) ||
@@ -569,19 +569,19 @@ function recognizeIndicators(indicators) {
 		return { type: 'currency', format: 'code', domain: [...currCodes] };
 	}
 
-	let currSymbols = numberConstants.getCurrencySymbols();
+	const currSymbols = numberConstants.getCurrencySymbols();
 	if (indicators.every(indicator => currSymbols.includes(indicator))) {
 		return { type: 'currency', format: 'symbol', domain: [...currSymbols] };
 	}
 
-	let metricPrefixSymbols = numberConstants.getMetricPrefixSymbols(LocaleEn);
-	let cardinalityPrefixSymbols = numberConstants.getCardinalityPrefixSymbols(LocaleEn);
-	let magnitudePrefixSymbols = [].concat(metricPrefixSymbols, cardinalityPrefixSymbols);
+	const metricPrefixSymbols = numberConstants.getMetricPrefixSymbols(LocaleEn);
+	const cardinalityPrefixSymbols = numberConstants.getCardinalityPrefixSymbols(LocaleEn);
+	const magnitudePrefixSymbols = [].concat(metricPrefixSymbols, cardinalityPrefixSymbols);
 	if (indicators.every(indicator => magnitudePrefixSymbols.includes(indicator))) {
 		return { type: 'magnitude', format: 'symbol', domain: [...magnitudePrefixSymbols] };
 	}
 
-	let metricPrefixNames = numberConstants.getMetricPrefixes(LocaleEn);
+	const metricPrefixNames = numberConstants.getMetricPrefixes(LocaleEn);
 	if (indicators.every(indicator => metricPrefixNames.includes(indicator)))
 		return { type: 'magnitude', format: 'prefix', domain: [...metricPrefixNames] };
 

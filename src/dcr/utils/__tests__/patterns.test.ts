@@ -115,11 +115,11 @@ const testStrings: { [label: string]: TestTuple } = {
  * Brute-force generator of all possible boolean combinations of getPatternData args.
  */
 function generateAllCombinations(matchall: boolean): CutPatternArgs[] {
-    let params = ['letters', 'punctuations', 'numbers', 'separators', 'symbols', 'rest'];
-    let os = [];
-    let size = Math.pow(2, params.length);
+    const params = ['letters', 'punctuations', 'numbers', 'separators', 'symbols', 'rest'];
+    const os = [];
+    const size = Math.pow(2, params.length);
     for (let i = 0; i < size; i++) {
-        let o = {matchall: matchall};
+        const o = {matchall: matchall};
         params.forEach((par, idx) => o[par] = !!((i >> idx) & 1));
 
         os.push(o);
@@ -177,32 +177,32 @@ function reformatTestUsingSettings(testStringData: TestTuple, patternFormat: Cut
 
 describe.skip('Pattern cutter factory', () => {
     describe('produces valid matchall regexes', () => {
-        let testTuples = Object.values(testStrings);
-        let allPatternArgs = generateAllCombinations(true);
-        let combinations = allPatternArgs
+        const testTuples = Object.values(testStrings);
+        const allPatternArgs = generateAllCombinations(true);
+        const combinations = allPatternArgs
             .map(patternArgs => testTuples
                 .map(tuple =>
                     [reformatTestUsingSettings(tuple, patternArgs), patternArgs] as [TestTuple, CutPatternArgs]))
             .flat();
         //combinations = combinations.map(([data, params]) => [data.source, data.split, params]);
         test.each(combinations)('from string \'%s\' extracting expected %p using groups %p', (tuple, params) => {
-            let regex = getCutPattern(params) as RegExp;
-            let actual = [...tuple.source.matchAll(regex)].map(x => x.groups);
+            const regex = getCutPattern(params) as RegExp;
+            const actual = [...tuple.source.matchAll(regex)].map(x => x.groups);
             expect(actual).toEqual(tuple.split);
         });
     });
 
     describe('produces valid match regexes', () => {
-        let dataSets = Object.values(testStrings);
-        let paramSets = generateAllCombinations(false);
-        let combinations = paramSets
+        const dataSets = Object.values(testStrings);
+        const paramSets = generateAllCombinations(false);
+        const combinations = paramSets
             .map(ps => dataSets
                 .map(ds =>
                     [reformatTestUsingSettings(ds, ps), ps] as [StrippedTestTuple, CutPatternArgs]))
             .flat();
         test.each(combinations)('from string \'%s\' extracting expected %p using groups %p', (tuple, params) => {
-            let regex = getCutPattern(params) as string;
-            let actual = tuple.source.match(regex);
+            const regex = getCutPattern(params) as string;
+            const actual = tuple.source.match(regex);
             expect(actual).toEqual(tuple.split);
         });
     });

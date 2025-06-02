@@ -49,7 +49,7 @@ export function findIndexes(domain: any[] | string, callbackFn: (item: any) => b
         callbackFn = (el) => !!el;
     if (!thisArg)
         thisArg = this;
-    let idxs = [];
+    const idxs = [];
     for (let i = 0; i < domain.length; i++) {
         if (callbackFn.call(thisArg, domain[i], i, domain))
             idxs.push(i);
@@ -66,8 +66,8 @@ export function findIndexes(domain: any[] | string, callbackFn: (item: any) => b
  * // [["a", 1], ["b", "2"], ["c", {d: "three"}]]
  */
 export function toKvp<T>(obj: {[key: string]: T}): [string, T][] {
-    let arr = [];
-    for (let key in obj) {
+    const arr = [];
+    for (const key in obj) {
         arr.push([key, obj[key]]);
     }
     return arr;
@@ -95,8 +95,8 @@ export function groupBy(xs: any[], key: any, dropKeyless: boolean = true): objec
     if (dropKeyless)
         xs = xs.filter(x => x[key] || x[key] === 0);
 
-    let groups = {};
-    for (let x of xs) {
+    const groups = {};
+    for (const x of xs) {
         groups[x[key]] = (groups[x[key]] || []);
         groups[x[key]].push(x);
     }
@@ -112,7 +112,7 @@ export function groupBy(xs: any[], key: any, dropKeyless: boolean = true): objec
 export function areEqual(ax: any[], bx: any[]): boolean {
     if (ax.length !== bx.length)
         return false;
-    for (let i in ax)
+    for (const i in ax)
         if (ax[i] !== bx[i])
             return false;
     return true;
@@ -139,7 +139,7 @@ export function intersection(as, bs) {
  * // ["X", "a", "X", "b", "X", "c", "X", "d"];
  */
 export function infill(arr, el, start = false, end = false) {
-    let infilled = arr.map(a => [a, el]).flat(1);
+    const infilled = arr.map(a => [a, el]).flat(1);
     if (start)
         infilled.splice(0, 0, el);
     if (!end)
@@ -155,7 +155,7 @@ export function infill(arr, el, start = false, end = false) {
  * // [[1], [2], [3, 4], [3, 5]]
  */
 export function filterInclusionMinimas(ass) {
-    let retset = [];
+    const retset = [];
     for (let i = 0; i < ass.length; i++) {
         let minimal = true;
         for (let j = 0; j < ass.length; j++) {
@@ -175,7 +175,7 @@ export function filterInclusionMinimas(ass) {
 
 /** See filterInclusionMinimas */
 export function filterInclusionMaximas(ass) {
-    let retset = [];
+    const retset = [];
     for (let i = 0; i < ass.length; i++) {
         let minimal = true;
         for (let j = 0; j < ass.length; j++) {

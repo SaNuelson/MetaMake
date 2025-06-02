@@ -71,13 +71,13 @@ export class Timestamp<T = Date | TimeOfDay> extends UseType<T> {
             } else maxType = 'unknown';
         }
 
-        let implicitType = determineTypeFromFormatting(args.formatting);
+        const implicitType = determineTypeFromFormatting(args.formatting);
 
         let gatheredTypes = [minType, maxType, explicitType, implicitType];
 
         gatheredTypes = gatheredTypes.filter(type => type !== 'unknown');
 
-        let allTypesEqual = gatheredTypes.every(type => type === gatheredTypes[0]);
+        const allTypesEqual = gatheredTypes.every(type => type === gatheredTypes[0]);
 
         if (!allTypesEqual) {
             this.timestampType = 'unknown';
@@ -101,10 +101,10 @@ export class Timestamp<T = Date | TimeOfDay> extends UseType<T> {
         // match with regex (which extracts all important groups)
         // apply those using appliers
 
-        let regBits = [];
+        const regBits = [];
 
-        let appliers = [];
-        let extractors = [];
+        const appliers = [];
+        const extractors = [];
 
         let applyMethod = 'apply';
         let extractMethod = 'extract';
@@ -116,7 +116,7 @@ export class Timestamp<T = Date | TimeOfDay> extends UseType<T> {
 
         this.formatting.forEach(bit => {
             if (existsLabel(bit)) {
-                let token = getTokenDetailsByLabel(bit) as TimestampTokenDetail;
+                const token = getTokenDetailsByLabel(bit) as TimestampTokenDetail;
                 regBits.push(token.regexBit);
                 appliers.push(token[applyMethod]);
                 extractors.push(token[extractMethod]);
@@ -126,7 +126,7 @@ export class Timestamp<T = Date | TimeOfDay> extends UseType<T> {
                 extractors.push(() => bit);
             }
         });
-        let pattern = new RegExp(regBits.join(''));
+        const pattern = new RegExp(regBits.join(''));
 
         this._extractors = extractors;
         this._pattern = pattern;
@@ -182,7 +182,7 @@ export class Timestamp<T = Date | TimeOfDay> extends UseType<T> {
             return retval;
         }
 
-        let match = string.match(this._pattern);
+        const match = string.match(this._pattern);
         if (!match) {
             return null;
         }
@@ -207,8 +207,8 @@ export class Timestamp<T = Date | TimeOfDay> extends UseType<T> {
         }
 
         for (let i = 0, l = this.formatting.length; i < l; i++) {
-            let thisToken = getTokenDetailsByLabel(this.formatting[i]);
-            let otherToken = getTokenDetailsByLabel(other.formatting[i]);
+            const thisToken = getTokenDetailsByLabel(this.formatting[i]);
+            const otherToken = getTokenDetailsByLabel(other.formatting[i]);
 
             if (isLiteral(thisToken) !== isLiteral(otherToken)) {
                 // TODO: Expect possibility of split literal, e.g. "at " vs "at", " "
@@ -219,7 +219,7 @@ export class Timestamp<T = Date | TimeOfDay> extends UseType<T> {
                 return false;
             }
 
-            let otherSubtoken = TimestampTokenDetails[(otherToken as TimestampTokenDetail).subtoken];
+            const otherSubtoken = TimestampTokenDetails[(otherToken as TimestampTokenDetail).subtoken];
             if (otherToken !== thisToken && otherSubtoken !== thisToken) {
                 return false;
             }
@@ -262,15 +262,15 @@ export class Timestamp<T = Date | TimeOfDay> extends UseType<T> {
      * @warning volatile, should be used only for debugging purposes.
      */
     static fromShortFormatting(string) {
-        let strippedLabels = [];
-        for (let key in TimestampTokenDetails)
+        const strippedLabels = [];
+        for (const key in TimestampTokenDetails)
             strippedLabels.push(TimestampTokenDetails[key].label.slice(1, -1));
         let temp = string;
         let properLabels = [];
         while (temp.length > 0) {
-            let matched = strippedLabels.filter(label => temp.startsWith(label));
+            const matched = strippedLabels.filter(label => temp.startsWith(label));
             if (matched.length > 0) {
-                let longest = matched.reduce((l, n) => l.length < n.length ? n : l, '');
+                const longest = matched.reduce((l, n) => l.length < n.length ? n : l, '');
                 properLabels.push('{' + longest + '}');
                 temp = temp.slice(longest.length);
             } else {

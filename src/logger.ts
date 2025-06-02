@@ -2,9 +2,9 @@ import winston from 'winston';
 import fs from 'node:fs';
 import { isProduction } from './utils/env';
 
-let date = new Date();
+const date = new Date();
 
-let dateStr =
+const dateStr =
     `${date.getFullYear()}-` +
     (`0${date.getMonth() + 1}`).slice(-2) + '-' +
     (`0${date.getDate()}`).slice(-2) + '_' +

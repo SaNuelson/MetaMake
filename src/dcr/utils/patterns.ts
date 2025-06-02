@@ -57,13 +57,13 @@ export function getCutPattern({
                                   matchall = true,
                                   custom = {},
                               }: CutPatternArgs): RegExp | string {
-    let used = [];
+    const used = [];
 
     // custom regex capture groups
     // can be used even if a part of other groups
     // thanks to the fact they're matched sequentially
     if (custom) {
-        for (let label in custom) {
+        for (const label in custom) {
             if (custom[label] instanceof Array) {
                 used.push({name: label, val: custom[label]});
             }
@@ -87,20 +87,20 @@ export function getCutPattern({
         used.push({name: 'separators', val: [patternBits.separators, patternBits.wspaces]});
 
     if (rest && used.length > 0) {
-        let nonother = ['^', ...used.map(o => o.val)].flat();
+        const nonother = ['^', ...used.map(o => o.val)].flat();
         used.push({name: 'rest', val: nonother});
     } else if (used.length === 0) {
         used.push({name: 'rest', val: ['.']});
     }
 
     const toReg = (bit) => {
-        let arr = ['('];
+        const arr = ['('];
         if (matchall) arr.push('?<', bit.name, '>');
         if (bit.val.length > 1) arr.push('[', ...bit.val, ']+)');
         else arr.push(bit.val[0], '+)');
         return arr.join('');
     };
 
-    let regstr = used.map(toReg).join('|');
+    const regstr = used.map(toReg).join('|');
     return new RegExp(regstr, 'gus');
 }

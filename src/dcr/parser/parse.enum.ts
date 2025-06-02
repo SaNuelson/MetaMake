@@ -17,7 +17,7 @@ export function recognizeEnums(source: string[], args): EnumUseType[] {
     if (!source || source.length === 0)
         return [];
 
-    let valueIndexes: { [value: string]: number[] } = {};
+    const valueIndexes: { [value: string]: number[] } = {};
     for (let i = 0; i < source.length; i++) {
         if (!valueIndexes[source[i]])
             valueIndexes[source[i]] = [];
@@ -25,7 +25,7 @@ export function recognizeEnums(source: string[], args): EnumUseType[] {
     }
 
     let valueCounts: [string, number][] = [];
-    for (let value in valueIndexes) {
+    for (const value in valueIndexes) {
         valueCounts.push([value, valueIndexes[value].length]);
     }
     valueCounts = valueCounts.sort((a, b) => a[1] - b[1]);
@@ -49,8 +49,8 @@ export function recognizeEnums(source: string[], args): EnumUseType[] {
     }
 
     // create info about non-uniqueness to be used in mapping step
-    let ambiguousSets: number[][] = [];
-    for (let value in valueIndexes) {
+    const ambiguousSets: number[][] = [];
+    for (const value in valueIndexes) {
         if (valueIndexes[value].length > 1)
             ambiguousSets.push(valueIndexes[value]);
     }
@@ -59,7 +59,7 @@ export function recognizeEnums(source: string[], args): EnumUseType[] {
     // Check if found set is enum-like
     // - domain is small enough
     // - has at least 2 keys
-    let reductionFactor = source.length / valueCounts.length;
+    const reductionFactor = source.length / valueCounts.length;
     if (reductionFactor > 0.5 && valueCounts[0][1] >= 2 && valueCounts.length > 2) {
         const enumUseType = new EnumUseType({domain: valueCounts.map(a => a[0])}, {ambiguousSets: ambiguousSets});
         logger.info(`recongnizeEnums for ${args.label} determined potential enum`,

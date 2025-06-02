@@ -36,7 +36,7 @@ export function determineType(data: string[], args: RecognizerArgs): UseType<any
 
 	let gatheredUseTypes: UseType<any>[] = [];
 
-	let isDataWithinLimit: boolean = preprocessHardLimitSize(data, args);
+	const isDataWithinLimit: boolean = preprocessHardLimitSize(data, args);
 
 	let enumUseTypes: EnumUseType[] = [];
 	if (isDataWithinLimit) {
@@ -47,14 +47,14 @@ export function determineType(data: string[], args: RecognizerArgs): UseType<any
 	// [data, args] = preprocessIndicators(data, args);
 	
 	if ((!args.skipConstants || !args.isConstant) && isDataWithinLimit) {
-		let numUseTypes = recognizeNumbers(data, args);
+		const numUseTypes = recognizeNumbers(data, args);
 		gatheredUseTypes.push(...numUseTypes);	
 
-		let timestampUseTypes = recognizeTimestamps(data, args);
+		const timestampUseTypes = recognizeTimestamps(data, args);
 		gatheredUseTypes.push(...timestampUseTypes);
 	}
 	if (gatheredUseTypes.length === 0) {
-		let stringUseTypes = recognizeStrings(data, args);
+		const stringUseTypes = recognizeStrings(data, args);
 		gatheredUseTypes = stringUseTypes;
 	}
 
@@ -74,7 +74,7 @@ export function determineType(data: string[], args: RecognizerArgs): UseType<any
 function preprocessHardLimitSize(source, args) {
 	if (!args.sizeHardLimit)
 		return true;
-	let withinSizeLimit = source.every(sample => sample.length < args.sizeHardLimit);
+	const withinSizeLimit = source.every(sample => sample.length < args.sizeHardLimit);
 	if (!withinSizeLimit)
 		args.limitExceeded = true;
 	return withinSizeLimit;
@@ -88,7 +88,7 @@ function preprocessHardLimitSize(source, args) {
  * @returns {[string[], EnumUseType[]]}
  */
 function preprocessEnumlikeness(source, args) {
-	let enumUseTypes = recognizeEnums(source, args);
+	const enumUseTypes = recognizeEnums(source, args);
 	
 	if (args.hasNoval) {
 		source = source.filter(value => value !== args.novalVal);
@@ -110,16 +110,16 @@ function preprocessEnumlikeness(source, args) {
  */
 function preprocessIndicators(source, args) {
 
-	let timestampConstantGroups = Object.values(timestampConstants).map(getFunc => getFunc(args.locale));
-	let enumConstantGroups = Object.values(enumConstants).map(getFunc => getFunc(args.locale));
-	let numberConstantGroups = Object.values(numberConstants).map(getFunc => getFunc(args.locale));
+	const timestampConstantGroups = Object.values(timestampConstants).map(getFunc => getFunc(args.locale));
+	const enumConstantGroups = Object.values(enumConstants).map(getFunc => getFunc(args.locale));
+	const numberConstantGroups = Object.values(numberConstants).map(getFunc => getFunc(args.locale));
 	const changeLimit = 10;
 
 	let change = true;
 	while (change) {
 		change = false;
 
-		let [prefix, suffix] = extractCommonAffixes(source);
+		const [prefix, suffix] = extractCommonAffixes(source);
 		if (prefix) {
 			args.prefixes = (args.prefixes || []).push([prefix]);
 			source = source.map(value => value.substring(prefix.length));
@@ -132,10 +132,10 @@ function preprocessIndicators(source, args) {
 		}
 		
 		for (let i = 0; i < 3; i++) {
-			let affixType = ["timestamp", "enum", "number"][i];
-			let group = [timestampConstantGroups, enumConstantGroups, numberConstantGroups][i];
+			const affixType = ["timestamp", "enum", "number"][i];
+			const group = [timestampConstantGroups, enumConstantGroups, numberConstantGroups][i];
 
-			let [prefixes, strippedSource, suffixes] = extractCommonIndicators(source, group);
+			const [prefixes, strippedSource, suffixes] = extractCommonIndicators(source, group);
 			if (prefixes.length) {
 				args.prefixes = (args.prefixes || []).push(prefixes);
 				args.indicators = (args.indicators || []).push(affixType);
@@ -158,10 +158,10 @@ function preprocessIndicators(source, args) {
 		let prefix = source[0];
 		let suffix = source[0];
 		let lastChange = 0;
-		let counter = 1;
+		const counter = 1;
 		while (lastChange < changeLimit && counter < source.length) {
-			let newPrefix = getCommonPrefix(prefix, source[counter]);
-			let newSuffix = getCommonSuffix(suffix, source[counter]);
+			const newPrefix = getCommonPrefix(prefix, source[counter]);
+			const newSuffix = getCommonSuffix(suffix, source[counter]);
 			if (suffix !== newSuffix || prefix !== newPrefix) {
 				lastChange = 0;
 				prefix = newPrefix;
@@ -172,12 +172,12 @@ function preprocessIndicators(source, args) {
 	}
 
 	function extractCommonIndicators(source, groups) {
-		let prefixesEnabled = groups.map(group => true);
-		let suffixesEnabled = groups.map(group => true);
+		const prefixesEnabled = groups.map(group => true);
+		const suffixesEnabled = groups.map(group => true);
 		let lastChange = 0;
-		let counter = 0;
+		const counter = 0;
 		while (lastChange < changeLimit && counter < source.length) {
-			let sample = source[counter];
+			const sample = source[counter];
 
 			for (let g = 0, l = groups.length; g < l; g++) {
 				if (prefixesEnabled[g] && groups[g].every(indicator => !sample.startsWith(indicator))) {
@@ -190,36 +190,36 @@ function preprocessIndicators(source, args) {
 				}
 			}
 
-			let prefixCount = prefixesEnabled.reduce((a,n) => a + +n, 0);
+			const prefixCount = prefixesEnabled.reduce((a,n) => a + +n, 0);
 			let extractedPrefixes = [];
 			if (prefixCount > 1) {
 				throw "extractCommonIndicators -- multiple prefixes found";
 			}
 			else if (prefixCount === 1) {
-				let prefixIndex = prefixesEnabled.indexOf(true);
+				const prefixIndex = prefixesEnabled.indexOf(true);
 				extractedPrefixes = groups[prefixIndex];
 			}
 			
-			let suffixCount = suffixesEnabled.reduce((a,n) => a + +n, 0);
+			const suffixCount = suffixesEnabled.reduce((a,n) => a + +n, 0);
 			let extractedSuffixes = [];
 			if (suffixCount > 1) {
 				throw "extractCommonIndicators -- multiple suffixes found";
 			}
 			else if (prefixCount === 1) {
-				let suffixIndex = suffixesEnabled.indexOf(true);
+				const suffixIndex = suffixesEnabled.indexOf(true);
 				extractedSuffixes = groups[suffixIndex];
 			}
 
-			let strippedSource = [];
+			const strippedSource = [];
 			for (let i = 0, l = source.length; i < l; i++) {
 				let sample = source[i];
-				for (let prefix of extractedPrefixes) {
+				for (const prefix of extractedPrefixes) {
 					if (sample.startsWith(prefix)) {
 						sample = sample.replace(prefix, "");
 						break;
 					}
 				}
-				for (let suffix of extractedSuffixes) {
+				for (const suffix of extractedSuffixes) {
 					if (sample.endsWith(suffix)) {
 						sample = sample.replace(suffix, "");
 						break;

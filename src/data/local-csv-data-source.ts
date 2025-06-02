@@ -33,7 +33,7 @@ export class LocalCsvDataSource extends LocalDataSource<string[][]> implements C
     }
 
     async open(): Promise<boolean> {
-        let rawStream = openReadableStream(this.filename);
+        const rawStream = openReadableStream(this.filename);
         this.fileStream = parseCsvStream(rawStream);
         return true;
     }

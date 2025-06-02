@@ -214,7 +214,7 @@ export const TimestampTokenDetails: { [label: string]: TimestampTokenDetail } = 
         numeric: false,
         // same like era, it should be safe to assume meridiem won't be preceding hours (e.g. AM 7:30)
         apply: (date, val) => {
-            let hours = date.getHours();
+            const hours = date.getHours();
             if (val === 'PM' && hours < 12)
                 date.setHours(hours + 12); // all after noon
             else if (val === 'AM' && hours === 12)
@@ -360,7 +360,7 @@ function getTokenDetails(token: string): TimestampTokenDetail {
 }
 
 export function getTokenDetailsByLabel(label: string): TimestampTokenDetail {
-    let token = getTokenDetails(getTokenByLabel(label));
+    const token = getTokenDetails(getTokenByLabel(label));
     return token ? token : createTokenLiteral(label);
 }
 
@@ -374,9 +374,9 @@ export function isLiteral(token: any): token is { literal: true } {
 
 /** Dictionary mapping token labels to their names/keys. */
 export const TimestampLabelToToken: { [label: string]: string } = (() => {
-    let rev = {};
-    for (let type in TimestampTokenDetails) {
-        let label = TimestampTokenDetails[type].label;
+    const rev = {};
+    for (const type in TimestampTokenDetails) {
+        const label = TimestampTokenDetails[type].label;
         rev[label] = type;
     }
     return rev;
