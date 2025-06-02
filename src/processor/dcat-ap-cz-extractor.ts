@@ -3,6 +3,7 @@ import { MetaStore } from '../memory/store';
 import * as voc from '../memory/vocabulary';
 import { Configuration, Data, Processor } from './processor';
 import { BlankNode, NamedNode } from 'n3';
+import { SourceManager } from '../data/source-manager';
 
 const mm = voc.prefixToNamespace['mm'];
 
@@ -17,7 +18,7 @@ export default class DcatApCzExtractor implements Processor<DcatApCzExtractorCon
     configure(config: DcatApCzExtractorConfiguration): void {
     }
 
-    execute(data: Data, store: MetaStore, dataset: BlankNode): void {
+    execute(data: SourceManager, store: MetaStore, dataset: BlankNode): void {
 
         const fileNames = store.match(null, voc.fileName, null, null);
         if (fileNames.size > 0) {

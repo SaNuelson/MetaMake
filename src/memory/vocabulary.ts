@@ -181,3 +181,7 @@ export const organization = prefixToNamespace.vcard('Organization');
 export const fn = prefixToNamespace.vcard('fn');
 export const hasEmail = prefixToNamespace.vcard('hasEmail');
 //#endregion
+
+//#region mm
+export const PrimaryDistribution = prefixToNamespace.mm('PrimaryDistribution');
+//#endregion

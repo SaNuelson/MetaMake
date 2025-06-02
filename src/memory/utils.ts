@@ -1,4 +1,11 @@
-import { DataFactory, Literal, NamedNode, Quad, Term } from 'n3';
+import {
+    BlankNode,
+    DataFactory, DefaultGraph,
+    Literal,
+    NamedNode,
+    Quad,
+    Term, Util, Variable,
+} from 'n3';
 import literal = DataFactory.literal;
 import { dateTimeType, dateType, uriToPrefix } from './vocabulary';
 import { logger } from '../logger';
@@ -61,4 +68,20 @@ export function getCompactName(node?: Quad | Term | null): string {
             return node.value;
     }
 
+}
+
+export function isNamedNode(value: Term | null) : value is NamedNode {
+    return Util.isNamedNode(value);
+}
+export function isBlankNode(value: Term | null) : value is BlankNode {
+    return Util.isBlankNode(value);
+}
+export function isLiteral(value: Term | null) : value is Literal {
+    return Util.isLiteral(value);
+}
+export function isVariable(value: Term | null) : value is Variable {
+    return Util.isVariable(value);
+}
+export function isDefaultGraph(value: Term | null) : value is DefaultGraph {
+    return Util.isDefaultGraph(value);
 }

@@ -1,5 +1,13 @@
 import N3 = require('n3');
-import { BlankNode, DataFactory, NamedNode, Quad, Quad_Subject, Store, Term } from 'n3';
+import {
+    BlankNode,
+    NamedNode,
+    Quad, Quad_Graph,
+    Quad_Object,
+    Quad_Predicate,
+    Quad_Subject,
+    Term, Util,
+} from 'n3';
 import * as RDF from '@rdfjs/types';
 import { Processor } from '../processor/processor';
 import {
@@ -12,23 +20,26 @@ import {
     Statement,
     wasDerivedFrom, wasGeneratedBy,
 } from './vocabulary';
-import { getCompactName } from './utils';
+import { getCompactName, isDefaultGraph } from './utils';
 
 const mm = prefixToNamespace['mm'];
 
-const provenanceMappingGraph = mm('ProvenanceMappingGraph');
+const ProvenanceMappingGraph = mm('ProvenanceMappingGraph');
 const hasProvenanceGraph = mm('hasProvenanceGraph');
+const BaseProvenanceGraph = mm('BaseProvenanceGraph');
 
 export class MetaStore extends N3.Store {
+
+    private provenanceEntityCounter: number = 0;
 
     /**
      * Get a singular quad matching the query.
      * @throws Error if not exactly one match is found.
      */
-    public one(subject?: Term | null,
-               predicate?: Term | null,
-               object?: Term | null,
-               graph?: Term | null)
+    public one(subject?: Quad_Subject | null,
+               predicate?: Quad_Predicate | null,
+               object?: Quad_Object | null,
+               graph?: Quad_Graph | null)
         : RDF.Quad {
         const match = this.match(subject, predicate, object, graph);
 
@@ -47,10 +58,10 @@ export class MetaStore extends N3.Store {
      * Get a singular quad matching the query, or null if none found.
      * @throws Error if more than one match is found.
      */
-    public oneOrNone(subject?: Term | null,
-                     predicate?: Term | null,
-                     object?: Term | null,
-                     graph?: Term | null)
+    public oneOrNone(subject?: Quad_Subject | null,
+                     predicate?: Quad_Predicate | null,
+                     object?: Quad_Object | null,
+                     graph?: Quad_Graph | null)
         : RDF.Quad | null {
         const match = this.match(subject, predicate, object, graph);
 
@@ -66,10 +77,10 @@ export class MetaStore extends N3.Store {
     /**
      * Get a singular quad matching the query, or null if none or multiple found.
      */
-    public oneOrDefault(subject?: Term | null,
-                        predicate?: Term | null,
-                        object?: Term | null,
-                        graph?: Term | null)
+    public oneOrDefault(subject?: Quad_Subject | null,
+                        predicate?: Quad_Predicate | null,
+                        object?: Quad_Object | null,
+                        graph?: Quad_Graph | null)
         : RDF.Quad | null {
         const match = this.match(subject, predicate, object, graph);
 
@@ -82,31 +93,19 @@ export class MetaStore extends N3.Store {
     /**
      * Get all quads matching the query.
      */
-    public all(subject?: Term | null,
-               predicate?: Term | null,
-               object?: Term | null,
-               graph?: Term | null)
+    public all(subject?: Quad_Subject | null,
+               predicate?: Quad_Predicate | null,
+               object?: Quad_Object | null,
+               graph?: Quad_Graph | null)
         : RDF.Quad[] {
         return [...this.getQuads(subject, predicate, object, graph)];
     }
 
-    private getProvenanceGraph(graph: Term | null): Term {
-        if (!graph)
-            graph = DataFactory.defaultGraph();
-
-        let provenanceGraph = this
-            .oneOrNone(graph, hasProvenanceGraph, null, provenanceMappingGraph)
-            .object;
-
-        if (!provenanceGraph) {
-            provenanceGraph = new NamedNode((graph as NamedNode).id + '/provenance');
-            this.add(new Quad(graph, hasProvenanceGraph, provenanceMappingGraph));
-        }
-
-        return provenanceGraph as NamedNode;
-    }
-
-    public getProvenanced(subject: Term, predicate: Term, object: Term, graph: Term): Quad_Subject | null {
+    public getProvenanced(subject: Quad_Subject,
+                          predicate: Quad_Predicate,
+                          object: Quad_Object,
+                          graph: Quad_Graph)
+        : Quad_Subject | null {
         const provenanceGraph = this.getProvenanceGraph(graph);
 
         const candidatesBySubject = this.getSubjects(hasSubject, subject, provenanceGraph);
@@ -123,10 +122,14 @@ export class MetaStore extends N3.Store {
         return null;
     }
 
-    private provenanceEntityCounter: number = 0;
-
-    public addProvenanced(subject: Term, predicate: Term, object: Term, graph: Term | null,
-                          origin: Quad | null, author: Processor<any>, details: [Term, Term][]) {
+    public addProvenanced(subject: Quad_Subject,
+                          predicate: Quad_Predicate,
+                          object: Quad_Object,
+                          graph: Quad_Graph | null,
+                          origin: Quad | null,
+                          author: Processor<any>,
+                          details: [Term, Term][],
+    ): void {
 
         this.add(new Quad(subject, predicate, object, graph));
 
@@ -159,6 +162,23 @@ export class MetaStore extends N3.Store {
                 this.add(new Quad(provenanceEntity, predicate, object, provenanceGraph));
             }
         }
+    }
+
+    private getProvenanceGraph(graph: Quad_Graph | null): Term {
+        if (!graph || isDefaultGraph(graph)) {
+            return BaseProvenanceGraph;
+        }
+
+        let provenanceGraph = this
+            .oneOrNone(graph, hasProvenanceGraph, null, ProvenanceMappingGraph)
+            .object;
+
+        if (!provenanceGraph) {
+            provenanceGraph = new NamedNode((graph as NamedNode).id + '/provenance');
+            this.add(new Quad(graph, hasProvenanceGraph, ProvenanceMappingGraph));
+        }
+
+        return provenanceGraph as NamedNode;
     }
 }
 

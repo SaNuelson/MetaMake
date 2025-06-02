@@ -5,6 +5,7 @@ import { BlankNode, DataFactory as df, NamedNode } from 'n3';
 import { ThreadController } from './helper/chatgpt-connector';
 import { logger } from '../logger';
 import { Configuration, Data, Processor } from './processor';
+import { SourceManager } from '../data/source-manager';
 
 const mm = prefixToNamespace['mm'];
 
@@ -19,7 +20,7 @@ export default class LlmProcessor implements Processor<LlmProcessorConfiguration
     configure(config: LlmProcessorConfiguration): void {
     }
 
-    execute(data: Data, store: MetaStore, dataset: BlankNode): void {
+    execute(data: SourceManager, store: MetaStore, dataset: BlankNode): void {
 
         store.addQuad(dataset, title, df.literal('ChatGPT says title'), llmGraph);
         store.addQuad(dataset, description, df.literal('ChatGPT says description'), llmGraph);

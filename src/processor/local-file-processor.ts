@@ -7,6 +7,7 @@ import { BlankNode, DataFactory, NamedNode, Quad } from 'n3';
 import literal = DataFactory.literal;
 import { Configuration, Data, Processor } from './processor';
 import { logger } from '../logger';
+import { SourceManager } from '../data/source-manager';
 
 const mm = prefixToNamespace['mm'];
 
@@ -23,10 +24,12 @@ export default class LocalFileProcessor implements Processor<LocalFileProcessorC
     configure(config: LocalFileProcessorConfiguration): void {
     }
 
-    execute(data: Data, store: MetaStore, dataset: BlankNode): void {
+    execute(data: SourceManager, store: MetaStore, dataset: BlankNode): void {
         logger.debug(`LocalFileProcessor.execute() begin`);
 
-        if (!IsLocalDataSource(data))
+        const source = data.getPrimarySource()
+
+        if (!IsLocalDataSource(source))
             return;
 
         const distribution = new BlankNode('Distribution');
@@ -35,13 +38,13 @@ export default class LocalFileProcessor implements Processor<LocalFileProcessorC
 
         store.addQuad(distribution, voc.isA, voc.Distribution, localFileProcessorGraph);
         store.addQuad(distribution, voc.isA, voc.file, localFileProcessorGraph);
-        store.addQuad(distribution, voc.fileName, literal(data.filename), localFileProcessorGraph);
-        store.addQuad(distribution, voc.modified, dateTimeLiteral(data.fileStats.mtime), localFileProcessorGraph);
-        store.addQuad(distribution, voc.created, dateTimeLiteral(data.fileStats.birthtime), localFileProcessorGraph);
+        store.addQuad(distribution, voc.fileName, literal(source.filename), localFileProcessorGraph);
+        store.addQuad(distribution, voc.modified, dateTimeLiteral(source.fileStats.mtime), localFileProcessorGraph);
+        store.addQuad(distribution, voc.created, dateTimeLiteral(source.fileStats.birthtime), localFileProcessorGraph);
 
-        logger.debug(getCompactName(new Quad(distribution, voc.fileName, literal(data.filename), localFileProcessorGraph)));
-        logger.debug(getCompactName(new Quad(distribution, voc.modified, dateTimeLiteral(data.fileStats.mtime), localFileProcessorGraph)));
-        logger.debug(getCompactName(new Quad(distribution, voc.created, dateTimeLiteral(data.fileStats.birthtime), localFileProcessorGraph)));
+        logger.debug(getCompactName(new Quad(distribution, voc.fileName, literal(source.filename), localFileProcessorGraph)));
+        logger.debug(getCompactName(new Quad(distribution, voc.modified, dateTimeLiteral(source.fileStats.mtime), localFileProcessorGraph)));
+        logger.debug(getCompactName(new Quad(distribution, voc.created, dateTimeLiteral(source.fileStats.birthtime), localFileProcessorGraph)));
 
         logger.debug(`LocalFileProcessor.execute() end.`);
     }
