@@ -45,7 +45,7 @@ export function getLocalName(node: NamedNode): string {
 
 export function getCompactName(node?: Quad | Term | null): string {
     if (!node) {
-        return 'null';
+        return null;
     }
 
     if (node instanceof Quad) {

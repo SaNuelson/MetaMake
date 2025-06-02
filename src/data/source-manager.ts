@@ -1,7 +1,7 @@
 import { Quad_Subject } from 'n3';
 import { logger } from '../logger';
 import { DataSource } from './data-source';
-import store, { MetaStore } from '../memory/store';
+import { MetaStore } from '../memory/store';
 import { Distribution, hasDistribution, isA, PrimaryDistribution } from '../memory/vocabulary';
 import { isBlankNode } from '../memory/utils';
 
@@ -42,12 +42,13 @@ export class SourceManager {
 
         const primaryDistribution = distributions
             .filter(dist => isBlankNode(dist))
-            .find(dist => store.one(dist, isA, PrimaryDistribution));
+            .find(dist => this.store.oneOrDefault(dist, isA, PrimaryDistribution));
 
         if (primaryDistribution) {
-            return this.sources[primaryDistribution.id] ?? null;
+            return this.sources.get(primaryDistribution.id) ?? null;
         }
 
+        logger.error(`No primary distribution found for dataset ${this.dataset.id}.`)
         return null;
     }
 

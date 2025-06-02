@@ -2,10 +2,6 @@ import { Stats } from 'fs';
 import { existsSync, statSync } from 'node:fs';
 import { DataKind, DataSource, SourceKind } from './data-source';
 
-export function IsLocalDataSource<T>(source: DataSource<T>): source is LocalDataSource<T> {
-    return Object.hasOwn(source, 'filename');
-}
-
 export abstract class LocalDataSource<Data> implements DataSource<Data> {
     abstract get dataKind(): DataKind;
     get sourceKind(): SourceKind {

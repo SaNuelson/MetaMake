@@ -10,6 +10,7 @@ import N3, {
     Store,
     Term,
 } from 'n3';
+import { logger } from '../logger';
 import { Configuration, Processor } from '../processor/processor';
 import { getCompactName, isDefaultGraph } from './utils';
 import {
@@ -31,12 +32,31 @@ const hasProvenanceGraph = mm('hasProvenanceGraph');
 const BaseProvenanceGraph = mm('BaseProvenanceGraph');
 
 export class MetaStore {
+    //#region Instance Manager
+    private static defaultStore: MetaStore = new MetaStore("DefaultStore");
+    private static storeDict: { [identifier: string]: MetaStore } = {};
+    public static getStore(identifier?: string): MetaStore {
+        if (!identifier)
+            return this.defaultStore;
+
+        if (!MetaStore.storeDict[identifier]) {
+            MetaStore.storeDict[identifier] = new MetaStore();
+        }
+        return MetaStore.storeDict[identifier];
+    }
+    public static getDefaultStore(): MetaStore {
+        return this.defaultStore;
+    }
+    //#endregion
+
+    private id: string;
+    private static idCounter: number= 0;
+
     private store: Store<Quad, Quad, Quad, Quad>;
 
-    constructor() {
-
+    private constructor(id?: string) {
+        this.id = id ?? `Store#${MetaStore.idCounter++}`;
         this.store = new N3.Store();
-
     }
 
     private provenanceEntityCounter: number = 0;
@@ -139,6 +159,8 @@ export class MetaStore {
                author?: Processor<Configuration>,
                details?: [Term, Term][],
     ): void {
+        logger.debug(`${this.id} + QUAD : ${getCompactName(subject)} ${getCompactName(predicate)} ${getCompactName(object)} ${getCompactName(graph) ?? ''}`,
+            origin || author || details ? { data: { origin, author, ...details } } : undefined);
 
         graph ??= defaultGraph();
 
@@ -151,7 +173,7 @@ export class MetaStore {
         this.store.add(new Quad(provenanceEntity, isA, ProvenanceEntity, provenanceGraph));
         this.store.add(new Quad(provenanceEntity, isA, Statement, provenanceGraph));
         this.store.add(new Quad(provenanceEntity, hasSubject, subject, provenanceGraph));
-        this.store.add(new Quad(provenanceEntity, hasPredicate, object, provenanceGraph));
+        this.store.add(new Quad(provenanceEntity, hasPredicate, predicate, provenanceGraph));
         this.store.add(new Quad(provenanceEntity, hasObject, object, provenanceGraph));
 
         if (origin) {
@@ -182,7 +204,7 @@ export class MetaStore {
 
         let provenanceGraph = this
             .oneOrNone(graph, hasProvenanceGraph, null, ProvenanceMappingGraph)
-            .object;
+            ?.object;
 
         if (!provenanceGraph) {
             provenanceGraph = new NamedNode((graph as NamedNode).id + '/provenance');
@@ -203,16 +225,4 @@ export class MetaStore {
     getObjects(subject: OTerm, predicate: OTerm, graph: OTerm) {
         return this.store.getObjects(subject, predicate, graph);
     }
-}
-
-const store: MetaStore = new MetaStore();
-export default store;
-
-const storeDict: { [identifier: string]: MetaStore } = {};
-
-export function getStore(identifier: string): MetaStore {
-    if (!storeDict[identifier]) {
-        storeDict[identifier] = new MetaStore();
-    }
-    return storeDict[identifier];
 }

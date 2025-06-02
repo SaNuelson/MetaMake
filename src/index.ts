@@ -16,7 +16,7 @@ async function main() {
 
     const filePath = 'resources/input/address_points.csv';
 
-    const store: MetaStore = new MetaStore();
+    const store: MetaStore = MetaStore.getDefaultStore();
 
     const dataSource = await LocalCsvDataSource.create(filePath);
 

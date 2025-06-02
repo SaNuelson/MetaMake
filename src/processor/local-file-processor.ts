@@ -1,3 +1,4 @@
+import { isLocalDataSource } from '../data/utils';
 import { MetaStore } from '../memory/store';
 import { IsLocalDataSource } from '../data/local-data-source';
 import { prefixToNamespace } from '../memory/vocabulary';
@@ -29,7 +30,7 @@ export default class LocalFileProcessor implements Processor<LocalFileProcessorC
 
         const source = data.getPrimarySource()
 
-        if (!IsLocalDataSource(source))
+        if (!isLocalDataSource(source))
             return;
 
         const distribution = new BlankNode('Distribution');
