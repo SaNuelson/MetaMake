@@ -20,7 +20,7 @@ export default class LlmMockProcessor implements Processor<LlmMockProcessorConfi
 
     execute(data: SourceManager, store: MetaStore, dataset: BlankNode): void {
 
-        store.addQuad(dataset, title, df.literal('ChatGPT says title'), llmGraph);
-        store.addQuad(dataset, description, df.literal('ChatGPT says description'), llmGraph);
+        store.add(dataset, title, df.literal('ChatGPT says title'), llmGraph);
+        store.add(dataset, description, df.literal('ChatGPT says description'), llmGraph);
     }
 }

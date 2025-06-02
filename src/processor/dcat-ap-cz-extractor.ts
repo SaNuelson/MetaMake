@@ -19,12 +19,12 @@ export default class DcatApCzExtractor implements Processor<DcatApCzExtractorCon
 
     execute(data: SourceManager, store: MetaStore, dataset: BlankNode): void {
 
-        const fileNames = store.match(null, voc.fileName, null, null);
-        if (fileNames.size > 0) {
+        const fileNames = store.all(null, voc.fileName, null, null);
+        if (fileNames.length > 0) {
             // TODO: Select best
 
             const fileName = [...fileNames][0].object;
-            store.addQuad(dataset, voc.title, fileName, dcatApCzGraph);
+            store.add(dataset, voc.title, fileName, dcatApCzGraph);
         }
     }
 }

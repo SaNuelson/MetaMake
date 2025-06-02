@@ -20,8 +20,8 @@ export default class LlmProcessor implements Processor<LlmProcessorConfiguration
     execute(data: SourceManager, store: MetaStore, dataset: BlankNode): void {
 
         // TODO
-        store.addQuad(dataset, title, df.literal('ChatGPT says title'), llmGraph);
-        store.addQuad(dataset, description, df.literal('ChatGPT says description'), llmGraph);
+        store.add(dataset, title, df.literal('ChatGPT says title'), llmGraph);
+        store.add(dataset, description, df.literal('ChatGPT says description'), llmGraph);
 /*
         const schemas = store.match(null, isA, csvTableSchema);
 

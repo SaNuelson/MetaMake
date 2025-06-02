@@ -1,4 +1,5 @@
-import { Quad, Quad_Subject } from 'n3';
+import { Quad_Subject } from 'n3';
+import { logger } from '../logger';
 import { DataSource } from './data-source';
 import store, { MetaStore } from '../memory/store';
 import { Distribution, hasDistribution, isA, PrimaryDistribution } from '../memory/vocabulary';
@@ -15,20 +16,22 @@ export class SourceManager {
     }
 
     register(distribution: Quad_Subject, source: DataSource<unknown>, isPrimary: boolean = false): void {
+        logger.info(`Registering source ${source.sourceKind} ${source.dataKind} for distribution ${distribution.id} (primary: ${isPrimary})`);
+
         const id = distribution.id;
         this.sources.set(id, source);
 
         if (!this.store.oneOrDefault(this.dataset, hasDistribution, distribution)) {
-            this.store.addQuad(this.dataset, hasDistribution, distribution);
+            this.store.add(this.dataset, hasDistribution, distribution);
         }
 
         if (!this.store.oneOrDefault(distribution, isA, Distribution)) {
-            this.store.addQuad(distribution, isA, Distribution);
+            this.store.add(distribution, isA, Distribution);
         }
 
         if (isPrimary) {
             if (!this.store.oneOrDefault(distribution, isA, PrimaryDistribution)) {
-                this.store.addQuad(distribution, isA, PrimaryDistribution);
+                this.store.add(distribution, isA, PrimaryDistribution);
             }
         }
     }

@@ -22,7 +22,7 @@ async function main() {
 
     // Create the dataset node that will be the subject of all metadata
     const dataset = new BlankNode('Dataset');
-    store.addQuad(dataset, isA, voc.DataSet);
+    store.add(dataset, isA, voc.DataSet);
 
     const sourceManager = new SourceManager(store, dataset);
     sourceManager.register(new BlankNode('Distribution'), dataSource, true);
@@ -41,7 +41,7 @@ async function main() {
 
     const output = fs.createWriteStream('out/address_points.jsonld');
     const outQuads = store
-        .getQuads(null, null, null, dcatApCzGraph)
+        .all(null, null, null, dcatApCzGraph)
         .map(quad => new Quad(quad.subject, quad.predicate, quad.object));
 
     logger.log("Out quads:", outQuads);
@@ -51,7 +51,7 @@ async function main() {
     await dumpJsonld(output, outQuads, contextPath);
 
     const debugOutput = fs.createWriteStream('out/address_points_debug.jsonld');
-    const allQuads = store.getQuads(null, null, null, null);
+    const allQuads = store.all();
 
     logger.log("All quads:", allQuads);
 

@@ -1,8 +1,8 @@
 import { Store } from 'n3';
 
 export enum SourceKind {
-    LOCAL = 0,
-    REMOTE = 1
+    LOCAL = 'local',
+    REMOTE = 'remote'
 }
 
 export enum DataKind {

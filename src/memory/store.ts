@@ -1,4 +1,15 @@
-import N3, { BlankNode, NamedNode, Quad, Quad_Graph, Quad_Object, Quad_Predicate, Quad_Subject, Term } from 'n3';
+import N3, {
+    BlankNode, DataFactory,
+    NamedNode,
+    OTerm,
+    Quad,
+    Quad_Graph,
+    Quad_Object,
+    Quad_Predicate,
+    Quad_Subject,
+    Store,
+    Term,
+} from 'n3';
 import { Configuration, Processor } from '../processor/processor';
 import { getCompactName, isDefaultGraph } from './utils';
 import {
@@ -11,6 +22,7 @@ import {
     Statement,
     wasDerivedFrom,
 } from './vocabulary';
+import defaultGraph = DataFactory.defaultGraph;
 
 const mm = prefixToNamespace['mm'];
 
@@ -18,7 +30,14 @@ const ProvenanceMappingGraph = mm('ProvenanceMappingGraph');
 const hasProvenanceGraph = mm('hasProvenanceGraph');
 const BaseProvenanceGraph = mm('BaseProvenanceGraph');
 
-export class MetaStore extends N3.Store {
+export class MetaStore {
+    private store: Store<Quad, Quad, Quad, Quad>;
+
+    constructor() {
+
+        this.store = new N3.Store();
+
+    }
 
     private provenanceEntityCounter: number = 0;
 
@@ -31,7 +50,7 @@ export class MetaStore extends N3.Store {
                object?: Quad_Object | null,
                graph?: Quad_Graph | null)
         : Quad {
-        const match = this.match(subject, predicate, object, graph);
+        const match = this.store.match(subject, predicate, object, graph);
 
         if (match.size !== 1)
             throw new Error(`Failed to match single statement for 
@@ -53,7 +72,7 @@ export class MetaStore extends N3.Store {
                      object?: Quad_Object | null,
                      graph?: Quad_Graph | null)
         : Quad | null {
-        const match = this.match(subject, predicate, object, graph);
+        const match = this.store.match(subject, predicate, object, graph);
 
         if (match.size === 0)
             return null;
@@ -72,7 +91,7 @@ export class MetaStore extends N3.Store {
                         object?: Quad_Object | null,
                         graph?: Quad_Graph | null)
         : Quad | null {
-        const match = this.match(subject, predicate, object, graph);
+        const match = this.store.match(subject, predicate, object, graph);
 
         if (match.size !== 1)
             return null;
@@ -88,7 +107,7 @@ export class MetaStore extends N3.Store {
                object?: Quad_Object | null,
                graph?: Quad_Graph | null)
         : Quad[] {
-        return [...this.getQuads(subject, predicate, object, graph)];
+        return [...this.store.getQuads(subject, predicate, object, graph)];
     }
 
     public getProvenanced(subject: Quad_Subject,
@@ -98,11 +117,11 @@ export class MetaStore extends N3.Store {
         : Quad_Subject | null {
         const provenanceGraph = this.getProvenanceGraph(graph);
 
-        const candidatesBySubject = this.getSubjects(hasSubject, subject, provenanceGraph);
+        const candidatesBySubject = this.store.getSubjects(hasSubject, subject, provenanceGraph);
 
         for (const statement of candidatesBySubject) {
-            const existingPredicates = this.countQuads(statement, hasPredicate, null, provenanceGraph);
-            const existingObjects = this.countQuads(statement, hasObject, null, provenanceGraph);
+            const existingPredicates = this.store.countQuads(statement, hasPredicate, null, provenanceGraph);
+            const existingObjects = this.store.countQuads(statement, hasObject, null, provenanceGraph);
 
             if (existingPredicates && existingObjects) {
                 return statement;
@@ -112,31 +131,33 @@ export class MetaStore extends N3.Store {
         return null;
     }
 
-    public addProvenanced(subject: Quad_Subject,
-                          predicate: Quad_Predicate,
-                          object: Quad_Object,
-                          graph: Quad_Graph | null,
-                          origin: Quad | null,
-                          author: Processor<Configuration>,
-                          details: [Term, Term][],
+    public add(subject: Quad_Subject,
+               predicate: Quad_Predicate,
+               object: Quad_Object,
+               graph?: Quad_Graph | null,
+               origin?: Quad | null,
+               author?: Processor<Configuration>,
+               details?: [Term, Term][],
     ): void {
 
-        this.add(new Quad(subject, predicate, object, graph));
+        graph ??= defaultGraph();
+
+        this.store.add(new Quad(subject, predicate, object, graph));
 
         const provenanceGraph = this.getProvenanceGraph(graph);
 
         const provenanceEntity = new BlankNode('ProvenanceEntity' + this.provenanceEntityCounter++);
 
-        this.add(new Quad(provenanceEntity, isA, ProvenanceEntity, provenanceGraph));
-        this.add(new Quad(provenanceEntity, isA, Statement, provenanceGraph));
-        this.add(new Quad(provenanceEntity, hasSubject, subject, provenanceGraph));
-        this.add(new Quad(provenanceEntity, hasPredicate, object, provenanceGraph));
-        this.add(new Quad(provenanceEntity, hasObject, object, provenanceGraph));
+        this.store.add(new Quad(provenanceEntity, isA, ProvenanceEntity, provenanceGraph));
+        this.store.add(new Quad(provenanceEntity, isA, Statement, provenanceGraph));
+        this.store.add(new Quad(provenanceEntity, hasSubject, subject, provenanceGraph));
+        this.store.add(new Quad(provenanceEntity, hasPredicate, object, provenanceGraph));
+        this.store.add(new Quad(provenanceEntity, hasObject, object, provenanceGraph));
 
         if (origin) {
             const originStatement = this.getProvenanced(origin.subject, origin.predicate, origin.object, origin.graph);
             if (originStatement) {
-                this.add(new Quad(provenanceEntity, wasDerivedFrom, originStatement, provenanceGraph));
+                this.store.add(new Quad(provenanceEntity, wasDerivedFrom, originStatement, provenanceGraph));
             }
         }
 
@@ -149,7 +170,7 @@ export class MetaStore extends N3.Store {
         if (details) {
             for (const detail of details) {
                 const [predicate, object] = detail;
-                this.add(new Quad(provenanceEntity, predicate, object, provenanceGraph));
+                this.store.add(new Quad(provenanceEntity, predicate, object, provenanceGraph));
             }
         }
     }
@@ -165,10 +186,22 @@ export class MetaStore extends N3.Store {
 
         if (!provenanceGraph) {
             provenanceGraph = new NamedNode((graph as NamedNode).id + '/provenance');
-            this.add(new Quad(graph, hasProvenanceGraph, ProvenanceMappingGraph));
+            this.store.add(new Quad(graph, hasProvenanceGraph, ProvenanceMappingGraph));
         }
 
         return provenanceGraph as NamedNode;
+    }
+
+    getSubjects(predicate: OTerm, object: OTerm, graph: OTerm) {
+        return this.store.getObjects(predicate, object, graph);
+    }
+
+    getPredicates(subject: OTerm, object: OTerm, graph: OTerm) {
+        return this.store.getObjects(subject, object, graph);
+    }
+
+    getObjects(subject: OTerm, predicate: OTerm, graph: OTerm) {
+        return this.store.getObjects(subject, predicate, graph);
     }
 }
 

@@ -34,13 +34,13 @@ export default class LocalFileProcessor implements Processor<LocalFileProcessorC
 
         const distribution = new BlankNode('Distribution');
 
-        store.addQuad(dataset, voc.hasDistribution, distribution);
+        store.add(dataset, voc.hasDistribution, distribution);
 
-        store.addQuad(distribution, voc.isA, voc.Distribution, localFileProcessorGraph);
-        store.addQuad(distribution, voc.isA, voc.file, localFileProcessorGraph);
-        store.addQuad(distribution, voc.fileName, literal(source.filename), localFileProcessorGraph);
-        store.addQuad(distribution, voc.modified, dateTimeLiteral(source.fileStats.mtime), localFileProcessorGraph);
-        store.addQuad(distribution, voc.created, dateTimeLiteral(source.fileStats.birthtime), localFileProcessorGraph);
+        store.add(distribution, voc.isA, voc.Distribution, localFileProcessorGraph);
+        store.add(distribution, voc.isA, voc.file, localFileProcessorGraph);
+        store.add(distribution, voc.fileName, literal(source.filename), localFileProcessorGraph);
+        store.add(distribution, voc.modified, dateTimeLiteral(source.fileStats.mtime), localFileProcessorGraph);
+        store.add(distribution, voc.created, dateTimeLiteral(source.fileStats.birthtime), localFileProcessorGraph);
 
         logger.debug(getCompactName(new Quad(distribution, voc.fileName, literal(source.filename), localFileProcessorGraph)));
         logger.debug(getCompactName(new Quad(distribution, voc.modified, dateTimeLiteral(source.fileStats.mtime), localFileProcessorGraph)));
