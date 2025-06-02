@@ -1,11 +1,12 @@
 import OpenAI from 'openai';
+// @ts-expect-error TS2307: Cannot find module openai/resources/beta/threads or its corresponding type declarations.
+import { TextContentBlock } from 'openai/resources/beta/threads';
 import { logger } from '../../logger';
 
 const openAi = new OpenAI();
 
 export class ThreadController {
 
-    // @ts-ignore
     thread: OpenAI.Beta.Thread;
 
     private constructor() {
@@ -44,7 +45,7 @@ export class ThreadController {
         if (run.status === 'completed') {
             const messages = await openAi.beta.threads.messages.list(run.thread_id);
 
-            const response = (messages.data[0].content[0] as any).text.value;
+            const response = (messages.data[0].content[0] as TextContentBlock).text.value;
 
             logger.info(`ChatGPT >> ${response}`);
 

@@ -1,12 +1,9 @@
-import { NamedNode, Quad, Store, Writer } from 'n3';
 import { ReadStream } from 'fs';
-import { JsonLdParser } from 'jsonld-streaming-parser';
-import fs, { writeFileSync, WriteStream } from 'node:fs';
 import jsonld from 'jsonld';
+import { JsonLdParser } from 'jsonld-streaming-parser';
+import { Quad, Store, Writer } from 'n3';
+import fs, { WriteStream } from 'node:fs';
 import { logger } from '../logger';
-import { MetaStore } from '../memory/store';
-import { writer } from 'node:repl';
-import { CsvDataSource } from '../data/data-source';
 
 
 export async function storeJsonld(readStream: ReadStream, store: Store) : Promise<void> {
@@ -39,7 +36,7 @@ export async function dumpJsonld(
     }
     else {
         const contextText = fs.readFileSync(contextPath, {encoding: 'utf-8'});
-        const contextJson = JSON.parse(contextText);
+        context = JSON.parse(contextText);
     }
 
     writer.end((error, result) => {
@@ -49,7 +46,7 @@ export async function dumpJsonld(
         }
         logger.info(result);
         jsonld.fromRDF(result, {format: 'application/n-quads'})
-            .then(doc => jsonld.compact(doc, context as any, {
+            .then(doc => jsonld.compact(doc, context as never, {
                 skipExpansion: true,
                 compactToRelative: true,
             }))

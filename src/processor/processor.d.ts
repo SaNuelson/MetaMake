@@ -1,10 +1,6 @@
 import { BlankNode, NamedNode } from 'n3';
-import { DataSource } from '../data/data-source';
 import { MetaStore } from '../memory/store';
 import { SourceManager } from '../data/source-manager';
-
-type Data = DataSource<any>;
-
 
 interface Configuration {
     metaInput: Array<NamedNode>;

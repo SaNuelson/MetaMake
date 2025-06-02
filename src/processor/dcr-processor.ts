@@ -1,8 +1,8 @@
-import { CsvDataSource } from '../data/data-source';
-import { BlankNode, NamedNode, Store } from 'n3';
+import { BlankNode, NamedNode } from 'n3';
+import { isCsvDataSource } from '../data/utils';
 import { Catalogue } from '../dcr/core/Catalogue';
 import { logger } from '../logger';
-import { Configuration, Data, Processor } from './processor';
+import { Configuration, Processor } from './processor';
 import { MetaStore } from '../memory/store';
 import { SourceManager } from '../data/source-manager';
 import { CsvMediaType, hasDistribution, mediaType } from '../memory/vocabulary';
@@ -25,8 +25,14 @@ export default class DcrProcessor implements Processor<DcrProcessorConfiguration
             .filter(dist => store.oneOrDefault(dist, mediaType, CsvMediaType));
 
         // TODO: What if more?
+        const source = csvDistributions
+            .map(dist => data.getSource(dist))
+            .find(isCsvDataSource);
 
-        const source = data.getSource(csvDistributions[0]);
+        if (!source) {
+            logger.error('No CSV distribution found for dataset');
+            return;
+        }
 
         const catalogue = new Catalogue();
         catalogue.setData(await source.readNext(50));

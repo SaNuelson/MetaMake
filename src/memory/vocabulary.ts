@@ -1,4 +1,4 @@
-import { NamedNode, PrefixedToIri, Util, Writer } from 'n3';
+import { NamedNode, Util } from 'n3';
 
 import { logger } from '../logger';
 
@@ -16,7 +16,6 @@ export const prefixToUri: {[prefix: string]: string;} = {
     foaf: 'http://xmlns.com/foaf/0.1/',
     media: 'https://www.iana.org/assignments/media-types/',
     location: 'http://www.w3.org/ns/locn#',
-    media: 'https://www.iana.org/assignments/media-types/',
     mm: 'http://tempuri.org/metamake/',
     nkod: 'https://data.gov.cz/slovník/nkod/',
     odrl: 'http://www.w3.org/ns/odrl/2/',

@@ -1,13 +1,18 @@
-import { CsvDataSource } from './data-source';
-import { Transform } from 'stream';
-import { openReadableStream } from '../io/stream';
-import { parseCsvStream } from '../io/csv';
-import { LocalDataSource } from './local-data-source';
 import { Duplex } from 'node:stream';
+import { parseCsvStream } from '../io/csv';
+import { openReadableStream } from '../io/stream';
 import { logger } from '../logger';
 import { isDevelopment } from '../utils/env';
+import { CsvDataSource, DataKind, SourceKind } from './data-source';
+import { LocalDataSource } from './local-data-source';
 
 export class LocalCsvDataSource extends LocalDataSource<string[][]> implements CsvDataSource {
+    get dataKind(): DataKind.CSV {
+        return DataKind.CSV;
+    }
+    get sourceKind(): SourceKind {
+        return SourceKind.LOCAL;
+    }
 
     fileStream: Duplex;
 

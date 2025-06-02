@@ -1,6 +1,6 @@
 import * as voc from './memory/vocabulary';
 import { MetaStore } from './memory/store';
-import { DataSet, dataSet, isA } from './memory/vocabulary';
+import { isA } from './memory/vocabulary';
 import LocalFileProcessor from './processor/local-file-processor';
 import DcrProcessor from './processor/dcr-processor';
 import LlmMockProcessor from './processor/llm-mock-processor';
@@ -10,6 +10,7 @@ import fs from 'node:fs';
 import { LocalCsvDataSource } from './data/local-csv-data-source';
 import { BlankNode, Quad } from 'n3';
 import { logger } from './logger';
+import { SourceManager } from './data/source-manager';
 
 async function main() {
 
@@ -23,17 +24,20 @@ async function main() {
     const dataset = new BlankNode('Dataset');
     store.addQuad(dataset, isA, voc.DataSet);
 
+    const sourceManager = new SourceManager(store, dataset);
+    sourceManager.register(new BlankNode('Distribution'), dataSource, true);
+
     const localFileProcessor = new LocalFileProcessor();
-    localFileProcessor.execute(dataSource, store, dataset);
+    localFileProcessor.execute(sourceManager, store, dataset);
 
     const dcrProcessor = new DcrProcessor();
-    await dcrProcessor.execute(dataSource, store, dataset);
+    await dcrProcessor.execute(sourceManager, store, dataset);
 
     const llmProcessor = new LlmMockProcessor();
-    llmProcessor.execute(dataSource, store, dataset);
+    llmProcessor.execute(sourceManager, store, dataset);
 
     const dcatApCzExtractor = new DcatApCzExtractor();
-    dcatApCzExtractor.execute(dataSource, store, dataset);
+    dcatApCzExtractor.execute(sourceManager, store, dataset);
 
     const output = fs.createWriteStream('out/address_points.jsonld');
     const outQuads = store

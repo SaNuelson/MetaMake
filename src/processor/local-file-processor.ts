@@ -1,11 +1,11 @@
 import { MetaStore } from '../memory/store';
 import { IsLocalDataSource } from '../data/local-data-source';
-import { DataSet, isA, prefixToNamespace } from '../memory/vocabulary';
+import { prefixToNamespace } from '../memory/vocabulary';
 import * as voc from '../memory/vocabulary';
 import { dateTimeLiteral, getCompactName } from '../memory/utils';
 import { BlankNode, DataFactory, NamedNode, Quad } from 'n3';
 import literal = DataFactory.literal;
-import { Configuration, Data, Processor } from './processor';
+import { Configuration, Processor } from './processor';
 import { logger } from '../logger';
 import { SourceManager } from '../data/source-manager';
 

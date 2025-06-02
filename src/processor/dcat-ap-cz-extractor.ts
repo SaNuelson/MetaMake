@@ -1,7 +1,6 @@
-import { CsvDataSource } from '../data/data-source';
 import { MetaStore } from '../memory/store';
 import * as voc from '../memory/vocabulary';
-import { Configuration, Data, Processor } from './processor';
+import { Configuration, Processor } from './processor';
 import { BlankNode, NamedNode } from 'n3';
 import { SourceManager } from '../data/source-manager';
 

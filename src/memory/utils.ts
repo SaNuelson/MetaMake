@@ -3,8 +3,8 @@ import {
     DataFactory, DefaultGraph,
     Literal,
     NamedNode,
-    Quad,
-    Term, Util, Variable,
+    Quad, Term,
+    Util, Variable,
 } from 'n3';
 import literal = DataFactory.literal;
 import { dateTimeType, dateType, uriToPrefix } from './vocabulary';
@@ -32,7 +32,7 @@ export function splitUri(node: NamedNode): string[] {
     const slashIndex = uri.lastIndexOf('/');
     const splitIndex = Math.max(hashIndex, slashIndex);
 
-    return [uri.substring(0, splitIndex + 1), uri.substring(splitIndex + 1)]
+    return [uri.substring(0, splitIndex + 1), uri.substring(splitIndex + 1)];
 }
 
 export function getNamespace(node: NamedNode): string {
@@ -44,17 +44,17 @@ export function getLocalName(node: NamedNode): string {
 }
 
 export function getCompactName(node?: Quad | Term | null): string {
-    if (!node){
+    if (!node) {
         return 'null';
     }
 
-    if (node instanceof Quad){
+    if (node instanceof Quad) {
         return [node.subject, node.predicate, node.object, node.graph]
             .map(n => getCompactName(n)).join(' ');
     }
 
-    switch(node.termType) {
-        case 'NamedNode':
+    switch (node.termType) {
+        case 'NamedNode': {
             const [namespace, localName] = splitUri(node);
             const prefix = uriToPrefix[namespace];
             if (!prefix) {
@@ -62,6 +62,7 @@ export function getCompactName(node?: Quad | Term | null): string {
                 return node.value;
             }
             return prefix + ':' + localName;
+        }
         case 'BlankNode':
             return '_:' + node.value;
         default:
@@ -70,18 +71,33 @@ export function getCompactName(node?: Quad | Term | null): string {
 
 }
 
-export function isNamedNode(value: Term | null) : value is NamedNode {
+
+export function isNamedNode(value: Term | null): value is NamedNode {
+    if (value instanceof Quad)
+        return false;
     return Util.isNamedNode(value);
 }
-export function isBlankNode(value: Term | null) : value is BlankNode {
+
+export function isBlankNode(value: Term | null): value is BlankNode {
+    if (value instanceof Quad)
+        return false;
     return Util.isBlankNode(value);
 }
-export function isLiteral(value: Term | null) : value is Literal {
+
+export function isLiteral(value: Term | null): value is Literal {
+    if (value instanceof Quad)
+        return false;
     return Util.isLiteral(value);
 }
-export function isVariable(value: Term | null) : value is Variable {
+
+export function isVariable(value: Term | null): value is Variable {
+    if (value instanceof Quad)
+        return false;
     return Util.isVariable(value);
 }
-export function isDefaultGraph(value: Term | null) : value is DefaultGraph {
+
+export function isDefaultGraph(value: Term | null): value is DefaultGraph {
+    if (value instanceof Quad)
+        return false;
     return Util.isDefaultGraph(value);
 }

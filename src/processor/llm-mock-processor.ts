@@ -1,10 +1,7 @@
-import { CsvDataSource } from '../data/data-source';
 import { MetaStore } from '../memory/store';
-import { csvTableSchema, DataSet, dataSet, description, isA, prefixToNamespace, title } from '../memory/vocabulary';
+import { description, prefixToNamespace, title } from '../memory/vocabulary';
 import { BlankNode, DataFactory as df, NamedNode } from 'n3';
-import { ThreadController } from './helper/chatgpt-connector';
-import { logger } from '../logger';
-import { Configuration, Data, Processor } from './processor';
+import { Configuration, Processor } from './processor';
 import { LlmProcessorConfiguration } from './llm-processor';
 import { SourceManager } from '../data/source-manager';
 

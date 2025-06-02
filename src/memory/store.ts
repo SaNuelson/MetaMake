@@ -1,15 +1,6 @@
-import N3 = require('n3');
-import {
-    BlankNode,
-    NamedNode,
-    Quad, Quad_Graph,
-    Quad_Object,
-    Quad_Predicate,
-    Quad_Subject,
-    Term, Util,
-} from 'n3';
-import * as RDF from '@rdfjs/types';
-import { Processor } from '../processor/processor';
+import N3, { BlankNode, NamedNode, Quad, Quad_Graph, Quad_Object, Quad_Predicate, Quad_Subject, Term } from 'n3';
+import { Configuration, Processor } from '../processor/processor';
+import { getCompactName, isDefaultGraph } from './utils';
 import {
     hasObject,
     hasPredicate,
@@ -18,9 +9,8 @@ import {
     prefixToNamespace,
     ProvenanceEntity,
     Statement,
-    wasDerivedFrom, wasGeneratedBy,
+    wasDerivedFrom,
 } from './vocabulary';
-import { getCompactName, isDefaultGraph } from './utils';
 
 const mm = prefixToNamespace['mm'];
 
@@ -40,7 +30,7 @@ export class MetaStore extends N3.Store {
                predicate?: Quad_Predicate | null,
                object?: Quad_Object | null,
                graph?: Quad_Graph | null)
-        : RDF.Quad {
+        : Quad {
         const match = this.match(subject, predicate, object, graph);
 
         if (match.size !== 1)
@@ -51,7 +41,7 @@ export class MetaStore extends N3.Store {
             G| ${getCompactName(graph)}. 
         Found ${match.size}`);
 
-        return [...match][0];
+        return ([...match] as Quad[])[0];
     }
 
     /**
@@ -62,7 +52,7 @@ export class MetaStore extends N3.Store {
                      predicate?: Quad_Predicate | null,
                      object?: Quad_Object | null,
                      graph?: Quad_Graph | null)
-        : RDF.Quad | null {
+        : Quad | null {
         const match = this.match(subject, predicate, object, graph);
 
         if (match.size === 0)
@@ -71,7 +61,7 @@ export class MetaStore extends N3.Store {
         if (match.size > 1)
             throw new Error(`Failed to match single statement for ${subject} ${predicate} ${object} ${graph}. Found ${match.size}`);
 
-        return [...match][0];
+        return ([...match] as Quad[])[0];
     }
 
     /**
@@ -81,13 +71,13 @@ export class MetaStore extends N3.Store {
                         predicate?: Quad_Predicate | null,
                         object?: Quad_Object | null,
                         graph?: Quad_Graph | null)
-        : RDF.Quad | null {
+        : Quad | null {
         const match = this.match(subject, predicate, object, graph);
 
         if (match.size !== 1)
             return null;
 
-        return [...match][0];
+        return ([...match] as Quad[])[0];
     }
 
     /**
@@ -97,7 +87,7 @@ export class MetaStore extends N3.Store {
                predicate?: Quad_Predicate | null,
                object?: Quad_Object | null,
                graph?: Quad_Graph | null)
-        : RDF.Quad[] {
+        : Quad[] {
         return [...this.getQuads(subject, predicate, object, graph)];
     }
 
@@ -127,7 +117,7 @@ export class MetaStore extends N3.Store {
                           object: Quad_Object,
                           graph: Quad_Graph | null,
                           origin: Quad | null,
-                          author: Processor<any>,
+                          author: Processor<Configuration>,
                           details: [Term, Term][],
     ): void {
 
