@@ -1,23 +1,34 @@
-import { Duplex } from 'node:stream';
 import { parseCsvStream } from '../io/csv';
 import { openReadableStream } from '../io/stream';
 import { logger } from '../logger';
 import { isDevelopment } from '../utils/env';
 import { CsvDataSource, DataKind, SourceKind } from './data-source';
-import { LocalDataSource } from './local-data-source';
+import { DataHolder, LocalDataSource } from './local-data-source';
 
-export class LocalCsvDataSource extends LocalDataSource<string[][]> implements CsvDataSource {
+class CsvDataHolder implements DataHolder<string[]> {
+    private data: string[][];
+
+    public add(data: string[]): void {
+        this.data.push(data);
+    }
+
+    public get size(): number {
+        return this.data.length;
+    }
+
+    public getData(): string[][] {
+        return this.data;
+    }
+}
+
+export class LocalCsvDataSource extends LocalDataSource<string[], CsvDataHolder> implements CsvDataSource {
+
     get dataKind(): DataKind.CSV {
         return DataKind.CSV;
     }
+
     get sourceKind(): SourceKind {
         return SourceKind.LOCAL;
-    }
-
-    fileStream: Duplex;
-
-    protected constructor(filename: string) {
-        super(filename);
     }
 
     public static async create(filename: string): Promise<LocalCsvDataSource> {
@@ -27,56 +38,19 @@ export class LocalCsvDataSource extends LocalDataSource<string[][]> implements C
             logger.info(
                 `LocalCsvDataSource( ${filename} ) created:` +
                 (await dataSource.readNext(1))[0] +
-                "...")
+                '...');
         }
 
         return dataSource;
     }
 
-    private get isOpen(): boolean {
-        return !!this.fileStream && !this.fileStream.closed;
-    }
-
-    async open(): Promise<boolean> {
+    protected async open(): Promise<boolean> {
         const rawStream = openReadableStream(this.filename);
         this.fileStream = parseCsvStream(rawStream);
         return true;
     }
 
-    async reset(): Promise<boolean> {
-        if (!this.isOpen)
-            return true;
-
-        this.fileStream.destroy();
-        return true;
-    }
-
-    async readNext(n?: number): Promise<string[][]> {
-        if (!this.isOpen)
-            await this.open();
-
-        return new Promise<string[][]>((res, rej) => {
-
-            const dataChunks: string[][] = [];
-            let isStreamOpen = true;
-
-            this.fileStream.on('end', () => {
-                isStreamOpen = false;
-                this.fileStream.pause();
-                res(dataChunks);
-            });
-
-            this.fileStream.on('data', chunk => {
-                dataChunks.push(chunk);
-                if (!isStreamOpen || dataChunks.length === n) {
-                    this.fileStream.pause();
-                    res(dataChunks);
-                }
-            });
-
-            this.fileStream.on('error', err => {
-                rej(err);
-            });
-        });
+    protected createHolder(): CsvDataHolder {
+        throw new Error('Method not implemented.');
     }
 }
