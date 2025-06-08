@@ -1,6 +1,6 @@
 import { Quad } from 'n3';
 import { openReadableStream } from '../io/stream';
-import { logger } from '../logger';
+import logger from '../logger';
 import { isDevelopment } from '../utils/env';
 import { DataKind, RdfDataSource, SourceKind } from './data-source';
 import { parseRdfStream } from '../io/rdf';
@@ -31,6 +31,7 @@ export class LocalRdfDataSource extends LocalDataSource<Quad, QuadHolder> implem
     }
 
     public static async create(filename: string): Promise<LocalRdfDataSource> {
+
         const dataSource = new LocalRdfDataSource(filename);
 
         if (isDevelopment()) {

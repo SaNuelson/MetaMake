@@ -1,7 +1,7 @@
 import { BlankNode, NamedNode } from 'n3';
 import { isCsvDataSource } from '../data/utils';
 import { Catalogue } from '../dcr/core/Catalogue';
-import { logger } from '../logger';
+import { getScopedLogger, logger, ScopedLogger } from '../logger';
 import { Configuration, Processor } from './processor';
 import { MetaStore } from '../memory/store';
 import { SourceManager } from '../data/source-manager';
@@ -14,11 +14,17 @@ export class DcrProcessorConfiguration implements Configuration {
 }
 
 export default class DcrProcessor implements Processor<DcrProcessorConfiguration> {
+    private logger: ScopedLogger;
+
+    constructor() {
+        this.logger = getScopedLogger(this.constructor.name);
+    }
+
     configure(config: DcrProcessorConfiguration): void {
     }
 
     async execute(data: SourceManager, store: MetaStore, dataset: BlankNode): Promise<void> {
-        logger.debug(`DcrProcessor.execute() begin`);
+        this.logger.debug(`execute begin`);
 
         const csvDistributions = store.getObjects(dataset, hasDistribution, null)
             .filter(dist => isBlankNode(dist))
@@ -30,7 +36,7 @@ export default class DcrProcessor implements Processor<DcrProcessorConfiguration
             .find(isCsvDataSource);
 
         if (!source) {
-            logger.error('No CSV distribution found for dataset');
+            this.logger.error('No CSV distribution found for dataset');
             return;
         }
 
@@ -43,7 +49,7 @@ export default class DcrProcessor implements Processor<DcrProcessorConfiguration
             logger.info(useType.type, 'from', allUseTypes.map(ut => ut.type));
         }
 
-        logger.debug(`DcrProcessor.execute() end.`);
+        this.logger.debug(`execute end.`);
     }
 
 }

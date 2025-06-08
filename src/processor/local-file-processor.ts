@@ -7,7 +7,7 @@ import { dateTimeLiteral, getCompactName } from '../memory/utils';
 import { BlankNode, DataFactory, NamedNode, Quad } from 'n3';
 import literal = DataFactory.literal;
 import { Configuration, Processor } from './processor';
-import { logger } from '../logger';
+import { getScopedLogger, ScopedLogger } from '../logger';
 import { SourceManager } from '../data/source-manager';
 
 const mm = prefixToNamespace['mm'];
@@ -21,12 +21,17 @@ export class LocalFileProcessorConfiguration implements Configuration {
 }
 
 export default class LocalFileProcessor implements Processor<LocalFileProcessorConfiguration> {
+    private logger: ScopedLogger;
+
+    constructor() {
+        this.logger = getScopedLogger(this.constructor.name);
+    }
 
     configure(config: LocalFileProcessorConfiguration): void {
     }
 
     execute(data: SourceManager, store: MetaStore, dataset: BlankNode): void {
-        logger.debug(`LocalFileProcessor.execute() begin`);
+        this.logger.debug(`execute begin`);
 
         const source = data.getPrimarySource()
 
@@ -43,10 +48,10 @@ export default class LocalFileProcessor implements Processor<LocalFileProcessorC
         store.add(distribution, voc.modified, dateTimeLiteral(source.fileStats.mtime), localFileProcessorGraph);
         store.add(distribution, voc.created, dateTimeLiteral(source.fileStats.birthtime), localFileProcessorGraph);
 
-        logger.debug(getCompactName(new Quad(distribution, voc.fileName, literal(source.filename), localFileProcessorGraph)));
-        logger.debug(getCompactName(new Quad(distribution, voc.modified, dateTimeLiteral(source.fileStats.mtime), localFileProcessorGraph)));
-        logger.debug(getCompactName(new Quad(distribution, voc.created, dateTimeLiteral(source.fileStats.birthtime), localFileProcessorGraph)));
+        this.logger.debug(getCompactName(new Quad(distribution, voc.fileName, literal(source.filename), localFileProcessorGraph)));
+        this.logger.debug(getCompactName(new Quad(distribution, voc.modified, dateTimeLiteral(source.fileStats.mtime), localFileProcessorGraph)));
+        this.logger.debug(getCompactName(new Quad(distribution, voc.created, dateTimeLiteral(source.fileStats.birthtime), localFileProcessorGraph)));
 
-        logger.debug(`LocalFileProcessor.execute() end.`);
+        this.logger.debug(`execute end.`);
     }
 }

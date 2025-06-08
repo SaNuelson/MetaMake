@@ -9,7 +9,7 @@ import { dumpJsonld } from './io/jsonld';
 import fs from 'node:fs';
 import { LocalCsvDataSource } from './data/local-csv-data-source';
 import { BlankNode, Quad } from 'n3';
-import { logger } from './logger';
+import logger from './logger';
 import { SourceManager } from './data/source-manager';
 
 async function main() {

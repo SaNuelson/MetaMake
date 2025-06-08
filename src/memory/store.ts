@@ -10,7 +10,7 @@ import N3, {
     Store,
     Term,
 } from 'n3';
-import { logger } from '../logger';
+import { getScopedLogger, ScopedLogger } from '../logger';
 import { Configuration, Processor } from '../processor/processor';
 import { getCompactName, isDefaultGraph } from './utils';
 import {
@@ -50,12 +50,14 @@ export class MetaStore {
     //#endregion
 
     private id: string;
+    private logger: ScopedLogger;
     private static idCounter: number= 0;
 
     private store: Store<Quad, Quad, Quad, Quad>;
 
     private constructor(id?: string) {
         this.id = id ?? `Store#${MetaStore.idCounter++}`;
+        this.logger = getScopedLogger(`${this.id}`);
         this.store = new N3.Store();
     }
 
@@ -159,7 +161,7 @@ export class MetaStore {
                author?: Processor<Configuration>,
                details?: [Term, Term][],
     ): void {
-        logger.debug(`${this.id} + QUAD : ${getCompactName(subject)} ${getCompactName(predicate)} ${getCompactName(object)} ${getCompactName(graph) ?? ''}`,
+        this.logger.debug(`+ QUAD : ${getCompactName(subject)} ${getCompactName(predicate)} ${getCompactName(object)} ${getCompactName(graph) ?? ''}`,
             origin || author || details ? { data: { origin, author, ...details } } : undefined);
 
         graph ??= defaultGraph();

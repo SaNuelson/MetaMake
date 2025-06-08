@@ -7,9 +7,9 @@ import {
     SourceKind,
     XmlDataSource,
 } from './data-source';
-import { LocalDataSource } from './local-data-source';
+import { DataHolder, LocalDataSource } from './local-data-source';
 
-export function isLocalDataSource<T>(ds: DataSource<T>): ds is LocalDataSource<T> {
+export function isLocalDataSource<T>(ds: DataSource<T>): ds is LocalDataSource<T, DataHolder<T>> {
     return ds.sourceKind === SourceKind.LOCAL;
 }
 

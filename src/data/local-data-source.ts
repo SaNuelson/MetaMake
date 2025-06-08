@@ -1,6 +1,7 @@
 import { Stats } from 'fs';
 import { existsSync, statSync } from 'node:fs';
 import { Duplex } from 'node:stream';
+import { getScopedLogger, ScopedLogger } from '../logger';
 import { DataKind, DataSource, SourceKind } from './data-source';
 
 export abstract class DataHolder<DataChunk> {
@@ -9,13 +10,16 @@ export abstract class DataHolder<DataChunk> {
     public abstract getData(): DataChunk[];
 }
 
-export abstract class LocalDataSource<Data, Holder extends DataHolder<Data>>
-    implements DataSource<Data> {
+export abstract class LocalDataSource<Data, Holder extends DataHolder<Data>> implements DataSource<Data> {
     public readonly filename: string;
     public readonly fileStats: Stats;
     protected fileStream: Duplex;
 
+    protected logger: ScopedLogger;
+
     protected constructor(filename: string) {
+        this.logger = getScopedLogger(this.constructor.name);
+
         this.filename = filename;
 
         if (!existsSync(filename)) {
@@ -36,6 +40,8 @@ export abstract class LocalDataSource<Data, Holder extends DataHolder<Data>>
     }
 
     public async reset(): Promise<boolean> {
+        this.logger.info(`${this.constructor.name}(${this.filename}) reset.`);
+
         if (!this.isOpen)
             return true;
 
@@ -48,6 +54,7 @@ export abstract class LocalDataSource<Data, Holder extends DataHolder<Data>>
     protected abstract createHolder(): Holder;
 
     public async readNext(n?: number): Promise<Data[]> {
+        this.logger.info(`${this.constructor.name}(${this.filename}) read ${n}.`);
         if (!this.isOpen)
             await this.open();
 

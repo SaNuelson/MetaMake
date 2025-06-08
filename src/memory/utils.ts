@@ -8,7 +8,7 @@ import {
 } from 'n3';
 import literal = DataFactory.literal;
 import { dateTimeType, dateType, uriToPrefix } from './vocabulary';
-import { logger } from '../logger';
+import logger from '../logger';
 
 const dateFormatter = new Intl.DateTimeFormat('en', {year: 'numeric', month: '2-digit', day: '2-digit'});
 
@@ -24,6 +24,12 @@ export function dateTimeLiteral(dateTime: Date): Literal {
 
 export function splitUri(node: NamedNode): string[] {
     let uri = node.value;
+
+    for (const prefix in uriToPrefix) {
+        if (uri.startsWith(prefix)) {
+            return [uri.substring(0, prefix.length), uri.substring(prefix.length)];
+        }
+    }
 
     if (uri.endsWith('/'))
         uri = uri.substring(0, uri.length - 1);

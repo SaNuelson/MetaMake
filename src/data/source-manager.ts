@@ -1,5 +1,5 @@
 import { Quad_Subject } from 'n3';
-import { logger } from '../logger';
+import { getScopedLogger, ScopedLogger } from '../logger';
 import { DataSource } from './data-source';
 import { MetaStore } from '../memory/store';
 import { Distribution, hasDistribution, isA, PrimaryDistribution } from '../memory/vocabulary';
@@ -9,14 +9,16 @@ export class SourceManager {
     private sources: Map<string, DataSource<unknown>> = new Map();
     private store: MetaStore;
     private dataset: Quad_Subject;
+    private logger: ScopedLogger;
 
     constructor(store: MetaStore, dataset: Quad_Subject) {
+        this.logger = getScopedLogger(this.constructor.name);
         this.store = store;
         this.dataset = dataset;
     }
 
     register(distribution: Quad_Subject, source: DataSource<unknown>, isPrimary: boolean = false): void {
-        logger.info(`Registering source ${source.sourceKind} ${source.dataKind} for distribution ${distribution.id} (primary: ${isPrimary})`);
+        this.logger.info(`Registering source ${source.sourceKind} ${source.dataKind} for distribution ${distribution.id} (primary: ${isPrimary})`);
 
         const id = distribution.id;
         this.sources.set(id, source);
@@ -48,7 +50,7 @@ export class SourceManager {
             return this.sources.get(primaryDistribution.id) ?? null;
         }
 
-        logger.error(`No primary distribution found for dataset ${this.dataset.id}.`)
+        this.logger.error(`No primary distribution found for dataset ${this.dataset.id}.`)
         return null;
     }
 
