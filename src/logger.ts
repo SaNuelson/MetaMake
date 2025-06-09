@@ -1,9 +1,10 @@
+import { TransformableInfo } from 'logform';
+import { stripVTControlCharacters } from 'node:util';
 import winston from 'winston';
-import fs from 'node:fs';
 import { isProduction } from './utils/env';
 
+// Date for log file
 const date = new Date();
-
 const dateStr =
     `${date.getFullYear()}-` +
     (`0${date.getMonth() + 1}`).slice(-2) + '-' +
@@ -12,11 +13,26 @@ const dateStr =
     (`0${date.getMinutes()}`).slice(-2) + '-' +
     (`0${date.getSeconds()}`).slice(-2);
 
+// Meta colorization
 winston.addColors({meta: 'cyan'});
 const colorizer = winston.format.colorize();
 
+function plainPadStart(str: string, length: number, padChar: string = ' ') {
+    const plainStr = stripVTControlCharacters(str);
+    const padSize = length - plainStr.length;
+    console.log("PAD START", str, padSize);
+    return padSize > 0 ? padChar.repeat(padSize) + str : str;
+}
+
+function plainPadEnd(str: string, length: number, padChar: string = ' ') {
+    const plainStr = stripVTControlCharacters(str);
+    const padSize = length - plainStr.length;
+    console.log("PAD END", str, padSize);
+    return padSize > 0 ? str + padChar.repeat(padSize) : str;
+}
+
 // Create a custom format
-const timestampFormat = winston.format.printf(({level, message, timestamp, ...metadata}) => {
+const logFileFormat = winston.format.printf(({level, message, caller, timestamp, ...metadata} : TransformableInfo) => {
     let msg = `${timestamp} - ${level}: ${message} `;
 
     // Append all other metadata to the message
@@ -27,8 +43,11 @@ const timestampFormat = winston.format.printf(({level, message, timestamp, ...me
     return msg;
 });
 
-const consoleFormat = winston.format.printf(({level, message, timestamp, ...metadata}) => {
-    let msg = `${level}: ${message} `;
+const consoleFormat = winston.format.printf(({level, message, caller, timestamp, ...metadata} : TransformableInfo) => {
+    // level = plainPadStart(`${level}`, 10);
+    // caller = plainPadEnd(`[${caller}]`, 20);
+    // TODO: HOW IS IT SO FKN HARD TO MAKE CONSISTENT PADDING IN CONSOLE
+    let msg = `${timestamp}\t${level}\t${caller}:\t${message}`;
 
     // Append all other metadata to the message
     if (Object.keys(metadata).length > 0) {
@@ -38,13 +57,13 @@ const consoleFormat = winston.format.printf(({level, message, timestamp, ...meta
     return msg;
 });
 
-export const logger = winston.createLogger({
-    level: 'debug',  // Set your desired default log level here
+const logger = winston.createLogger({
+    level: 'debug',
     format: winston.format.combine(
         winston.format.timestamp({
             format: 'YYYY-MM-DD HH:mm:ss',
         }),
-        timestampFormat,
+        logFileFormat,
     ),
     transports: [
         new winston.transports.File({filename: `logs/${dateStr}.error.log`, level: 'error'}),
@@ -57,7 +76,26 @@ if (!isProduction()) {
     logger.add(new winston.transports.Console({
         format: winston.format.combine(
             winston.format.colorize({all: true}),
-            consoleFormat,
+            consoleFormat
         ),
     }));
+}
+
+
+export default logger;
+
+type ScopedLogger = {
+    info: (message: string, meta: object) => void,
+    debug: (message: string, meta: object) => void,
+    error: (message: string, meta: object) => void,
+    warn: (message: string, meta: object) => void,
+}
+
+export function getScopedLogger(scope: string): ScopedLogger {
+    return {
+        info: (message: string, meta?: object) => logger.info(message, {caller: scope, ...meta}),
+        debug: (message: string, meta?: object) => logger.debug(message, {caller: scope, ...meta}),
+        error: (message: string, meta?: object) => logger.error(message, {caller: scope, ...meta}),
+        warn: (message: string, meta?: object) => logger.warn(message, {caller: scope, ...meta}),
+    }
 }
