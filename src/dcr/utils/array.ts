@@ -1,28 +1,32 @@
 
-export function unique(arr: any[]): any[] {
+export function unique<T>(arr: T[]): T[] {
     return [...new Set(arr)];
 }
 
-export function charsToRegex (arr: string[]): RegExp {
+export function charsToRegex(arr: string[]): RegExp {
     return new RegExp('[' + arr.join('') + ']');
 }
 
 
 /**
- * Reduce array into object containing its values as keys with values being occurences
- * @param arr
- * @returns object with keys equal to unique values in arr, their values being number of occurences
+ * Reduce an array into an object containing its values as keys with values being occurrences
+ * @param arr Array in which to count occurrences.
+ * @returns object with keys being the unique values in arr, their values being number of occurrences
  */
-export function count(arr: any[]): {[key: string]: number } {
-    return arr.reduce((acc, next) => {
-        acc[next] ? acc[next]++ : acc[next] = 1;
+export function count<T>(arr: Array<T>): {[key: string]: number } {
+    return arr.reduce((acc: {[key: string]: number }, next): {[key: string]: number } => {
+        const key = next.toString();
+        if (acc[key])
+            acc[key]++;
+        else
+            acc[key] = 1;
         return acc;
     }, {});
 }
 
 
 /**
- * Sum elements in array (concat if strings)
+ * Sum elements in an array (concat if strings)
  */
 export function sum(arr: number[]): number {
     return arr.reduce((a, b) => a + b);
@@ -36,52 +40,38 @@ export function avg(arr: number[]): number {
     return sum(arr) / arr.length;
 }
 
+type genericCallback<T> = (item: T, index: number, array: T[]) => boolean;
+type stringCallback = (item: string) => boolean;
 
 /**
- * Find indexes using the lambda function provided
- * @param domain domain (e.g. array or string) to search the element in
- * @param [callbackFn] function taking (element, index, array) as parameters, returning boolean
+ * Find indexes using the lambda function provided.
+ * @param domain domain (e.g., array or string) to search the element in
+ * @param [callbackFn] function taking (an element, index, array) as parameters, returning boolean
  * @param [thisArg] object to use as "this" when calling callbackFn
  * @returns {number[]} indexes of elements for which callbackFn returns true
  */
-export function findIndexes(domain: any[] | string, callbackFn: (item: any) => boolean, thisArg: any): number[] {
+export function findIndexes<T>(domain: T[], callbackFn: genericCallback<T>, thisArg?: unknown): number[];
+export function findIndexes(domain: string, callbackFn: stringCallback, thisArgs?: unknown): number[];
+export function findIndexes<T>(domain: T[] | string, callbackFn: genericCallback<T> | stringCallback, thisArg?: unknown): number[] {
     if (!callbackFn)
         callbackFn = (el) => !!el;
-    if (!thisArg)
-        thisArg = this;
-    const idxs = [];
+    const indices = [];
     for (let i = 0; i < domain.length; i++) {
         if (callbackFn.call(thisArg, domain[i], i, domain))
-            idxs.push(i);
+            indices.push(i);
     }
-    return idxs;
-}
-
-
-/**
- * Convert object to array with elements in form [key, object[key]]
- * @example
- * let o = {a: 1, b: "2", c: {d: "three"}};
- * let a = toKvp(o);
- * // [["a", 1], ["b", "2"], ["c", {d: "three"}]]
- */
-export function toKvp<T>(obj: {[key: string]: T}): [string, T][] {
-    const arr = [];
-    for (const key in obj) {
-        arr.push([key, obj[key]]);
-    }
-    return arr;
+    return indices;
 }
 
 /**
- * Check if array has any duplicates (shallow?)
+ * Check if an array has any duplicates (shallow?)
  */
-export function hasDuplicates(array: any[]): boolean {
+export function hasDuplicates<T>(array: T[]): boolean {
     return (new Set(array)).size !== array.length;
 }
 
 /**
- * Group objects in array by specific key
+ * Group objects in an array by specific key
  * @param {*[]} xs array to group
  * @param {*} key key to group by
  * @param {boolean} dropKeyless whether to skip objects lacking specified key or not
@@ -91,7 +81,7 @@ export function hasDuplicates(array: any[]): boolean {
  * let grouped = groupBy(objs, 'a', true);
  * // {'5':[{'a':5}], '10':[{'a':10}], 'false':{'a':false}]}
  */
-export function groupBy(xs: any[], key: any, dropKeyless: boolean = true): object {
+export function groupBy(xs: object[], key: string, dropKeyless: boolean = true): object {
     if (dropKeyless)
         xs = xs.filter(x => x[key] || x[key] === 0);
 
@@ -107,15 +97,12 @@ export function groupBy(xs: any[], key: any, dropKeyless: boolean = true): objec
  * Check if two arrays are equal element-wise (shallow)
  * @param {*[]} ax
  * @param {*[]} bx
- * @returns {boolean} true if of same size and all eleements equal, false otherwise
+ * @returns {boolean} true if of same size and all elements equal, false otherwise
  */
-export function areEqual(ax: any[], bx: any[]): boolean {
+export function areEqual(ax: unknown[], bx: unknown[]): boolean {
     if (ax.length !== bx.length)
         return false;
-    for (const i in ax)
-        if (ax[i] !== bx[i])
-            return false;
-    return true;
+    return ax.every((a, i) => a === bx[i]);
 }
 
 export function isSubsetOf(as, bs) {
@@ -135,10 +122,10 @@ export function intersection(as, bs) {
  * @example
  * let arr = ["a","b","c","d"];
  * let filler = "X";
- * console.log(infill(arr, filler, true, false));
+ * console.log(infill (arr, filler, true, false));
  * // ["X", "a", "X", "b", "X", "c", "X", "d"];
  */
-export function infill(arr, el, start = false, end = false) {
+export function infill(arr: Array<unknown>, el: unknown, start: boolean = false, end: boolean = false): Array<unknown> {
     const infilled = arr.map(a => [a, el]).flat(1);
     if (start)
         infilled.splice(0, 0, el);
@@ -148,44 +135,47 @@ export function infill(arr, el, start = false, end = false) {
 }
 
 /**
- * Return a subset containing only minimas with respect to inclusion
- * @param {any[][]} ass
+ * Return a subset containing only minima with respect to inclusion
+ * @param {any[][]} groups
  * @example
- * filterInclusionMinimas([[1, 2], [1], [2], [3, 4, 5], [3, 4], [3, 5]]);
+ * filterInclusionMinima([[1, 2], [1], [2], [3, 4, 5], [3, 4], [3, 5]]);
  * // [[1], [2], [3, 4], [3, 5]]
  */
-export function filterInclusionMinimas(ass) {
-    const retset = [];
-    for (let i = 0; i < ass.length; i++) {
-        let minimal = true;
-        for (let j = 0; j < ass.length; j++) {
+export function filterInclusionMinima(groups: unknown[][]): unknown[] {
+    const minima: unknown[] = [];
+    for (let i = 0; i < groups.length; i++) {
+        let isMinimal = true;
+        for (let j = 0; j < groups.length; j++) {
             if (i === j)
                 continue;
 
-            if (isSubsetOf(ass[j], ass[i])) {
-                minimal = false;
+            if (isSubsetOf(groups[j], groups[i])) {
+                isMinimal = false;
                 break;
             }
         }
-        if (minimal)
-            retset.push(ass[i]);
+        if (isMinimal)
+            minima.push(groups[i]);
     }
-    return retset;
+    return minima;
 }
 
-/** See filterInclusionMinimas */
-export function filterInclusionMaximas(ass) {
-    const retset = [];
-    for (let i = 0; i < ass.length; i++) {
-        let minimal = true;
-        for (let j = 0; j < ass.length; j++) {
-            if (isSubsetOf(ass[i], ass[j])) {
-                minimal = false;
+/** @see filterInclusionMinima */
+export function filterInclusionMaxima(groups: unknown[][]): unknown[] {
+    const maxima: unknown[] = [];
+    for (let i = 0; i < groups.length; i++) {
+        let isMaximal = true;
+        for (let j = 0; j < groups.length; j++) {
+            if (i === j)
+                continue;
+
+            if (isSubsetOf(groups[i], groups[j])) {
+                isMaximal = false;
                 break;
             }
         }
-        if (minimal)
-            retset.push(ass[i]);
+        if (isMaximal)
+            maxima.push(groups[i]);
     }
-    return retset;
+    return maxima;
 }
