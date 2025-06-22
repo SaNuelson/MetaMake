@@ -1,5 +1,5 @@
-import { recognizeTimestamps } from '../timestamp/parse';
-import { Timestamp } from '../timestamp/timestamp';
+import { recognizeTimestamps } from '../recognize';
+import { Timestamp } from '../useType';
 
 describe('recognizeTimestamps', () => {
     it('should correctly recognize a timestamp format of a list of UTC timestamps', () => {

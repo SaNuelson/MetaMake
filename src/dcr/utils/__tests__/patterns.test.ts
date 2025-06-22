@@ -60,7 +60,7 @@ const testStrings: { [label: string]: TestTuple } = {
         ],
     },
     math: {
-        // \forall x \in \Sigma * \exists y \in \Sigma * : x . y \in P : 
+        // \forall x \in \Sigma * \exists y \in \Sigma * : x . y \in P :
         source: '\u{2200}x\u{2208}\u{2211}*\u{2203}y\u{2208}\u{2211}*:x.y\u{2208}P',
         split: [
             {symbols: '\u{2200}'}, // forall
@@ -162,7 +162,7 @@ function reformatTestUsingSettings(testStringData: TestTuple, patternFormat: Cut
         newSplit = newSplit.filter(token => !token.rest);
     }
 
-    if (!patternFormat.matchall) {
+    if (!patternFormat.matchAll) {
         return {
             source: testStringData.source,
             split: newSplit.map(token => Object.values(token)[0]),

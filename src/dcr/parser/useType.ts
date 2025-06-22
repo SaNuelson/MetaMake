@@ -13,14 +13,14 @@ export type DomainType = 'none' | 'ordinal' | 'nominal';
 
 /**
  * Base class for all useTypes, basically an interface.
- * Always bound to specific primary datatype (e.g. Enum <-> String[]),
+ * Always bound to a specific primary datatype (e.g. Enum <-> String[]),
  * for which it is essentially a glorified wrapper.
  * Some can also have secondary compatible types.
  * @interface
  * @abstract
  * @template T
  */
-export class UseType<T> {
+export abstract class UseType<T> {
 
     hasNull: boolean = false;
     nullVal: string | undefined;
@@ -59,63 +59,45 @@ export class UseType<T> {
         }
     }
 
-    /** Transform value of underlying type to formatted string
+    /** Transform the value of an underlying type to formatted string
      * @returns {string}
      */
-    format(x: T): string {
-        throw new Error('Abstract baseclass UseType.format() called.');
-    }
+    abstract format(x: T): string;
 
     /**
-     * Transform formatted string (conforming to this' format) to underlying type
+     * Transform formatted string (conforming to this one's format) to underlying type
      * @param {string} x to try to parse
-     * @returns {T|null} instance of underlying type if successful, null otherwise.
+     * @returns {T|null} instance of an underlying type if successful, null otherwise.
      */
-    deformat(x: string): T | null {
-        throw new Error('Abstract base class UseType.deformat() called.');
-    }
+    abstract deformat(x: string): T | null;
 
-    toString(): string {
-        return 'U{undefined}';
-    }
+    abstract toString(): string;
 
-    toFormatString(): string {
-        return '';
-    }
+    abstract toFormatString(): string;
 
-    toDebugString(): string {
-        return 'UseType::Base()';
-    }
+    abstract toDebugString(): string;
 
     /**
      * Check if other useType is a superset (if any string is parsable by this, it is parsable by other).
      */
-    isSubsetOf(other: UseType<any>): boolean {
-        throw new Error('Abstract base class UseType.isSubsetOf() called.');
-    }
+    abstract isSubsetOf(other: UseType<unknown>): boolean;
 
     /**
      * Check if this useType is a superset (if any string is parsable by other, it is parsable by this).
      */
-    isSupersetOf(other: UseType<any>): boolean {
-        throw new Error('Abstract base class UseType.isSupersetOf() called.');
-    }
+    abstract isSupersetOf(other: UseType<unknown>): boolean;
 
     /**
      * Check if this useType is equal to other (both parse the same set of strings).
      * Usually implemented as isSupersetOf && isSubsetOf
      */
-    isEqualTo(other: UseType<any>): boolean {
-        throw new Error('Abstract base class UseType.isEqualTo() called.');
-    }
+    abstract isEqualTo(other: UseType<unknown>): boolean;
 
     /**
      * Check if this useType is similar to other (parsed strings convey the same meaning).
      * Usually implemented as isSupersetOf || isSubsetOf
      */
-    isSimilarTo(other: UseType<any>): boolean {
-        throw new Error('Abstract base class UseType.isSimilarTo() called.');
-    }
+    abstract isSimilarTo(other: UseType<unknown>): boolean;
 
     /**
      * Possible underlying types for this UseType subclass.

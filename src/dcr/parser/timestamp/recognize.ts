@@ -1,9 +1,9 @@
 import { infill } from '../../utils/array';
-import { Timestamp } from './timestamp';
+import { Timestamp } from './useType';
 import { getTokenDetailsByLabel, TimestampCategory, TimestampTokenDetails } from './tokens';
 import { hasValidFormat } from './format';
 import { UseTypeArgs } from '../useType';
-import { logger } from '../../../logger';
+import logger from '../../../logger';
 
 /**
  * @file Holds timestsamp parsing, recognizing logic along with format wrapper

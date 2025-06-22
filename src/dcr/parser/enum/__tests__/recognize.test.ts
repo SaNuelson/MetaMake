@@ -1,4 +1,5 @@
-import { EnumUseType, recognizeEnums } from '../parse.enum';
+import { recognizeEnums } from '../recognize';
+import { EnumUseType } from '../useType';
 
 describe('parse.enum', () => {
 
@@ -19,6 +20,7 @@ describe('parse.enum', () => {
         expect(result[0].domain).toHaveLength(4);
     })
 
+    // TODO: This doesn't seem right in retrospect lol
     test('does not recognize enumeration when the only repeating item is potentially a null value', () => {
         const input = ['RAM', 'CPU', 'SSD', 'CPU', 'Motherboard', 'CPU', 'HDD', 'CPU', 'Power Supply', 'CPU', 'CPU'];
 
@@ -43,7 +45,6 @@ describe('EnumUseType', () => {
         const input_values = ['Gryffindor', 'Something', 'Hufflepuff', 'AgainSomething'];
         const expected_output = ['Gryffindor', undefined, 'Hufflepuff', undefined];
 
-        // iterate through test values and check the result
         for (let i = 0; i < input_values.length; i++) {
             expect(enumUseType.format(input_values[i])).toEqual(expected_output[i]);
         }
@@ -63,7 +64,6 @@ describe('EnumUseType', () => {
         const input_values = ['Gryffindor', 'Something', 'Hufflepuff', 'AgainSomething'];
         const expected_output = ['Gryffindor', undefined, 'Hufflepuff', undefined];
 
-        // iterate through test values and check the result
         for (let i = 0; i < input_values.length; i++) {
             expect(enumUseType.deformat(input_values[i])).toEqual(expected_output[i]);
         }

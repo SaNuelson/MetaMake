@@ -11,7 +11,7 @@ const patternBits = {
     symbols: '\\p{S}',
     numbers: '\\p{N}',
     separators: '\\p{Z}',
-    wspaces: '\\s',
+    whitespaces: '\\s',
 } as const;
 
 export type CutPatternArgs = {
@@ -21,7 +21,7 @@ export type CutPatternArgs = {
     numbers: boolean,
     separators: boolean,
     rest: boolean,
-    matchall: boolean,
+    matchAll: boolean,
     custom: object
 };
 
@@ -35,12 +35,12 @@ export type CutPatternArgs = {
  * @param {boolean} args.numbers match number groups
  * @param {boolean} args.separators match separator groups (mostly whitespace)
  * @param {boolean} args.rest match any characters left out into merged groups
- * @param {boolean} args.matchall True - no global flag, named groups, use with .matchAll,
+ * @param {boolean} args.matchAll True - no global flag, named groups, use with .matchAll,
  * False - global flag, groups can't be named, use with .match
  * @param {object} args.custom optional custom set of matchers. key is used as label, value can be string or array (signifying disjunction).
  * If defined, these take priority over other matchers.
  * @todo args.custom needs to allow non-repeatable character sequences to avoid unexpected behaviour.
- * @returns If matchall is true, returns regex result iterator,
+ * @returns If matchAll is true, returns regex result iterator,
  * else returns simple array of matches.
  * @example
  * let str = "Jake wrote 'g3t šr3kt' 1.000.000 times"
@@ -54,7 +54,7 @@ export function getCutPattern({
                                   numbers = false,
                                   separators = false,
                                   rest = false,
-                                  matchall = true,
+                                  matchAll = true,
                                   custom = {},
                               }: CutPatternArgs): RegExp | string {
     const used = [];
@@ -84,7 +84,7 @@ export function getCutPattern({
         used.push({name: 'numbers', val: [patternBits.numbers]});
 
     if (separators)
-        used.push({name: 'separators', val: [patternBits.separators, patternBits.wspaces]});
+        used.push({name: 'separators', val: [patternBits.separators, patternBits.whitespaces]});
 
     if (rest && used.length > 0) {
         const nonother = ['^', ...used.map(o => o.val)].flat();
@@ -95,7 +95,7 @@ export function getCutPattern({
 
     const toReg = (bit) => {
         const arr = ['('];
-        if (matchall) arr.push('?<', bit.name, '>');
+        if (matchAll) arr.push('?<', bit.name, '>');
         if (bit.val.length > 1) arr.push('[', ...bit.val, ']+)');
         else arr.push(bit.val[0], '+)');
         return arr.join('');

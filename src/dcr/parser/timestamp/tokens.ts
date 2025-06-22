@@ -1,4 +1,4 @@
-import { DateTokenApplier, DateTokenExtractor, TodTokenApplier, TodTokenExtractor } from './timestamp';
+import { DateTokenApplier, DateTokenExtractor, TodTokenApplier, TodTokenExtractor } from './useType';
 import { timestampConstants } from '../parse.constants';
 import { TimeOfDay } from '../../utils/time';
 import { escapeRegExp } from '../../utils/string';

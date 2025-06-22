@@ -1,14 +1,15 @@
-import * as utils from '../utils/utils.js';
-
-import { recognizeNumbers } from './parse.num';
-import { recognizeTimestamps } from './timestamp/parse';
-import { EnumUseType, recognizeEnums } from './parse.enum';
-import { recognizeStrings } from './parse.string';
+import { getScopedLogger } from '../../logger';
+import { recognizeEnums } from './enum/recognize';
+import { EnumUseType } from './enum/useType';
+import { recognizeNumbers } from './number/recognize';
+import { recognizeTimestamps } from './timestamp/recognize';
+import { recognizeStrings } from './string/recognize';
 
 import { numberConstants, enumConstants, timestampConstants } from './parse.constants';
 import { getCommonPrefix, getCommonSuffix } from '../utils/string';
-import { UseType, UseTypeArgs, UseTypeType } from './useType';
-import { logger } from '../../logger';
+import { UseType, UseTypeArgs } from './useType';
+
+const logger = getScopedLogger('DCR.parse.main');
 
 interface RecognizerArgs extends UseTypeArgs {
 	skipConstants?: boolean,
@@ -24,17 +25,17 @@ const defaultRecognizerArgs: RecognizerArgs = {
 }
 
 /**
- * Try to recognize possible types of provided strings in data array.
+ * Try to recognize possible types of provided strings in a data array.
  * @param data array of strings to recognize, usually column from SourceData
  * @param args configuring arguments
  * @returns list of possible useTypes
  */
-export function determineType(data: string[], args: RecognizerArgs): UseType<any>[] {
+export function determineType(data: string[], args: RecognizerArgs): UseType<unknown>[] {
 	logger.info(`determineType for ${args.label} started`, {args});
 
 	args = Object.assign((args ?? {}), defaultRecognizerArgs);
 
-	let gatheredUseTypes: UseType<any>[] = [];
+	let gatheredUseTypes: UseType<unknown>[] = [];
 
 	const isDataWithinLimit: boolean = preprocessHardLimitSize(data, args);
 
@@ -45,10 +46,10 @@ export function determineType(data: string[], args: RecognizerArgs): UseType<any
 	}
 
 	// [data, args] = preprocessIndicators(data, args);
-	
+
 	if ((!args.skipConstants || !args.isConstant) && isDataWithinLimit) {
 		const numUseTypes = recognizeNumbers(data, args);
-		gatheredUseTypes.push(...numUseTypes);	
+		gatheredUseTypes.push(...numUseTypes);
 
 		const timestampUseTypes = recognizeTimestamps(data, args);
 		gatheredUseTypes.push(...timestampUseTypes);
@@ -67,8 +68,8 @@ export function determineType(data: string[], args: RecognizerArgs): UseType<any
 /**
  * In extreme cases when some columns contain large strings (e.g. records/JSONs...), it is necessary to identify and ignore these
  * to avoid extreme processing times, which in most cases return no useful information (these often can't be used as targets and shouldn't be used as source).
- * @param {string[]} source 
- * @param {object} args 
+ * @param {string[]} source
+ * @param {object} args
  * @returns {boolean}
  */
 function preprocessHardLimitSize(source, args) {
@@ -83,21 +84,21 @@ function preprocessHardLimitSize(source, args) {
 /**
  * Special wrapper for categorical recognizer.
  * Created due to its different nature and required additional preprocessing in some cases.
- * @param {string[]} source 
- * @param {object} args 
+ * @param {string[]} source
+ * @param {object} args
  * @returns {[string[], EnumUseType[]]}
  */
 function preprocessEnumlikeness(source, args) {
 	const enumUseTypes = recognizeEnums(source, args);
-	
+
 	if (args.hasNoval) {
 		source = source.filter(value => value !== args.novalVal);
 	}
-	
+
 	if (args.isConstant) {
 		source = [source[0]];
 	}
-	
+
 	return [source, enumUseTypes];
 }
 
@@ -105,8 +106,8 @@ function preprocessEnumlikeness(source, args) {
 /**
  * A potential improvement, where prefixes and suffixes would be identified before individual recognizers are used.
  * These affixes could even help determining the most probable use-types (e.g. $ sign for numbers).
- * @param {string[]} source 
- * @param {object} args 
+ * @param {string[]} source
+ * @param {object} args
  */
 function preprocessIndicators(source, args) {
 
@@ -130,7 +131,7 @@ function preprocessIndicators(source, args) {
 			source = source.map(value => value.substring(value.length - suffix.length));
 			change = true;
 		}
-		
+
 		for (let i = 0; i < 3; i++) {
 			const affixType = ["timestamp", "enum", "number"][i];
 			const group = [timestampConstantGroups, enumConstantGroups, numberConstantGroups][i];
@@ -153,7 +154,7 @@ function preprocessIndicators(source, args) {
 	}
 
 	function extractCommonAffixes(source) {
-	
+
 		// construct common prefix and suffix
 		let prefix = source[0];
 		let suffix = source[0];
@@ -172,8 +173,8 @@ function preprocessIndicators(source, args) {
 	}
 
 	function extractCommonIndicators(source, groups) {
-		const prefixesEnabled = groups.map(group => true);
-		const suffixesEnabled = groups.map(group => true);
+		const prefixesEnabled = groups.map(() => true);
+		const suffixesEnabled = groups.map(() => true);
 		let lastChange = 0;
 		const counter = 0;
 		while (lastChange < changeLimit && counter < source.length) {
@@ -199,7 +200,7 @@ function preprocessIndicators(source, args) {
 				const prefixIndex = prefixesEnabled.indexOf(true);
 				extractedPrefixes = groups[prefixIndex];
 			}
-			
+
 			const suffixCount = suffixesEnabled.reduce((a,n) => a + +n, 0);
 			let extractedSuffixes = [];
 			if (suffixCount > 1) {

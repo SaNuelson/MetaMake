@@ -1,7 +1,7 @@
 
 /**
  * Escape any RegExp characters present in a string.
- * Beneficial when such string is used in construction of another RegExp (to avoid broken code).
+ * Beneficial when such a string is used in the construction of another RegExp (to avoid broken code).
  * @param string to sanitize
  * @returns provided string with back-slashed RegExp operators
  * @example

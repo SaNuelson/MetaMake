@@ -1,33 +1,13 @@
-import { bindEventSystemMixin } from '../utils/events.js';
+import { NumberUseType } from '../parser';
 import { UseType } from '../parser/useType';
-import { NumberUseType } from '../parser/parse.num';
 import { determineType } from '../parser/parse.main';
 import { determinePrimaryKeys } from '../mapper/mapper.main';
 import {
     count,
-    toKvp,
-    intersection,
-    filterInclusionMinimas,
+    filterInclusionMinima,
 } from '../utils/array';
 import Papa from 'papaparse';
 
-// Hard limit to prevent OOM in cases of large files
-// Set to 0 to turn off
-export const hardRowLimit = 5000;
-
-/**
- * Catalogue class server is the top-most manager of chart rendering.
- * Once instantiated, it can be provided with data source, either via "loadFromUrl" + (url:string) or "loadFromLocal" + (File:Stream) methods.
- * Once data is loaded and sliced using Papaparse library, an event eventHandles.sourceChange is triggered,
- * to which user can subscribe via "catalogue.addEventListener()".
- * Bindings can be queried using a getter, or generated explicitly by "generateBindings" function.
- * Once done, these can be used to render charts by simply calling "drawBinding" method with appropriate parameters.
- *
- * Can work in two modes: manual and automatic.
- * Automatic is the main goal, it generates all metadata automatically.
- * Manual is currently in development, aiming to create a semi-manual version, which
- * generates metadata automatically, but can be manually altered.
- */
 export class Catalogue {
 
     private _auto: boolean;
@@ -75,8 +55,8 @@ export class Catalogue {
         return this._data.map(row => row[i]);
     }
 
-    private _useTypes: UseType<any>[] = [];
-    private _allUseTypes: UseType<any>[][] = [];
+    private _useTypes: UseType<unknown>[] = [];
+    private _allUseTypes: UseType<unknown>[][] = [];
     private _areUseTypesLoaded: boolean = false;
 
     get useTypes() {
@@ -105,7 +85,7 @@ export class Catalogue {
     }
 
     /**
-     * Set of determined primary (composite) keys in form of list of groups of indexes of columns
+     * Set of determined primary (composite) keys in form of a list of groups of indexes of columns
      */
     private _keySets: number[][] = [];
     private _areKeySetsLoaded = false;
@@ -121,7 +101,7 @@ export class Catalogue {
     }
 
     /**
-     * Called when new dataset is loaded to avoid invalid states.
+     * Called when a new dataset is loaded to avoid invalid states.
      */
     _reset() {
         this._header = [];
@@ -140,7 +120,7 @@ export class Catalogue {
      * Can be theoretically used from outside by simulating the Papa Parse response object.
      * @param papares Result of Papa parsing.
      */
-    setData(papares: Papa.ParseResult<any> | string[][]) {
+    setData(papares: Papa.ParseResult<string[]> | string[][]) {
 
         this._reset();
 
@@ -171,7 +151,7 @@ export class Catalogue {
         const firstRows = this._data.slice(0, 20);
         const lastRows = this._data.slice(this._data.length - 20, this._data.length);
         const columnCounts = count(firstRows.concat(lastRows).map(row => row.length));
-        const columnCountsKvp = toKvp(columnCounts);
+        const columnCountsKvp = Object.entries(columnCounts);
         columnCountsKvp.sort((a, b) => b[1] - a[1]);
         const determinedColumnSize = +columnCountsKvp[0][0];
 
@@ -212,7 +192,7 @@ export class Catalogue {
     _checkHeaderValidity() {
         this._isHeaderValid = false;
         for (let i = 0; i < this._header.length; i++) {
-            const ut: UseType<any> = this.useTypes[i];
+            const ut: UseType<unknown> = this.useTypes[i];
             if (ut.hasNull && ut.nullVal === this._header[i])
                 this._isHeaderValid = false;
             if (ut.deformat(this._header[i]) === null)
@@ -241,7 +221,7 @@ export class Catalogue {
         const repLabels = [...Array(this.useTypes.length).keys()];
 
         const trivialKeys = repLabels.filter(i => representatives[i].potentialIds);
-        const trivialNonKeys = repLabels.filter(i => representatives[i].isConstant);
+        // const trivialNonKeys = repLabels.filter(i => representatives[i].isConstant);
 
         const nonDetermined = representatives.filter(rep => !rep.potentialIds && !rep.isConstant && !rep.ignored);
         const nonDeterminedLabels = repLabels.filter(i => !representatives[i].potentialIds && !representatives[i].isConstant);
@@ -250,7 +230,7 @@ export class Catalogue {
         const compositeKeys = determinePrimaryKeys(ambiguitySets);
         let compositeKeyLabels = compositeKeys.map(key => key.map(idx => nonDeterminedLabels[idx]));
 
-        const minimal = filterInclusionMinimas(compositeKeyLabels);
+        const minimal = filterInclusionMinima(compositeKeyLabels);
         if (minimal.length !== compositeKeyLabels.length) {
             compositeKeyLabels = minimal;
         }

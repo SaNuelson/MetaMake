@@ -107,6 +107,38 @@ describe('Array utilities', () => {
             expect(isSubsetOf([1, 2], [1, 2, 3, 4])).toBe(true);
             expect(isSubsetOf([1, 5], [1, 2, 3, 4])).toBe(false);
         });
+
+      test('empty array is subset of any array', () => {
+        expect(isSubsetOf([], [1, 2, 3])).toBe(true);
+      });
+
+      test('array is subset of itself', () => {
+        expect(isSubsetOf([1, 2, 3], [1, 2, 3])).toBe(true);
+      });
+
+      test('array is not subset of empty array', () => {
+        expect(isSubsetOf([1, 2, 3], [])).toBe(false);
+      });
+
+      test('works with string arrays', () => {
+        expect(isSubsetOf(['a', 'b'], ['a', 'b', 'c'])).toBe(true);
+        expect(isSubsetOf(['a', 'd'], ['a', 'b', 'c'])).toBe(false);
+      });
+
+      test('works with object arrays', () => {
+        const obj1 = { id: 1 };
+        const obj2 = { id: 2 };
+        const obj3 = { id: 3 };
+
+        expect(isSubsetOf([obj1, obj2], [obj1, obj2, obj3])).toBe(true);
+        expect(isSubsetOf([obj1, { id: 4 }], [obj1, obj2, obj3])).toBe(false);
+      });
+
+      // TODO
+      // test('works with nested arrays', () => {
+      //   expect(isSubsetOf([[1], [2]], [[1], [2], [3]])).toBe(true);
+      //   expect(isSubsetOf([[1, 2], [3]], [[1], [2], [3]])).toBe(false);
+      // });
     });
 
     describe('intersection', () => {

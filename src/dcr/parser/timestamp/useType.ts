@@ -30,7 +30,6 @@ export type TimestampArgs<T = Date | TimeOfDay> = {
 }
 
 export class Timestamp<T = Date | TimeOfDay> extends UseType<T> {
-
     private _extractors: T extends Date ? DateTokenExtractor[] : TodTokenExtractor[];
     private _pattern: RegExp;
     private _appliers: T extends Date ? DateTokenApplier[] : TodTokenApplier[];
@@ -162,6 +161,10 @@ export class Timestamp<T = Date | TimeOfDay> extends UseType<T> {
         else if (this.timestampType === 'timeofday')
             prefix = 'TOD';
         return prefix + '{' + ret + '}';
+    }
+
+    toDebugString(): string {
+        return 'Usetype::Timestamp()';
     }
 
     toFormatString() {

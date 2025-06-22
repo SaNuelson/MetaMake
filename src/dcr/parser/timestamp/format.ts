@@ -8,7 +8,7 @@ import {
 import { TimeOfDay } from '../../utils/time';
 import { hasDuplicates } from '../../utils/array';
 import { must } from '../../utils/logic';
-import { Timestamp } from './timestamp';
+import { Timestamp } from './useType';
 
 export function determineTypeFromFormatting(format: string[]) {
 
