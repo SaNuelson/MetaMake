@@ -1,5 +1,4 @@
 import { DateTokenApplier, DateTokenExtractor, TodTokenApplier, TodTokenExtractor } from './useType';
-import { timestampConstants } from '../parse.constants';
 import { TimeOfDay } from '../../utils/time';
 import { escapeRegExp } from '../../utils/string';
 
@@ -32,17 +31,17 @@ export enum TimestampSpecificity {
 }
 
 export type TimestampTokenDetail = {
-    /** Token label used within formatting string */
+    /** Token label used within a formatting string */
     label: string,
     /** Partial regex used to extract this token */
     regexBit: string,
-    /** Specific category of the value of this token */
+    /** Specific category of this token's value */
     category: TimestampCategory,
-    /** Flag whether token's value is numeric */
+    /** Flag whether a token's value is numeric */
     numeric: boolean,
     /** Optionally label of token that is identical but less strict version */
     subtoken?: string,
-    /** Method to apply provided value to a date */
+    /** Method to apply the provided value to a date */
     apply: DateTokenApplier,
     /** Method to apply provided value to a time of day */
     applyTod: TodTokenApplier,
@@ -61,12 +60,12 @@ export function createTokenLiteral(value: string): TimestampTokenDetail {
         regexBit: escapeRegExp(value),
         category: TimestampCategory.Literal,
         literal: true,
-        apply: (date: Date, value: any): void => {},
-        applyTod: (tod: TimeOfDay, value: any): void => {},
-        extract: (date: Date, format: string[] | undefined): string => '',
-        extractTod: (tod: TimeOfDay, format: string[] | undefined): string => '',
-    }
-};
+        apply: () => {},
+        applyTod: () => {},
+        extract: () => '',
+        extractTod: () => '',
+    };
+}
 
 export const TimestampTokenDetails: { [label: string]: TimestampTokenDetail } = {
 
@@ -78,9 +77,9 @@ export const TimestampTokenDetails: { [label: string]: TimestampTokenDetail } = 
         numeric: false,
         // apply is valid since one can expect year preceding era in a format (BC 1500 makes little sense)
         apply: (date, val) => date.getFullYear() > 0 && val === 'BC' && date.setFullYear(-date.getFullYear()),
-        applyTod: (tod, val) => undefined,
+        applyTod: () => undefined,
         extract: (date) => date.getFullYear() >= 0 ? 'AD' : 'BC',
-        extractTod: (tod) => undefined,
+        extractTod: () => undefined,
     },
 
     /** e.g. 3.1.1998 */
@@ -91,9 +90,9 @@ export const TimestampTokenDetails: { [label: string]: TimestampTokenDetail } = 
         numeric: true,
         subtoken: 'yearShort',
         apply: (date, val) => date.setFullYear(+val),
-        applyTod: (tod, val) => undefined,
+        applyTod: () => undefined,
         extract: (date) => date.getFullYear().toString().padStart(4, '0'),
-        extractTod: (tod) => undefined,
+        extractTod: () => undefined,
     },
 
     /** e.g. 3.1.'98 */
@@ -103,9 +102,9 @@ export const TimestampTokenDetails: { [label: string]: TimestampTokenDetail } = 
         category: TimestampCategory.Years,
         numeric: true,
         apply: (date, val) => date.setFullYear(+val),
-        applyTod: (tod, val) => undefined,
+        applyTod: () => undefined,
         extract: (date) => date.getFullYear().toString(),
-        extractTod: (tod) => undefined,
+        extractTod: () => undefined,
     },
 
     /** e.g. 03.01.1998 */
@@ -115,9 +114,9 @@ export const TimestampTokenDetails: { [label: string]: TimestampTokenDetail } = 
         category: TimestampCategory.Months,
         numeric: true,
         apply: (date, val) => date.setMonth(val - 1),
-        applyTod: (tod, val) => undefined,
+        applyTod: () => undefined,
         extract: (date) => (date.getMonth() + 1).toString().padStart(2, '0'),
-        extractTod: (tod) => undefined,
+        extractTod: () => undefined,
     },
 
     /** e.g. 3.1.1998 */
@@ -128,9 +127,9 @@ export const TimestampTokenDetails: { [label: string]: TimestampTokenDetail } = 
         numeric: true,
         subtoken: 'monthFull',
         apply: (date, val) => date.setMonth(val - 1),
-        applyTod: (tod, val) => undefined,
+        applyTod: () => undefined,
         extract: (date) => (date.getMonth() + 1).toString(),
-        extractTod: (tod) => undefined,
+        extractTod: () => undefined,
     },
 
     /** e.g. January 3rd 1998 */
@@ -140,9 +139,9 @@ export const TimestampTokenDetails: { [label: string]: TimestampTokenDetail } = 
         category: TimestampCategory.Months,
         numeric: false,
         apply: (date, val) => date.setMonth(monthNames.indexOf(val)),
-        applyTod: (tod, val) => undefined,
+        applyTod: () => undefined,
         extract: (date) => monthNames[date.getMonth()],
-        extractTod: (tod) => undefined,
+        extractTod: () => undefined,
     },
 
     /** e.g. Jan 3rd, 1998 */
@@ -152,9 +151,9 @@ export const TimestampTokenDetails: { [label: string]: TimestampTokenDetail } = 
         category: TimestampCategory.Months,
         numeric: false,
         apply: (date, val) => date.setMonth(monthAbbrevs.indexOf(val)),
-        applyTod: (tod, val) => undefined,
+        applyTod: () => undefined,
         extract: (date) => monthAbbrevs[date.getMonth()],
-        extractTod: (tod) => undefined,
+        extractTod: () => undefined,
     },
 
     /** e.g. 03.01.1998 */
@@ -164,9 +163,9 @@ export const TimestampTokenDetails: { [label: string]: TimestampTokenDetail } = 
         category: TimestampCategory.Days,
         numeric: true,
         apply: (date, val) => date.setDate(+val),
-        applyTod: (tod, val) => undefined,
+        applyTod: () => undefined,
         extract: (date) => date.getDate().toString().padStart(2, '0'),
-        extractTod: (tod) => undefined,
+        extractTod: () => undefined,
     },
 
     /** e.g. 3.1.1998 */
@@ -177,9 +176,9 @@ export const TimestampTokenDetails: { [label: string]: TimestampTokenDetail } = 
         numeric: true,
         subtoken: 'dayFull',
         apply: (date, val) => date.setDate(+val),
-        applyTod: (tod, val) => undefined,
+        applyTod: () => undefined,
         extract: (date) => date.getDate().toString(),
-        extractTod: (tod) => undefined,
+        extractTod: () => undefined,
     },
 
     /** e.g. Saturday 3.1. 1998 */
@@ -188,10 +187,10 @@ export const TimestampTokenDetails: { [label: string]: TimestampTokenDetail } = 
         category: TimestampCategory.DayOfWeek,
         numeric: false,
         regexBit: '(' + weekDays.map(d => '(?:' + d + ')').join('|') + ')',
-        apply: (date, val) => undefined,
-        applyTod: (tod, val) => undefined,
+        apply: () => undefined,
+        applyTod: () => undefined,
         extract: (date) => weekDays[date.getDay()],
-        extractTod: (tod) => undefined,
+        extractTod: () => undefined,
     },
 
     /** e.g. Sat 3.1. 1998 */
@@ -200,10 +199,10 @@ export const TimestampTokenDetails: { [label: string]: TimestampTokenDetail } = 
         category: TimestampCategory.DayOfWeek,
         numeric: false,
         regexBit: '(' + weekDayAbbrevs.map(d => '(?:' + d + ')').join('|') + ')',
-        apply: (date, val) => undefined,
-        applyTod: (tod, val) => undefined,
+        apply: () => undefined,
+        applyTod: () => undefined,
         extract: (date) => weekDayAbbrevs[date.getDay()],
-        extractTod: (tod) => undefined,
+        extractTod: () => undefined,
     },
 
     /** e.g. 7:30 AM */
@@ -220,7 +219,7 @@ export const TimestampTokenDetails: { [label: string]: TimestampTokenDetail } = 
             else if (val === 'AM' && hours === 12)
                 date.setHours(0); // midnight
         },
-        applyTod: (tod, val) => undefined,
+        applyTod: () => undefined,
         extract: (date) => date.getHours() < 12 || date.getHours() === 0 ? 'AM' : 'PM',
         extractTod: (tod) => tod[0] < 12 || tod[0] === 0 ? 'AM' : 'PM',
     },
@@ -351,6 +350,14 @@ export const TimestampTokenDetails: { [label: string]: TimestampTokenDetail } = 
 })();
 
 
+/** Dictionary mapping token labels to their names/keys. */
+export const TimestampLabelToToken: { [label: string]: string } = Object
+    .entries(TimestampTokenDetails)
+    .reduce((labelToToken, [tokenKey, tokenDetail]) => {
+        labelToToken[tokenDetail.label] = tokenKey; // Map label to token key
+        return labelToToken;
+    }, {} as { [label: string]: string });
+
 function getTokenByLabel(label: string): string {
     return TimestampLabelToToken[label];
 }
@@ -371,13 +378,3 @@ export function existsLabel(label: string): boolean {
 export function isLiteral(token: any): token is { literal: true } {
     return token && token.literal === true;
 }
-
-/** Dictionary mapping token labels to their names/keys. */
-export const TimestampLabelToToken: { [label: string]: string } = (() => {
-    const rev = {};
-    for (const type in TimestampTokenDetails) {
-        const label = TimestampTokenDetails[type].label;
-        rev[label] = type;
-    }
-    return rev;
-})();
