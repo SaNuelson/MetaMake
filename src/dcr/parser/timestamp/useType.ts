@@ -11,12 +11,17 @@ import { determineTypeFromFormatting, hasValidFormat } from './format';
 
 export type DateTokenExtractor = (date: Date, format?: string[]) => string;
 export type TodTokenExtractor = (tod: TimeOfDay, format?: string[]) => string;
-export type DateTokenApplier = (date: Date, value: any) => void;
-export type TodTokenApplier = (tod: TimeOfDay, value: any) => void;
+export type DateTokenApplier = (date: Date, value: string) => void;
+export type TodTokenApplier = (tod: TimeOfDay, value: string) => void;
 
-type DateTimestampType = 'date' | 'datetime';
-type TodTimestampType = 'timeofday';
-type TimestampType<T = Date | TimeOfDay> = 'unknown' | (T extends Date ? DateTimestampType : TodTimestampType)
+export enum TimestampType {
+    UNKNOWN = 'unknown',
+    TIME = 'time',
+    DATE = 'date',
+    DATETIME = 'datetime',
+    TIMEOFDAY = 'timeofday'
+}
+type DateTimestampType = TimestampType.DATETIME | TimestampType.DATE | TimestampType.TIME;
 
 function nullDate(): Date { return new Date(0) }
 function nullTod(): TimeOfDay { return [0, 0, 0, 0] }
@@ -24,20 +29,47 @@ function nullTod(): TimeOfDay { return [0, 0, 0, 0] }
 export type TimestampArgs<T = Date | TimeOfDay> = {
     formatting: string[],
     skipValidation?: boolean,
-    type?: T extends Date ? DateTimestampType : TodTimestampType,
+    type?: T extends Date ? DateTimestampType : TimestampType.TIMEOFDAY,
     min?: T,
     max?: T
 }
 
 export class Timestamp<T = Date | TimeOfDay> extends UseType<T> {
-    private _extractors: T extends Date ? DateTokenExtractor[] : TodTokenExtractor[];
-    private _pattern: RegExp;
-    private _appliers: T extends Date ? DateTokenApplier[] : TodTokenApplier[];
 
+    /**
+     * Pattern constructed during initialization.
+     * Used during {@link deformat} for matching a source string,
+     * and dividing it into groups, with each group corresponding
+     * to its respective token / literal.
+     */
+    private readonly _pattern: RegExp;
+
+    /**
+     * A set of functions used during {@link format}.
+     * These are used in sequence on the source value to construct a formatted string.
+     */
+    private _extractors: T extends Date ? DateTokenExtractor[] : TodTokenExtractor[] = [];
+
+    /**
+     * A set of functions used during {@link deformat}.
+     * These are used in sequence on their groups matched from source string to modify the output value.
+     * @private
+     */
+    private _appliers: T extends Date ? DateTokenApplier[] : TodTokenApplier[] = [];
+
+    /** Minimal observed value */
     min: T = undefined;
+    /** Maximal observed value */
     max: T = undefined;
+
+    /**
+     * Array of {@link TimestampTokenDetail} labels and literals in order in which they form the timestamp.
+     * @example ['{hh}', ':', '{mm}', ':', '{ss}']
+     */
     formatting?: string[];
-    timestampType: TimestampType = 'unknown';
+
+    timestampType: TimestampType = TimestampType.UNKNOWN;
+
     pattern?: string;
     replacement = null;
     type: UseTypeType = 'timestamp';
@@ -49,47 +81,46 @@ export class Timestamp<T = Date | TimeOfDay> extends UseType<T> {
 
         let explicitType: TimestampType = args.type;
         if (!explicitType)
-            explicitType = 'unknown';
+            explicitType = TimestampType.UNKNOWN;
 
-        let minType: TimestampType = 'unknown';
+        let minType: TimestampType = TimestampType.UNKNOWN;
         if (args.min) {
             this.min = args.min;
             if (isValidDate(args.min)) {
-                minType = 'datetime';
+                minType = TimestampType.DATETIME;
             } else if (isValidTimeOfDay(args.min)) {
-                minType = 'timeofday';
-            } else minType = 'unknown';
+                minType = TimestampType.TIMEOFDAY;
+            } else minType = TimestampType.UNKNOWN;
         }
-        let maxType: TimestampType = 'unknown';
+
+        let maxType: TimestampType = TimestampType.UNKNOWN;
         if (args.max) {
             this.max = args.max;
             if (isValidDate(args.max)) {
-                maxType = 'datetime';
+                maxType = TimestampType.DATETIME;
             } else if (isValidTimeOfDay(args.max)) {
-                maxType = 'timeofday';
-            } else maxType = 'unknown';
+                maxType = TimestampType.TIMEOFDAY;
+            } else maxType = TimestampType.UNKNOWN;
         }
 
-        const implicitType = determineTypeFromFormatting(args.formatting);
+        const implicitType: TimestampType = determineTypeFromFormatting(args.formatting);
 
-        let gatheredTypes = [minType, maxType, explicitType, implicitType];
-
-        gatheredTypes = gatheredTypes.filter(type => type !== 'unknown');
+        const gatheredTypes: Array<TimestampType> = [minType, maxType, explicitType, implicitType]
+            .filter(type => type !== TimestampType.UNKNOWN);
 
         const allTypesEqual = gatheredTypes.every(type => type === gatheredTypes[0]);
 
         if (!allTypesEqual) {
-            this.timestampType = 'unknown';
+            this.timestampType = TimestampType.UNKNOWN;
         }
-
-        this.timestampType = gatheredTypes[0] as TimestampType<T>;
+        else {
+            this.timestampType = gatheredTypes[0] as TimestampType;
+        }
 
         this.formatting = [...args.formatting];
 
-        // TODO: I have absolutely no clue why this doesn't work
-        // @ts-ignore
         if (!args.skipValidation && !hasValidFormat(this)) {
-            this.timestampType = 'unknown';
+            this.timestampType = TimestampType.UNKNOWN;
             return;
         }
 
@@ -100,36 +131,29 @@ export class Timestamp<T = Date | TimeOfDay> extends UseType<T> {
         // match with regex (which extracts all important groups)
         // apply those using appliers
 
-        const regBits = [];
-
-        const appliers = [];
-        const extractors = [];
-
-        let applyMethod = 'apply';
-        let extractMethod = 'extract';
-
-        if (this.timestampType === 'timeofday') {
-            applyMethod = 'applyTod';
-            extractMethod = 'extractTod';
-        }
+        const regexBits = [];
 
         this.formatting.forEach(bit => {
             if (existsLabel(bit)) {
+                // Token matching value
                 const token = getTokenDetailsByLabel(bit) as TimestampTokenDetail;
-                regBits.push(token.regexBit);
-                appliers.push(token[applyMethod]);
-                extractors.push(token[extractMethod]);
+                regexBits.push(token.regexBit);
 
+                if (this.timestampType === TimestampType.TIMEOFDAY) {
+                    (this._appliers as Array<TodTokenApplier>).push(token.applyTod);
+                    (this._extractors as Array<TodTokenExtractor>).push(token.extractTod);
+                }
+                else {
+                    (this._appliers as Array<DateTokenApplier>).push(token.apply);
+                    (this._extractors as Array<DateTokenExtractor>).push(token.extract);
+                }
             } else {
-                regBits.push(escapeRegExp(bit));
-                extractors.push(() => bit);
+                // Literal
+                regexBits.push(escapeRegExp(bit));
+                this._extractors.push(() => bit);
             }
         });
-        const pattern = new RegExp(regBits.join(''));
-
-        this._extractors = extractors;
-        this._pattern = pattern;
-        this._appliers = appliers;
+        this._pattern = new RegExp(regexBits.join(''));
 
         if (this.hasNull) {
             if (this.deformat(this.nullVal) !== null) {
@@ -176,31 +200,31 @@ export class Timestamp<T = Date | TimeOfDay> extends UseType<T> {
     }
 
     deformat(string: string, verbose = false): T {
-        let retval = null;
-        if (this.timestampType === 'timeofday')
-            retval = nullTod();
-        else if (['time', 'date', 'datetime'].includes(this.timestampType))
-            retval = nullDate();
+        let value: T = null;
+        if (this.timestampType === TimestampType.TIMEOFDAY)
+            (value as TimeOfDay) = nullTod();
+        else if ([TimestampType.TIME, TimestampType.DATE, TimestampType.DATETIME].includes(this.timestampType))
+            (value as Date) = nullDate();
         else {
-            return retval;
+            return value;
         }
 
         const match = string.match(this._pattern);
         if (!match) {
             return null;
         }
-        this._appliers.forEach((app, idx) => app(retval, match[idx + 1], this.formatting));
+        this._appliers.forEach((app, idx) => app(value, match[idx + 1], this.formatting));
 
         // consistency check
-        if (string !== this.format(retval, verbose)) {
+        if (string !== this.format(value, verbose)) {
             return null;
         }
 
-        this._checkDomain(retval);
-        return retval;
+        this._checkDomain(value);
+        return value;
     }
 
-    isSupersetOf(other: UseType<any>) {
+    isSupersetOf(other: UseType<unknown>) {
         if (!(other instanceof Timestamp)) {
             return false;
         }
@@ -231,15 +255,15 @@ export class Timestamp<T = Date | TimeOfDay> extends UseType<T> {
         return true;
     }
 
-    isSubsetOf(other: UseType<any>): boolean {
+    isSubsetOf(other: UseType<unknown>): boolean {
         return other.isSupersetOf(this);
     }
 
-    isEqualTo(other: UseType<any>): boolean {
+    isEqualTo(other: UseType<unknown>): boolean {
         return this.isSubsetOf(other) && this.isSupersetOf(other);
     }
 
-    isSimilarTo(other: UseType<any>): boolean {
+    isSimilarTo(other: UseType<unknown>): boolean {
         return this.isSubsetOf(other) || this.isSupersetOf(other);
     }
 

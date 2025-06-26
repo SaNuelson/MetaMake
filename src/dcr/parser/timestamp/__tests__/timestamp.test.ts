@@ -110,6 +110,8 @@ describe('Timestamp.deformat', () => {
             formatting: ['{YYYY}','-','{MM}','-','{DD}']
         }, {});
 
+        console.log(new Date('1998-05-02'));
+
         const expected = new Date('1998-05-02');
         const result = <Date>timestamp.deformat('1998-05-02');
 

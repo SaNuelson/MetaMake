@@ -8,9 +8,9 @@ import {
 import { TimeOfDay } from '../../utils/time';
 import { hasDuplicates } from '../../utils/array';
 import { must } from '../../utils/logic';
-import { Timestamp } from './useType';
+import { Timestamp, TimestampType } from './useType';
 
-export function determineTypeFromFormatting(format: string[]) {
+export function determineTypeFromFormatting(format: string[]): TimestampType {
 
     let tokens = format.map(label => TimestampLabelToToken[label]);
     tokens = tokens.filter(t => t);
@@ -39,18 +39,18 @@ export function determineTypeFromFormatting(format: string[]) {
         containsTime = true;
 
     if (containsTime && containsDate)
-        return 'datetime';
+        return TimestampType.DATETIME;
 
     if (containsTime)
-        return 'timeofday';
+        return TimestampType.TIMEOFDAY;
 
     if (containsDate)
-        return 'date';
+        return TimestampType.DATE;
 
-    return 'unknown';
+    return TimestampType.UNKNOWN;
 }
 
-export function hasValidFormat(timestamp: Timestamp): boolean {
+export function hasValidFormat(timestamp: Timestamp<unknown>): boolean {
     return validateTimestampFormat(timestamp.formatting);
 }
 
@@ -147,7 +147,7 @@ function enforceCustomRules(format: string[]): boolean {
         }
     }
 
-    // If format contains 2 mandatory date/datetime/time tokens,
+    // If a format contains 2 mandatory date/datetime/time tokens,
     // it has to contain all inbetween (has year, has minutes, should have months, days, hours)
     const compliesInclusion = (format: string[]) => {
         const categoriesInOrder = [

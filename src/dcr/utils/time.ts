@@ -11,7 +11,7 @@ export function isValidDate(date: any): date is Date {
 }
 
 /**
- * Checks if provided variable is a valid time of day (according to Google Charts)
+ * Checks if the provided variable is a valid time of day (according to Google Charts)
  */
 export function isValidTimeOfDay(tod: any): tod is TimeOfDay {
     if (!(tod instanceof Array))
