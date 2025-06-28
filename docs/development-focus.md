@@ -20,7 +20,7 @@ Base components required for the project:
 - Custom MetaStore wrapper - extends N3.Store with additional functionality, i.e. provenance through reification
 - Configured logger - caller tracing with directed file and console output
 
-### DCR Module Completion (June 2025)
+### DCR Module Completion (June 2025) - Postponed
 
 Fix and complete the Data Content Recognition module:
 
@@ -29,6 +29,8 @@ Fix and complete the Data Content Recognition module:
 - Complete test suite for parsers
 - Fix timestamp recognition edge cases
 - Ensure proper error handling
+
+*Note: This development has been postponed. May be revisited in a smaller scope in the future.*
 
 ### Prototype Pipeline
 
@@ -50,7 +52,7 @@ Planned for after the prototype is working:
 
 ## Current Technical Debt
 
-- Processor interface in `processor.d.ts` includes a `dataset` parameter not used in implementations
+- ~~Processor interface in `processor.d.ts` includes a `dataset` parameter not used in implementations~~ (Resolved: Replaced with `data` parameter for SourceManager)
 - Inconsistent TypeScript typing across the project
 - Missing tests for critical components
 - Timestamp recognition has potential edge case issues
@@ -63,4 +65,4 @@ Planned for after the prototype is working:
 
 ---
 
-*Last updated: 2025-06-22*
+*Last updated: 2025-06-28*
