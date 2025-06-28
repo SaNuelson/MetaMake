@@ -23,11 +23,16 @@ export function recognizeTimestamps(source: string[], args: UseTypeArgs): Timest
 
     // first try the most frequently used timestamps
     let commonTimestamps = getCommonTimestampUseTypes(args);
+    logger.debug(`Created ${commonTimestamps.length} common timestamp formats.`);
     commonTimestamps = filterTimestampUseTypes(source, commonTimestamps, args.hasNull ? args.nullVal : undefined);
+    logger.debug(`Matched against source. Remaining ${commonTimestamps.length} formats.`,
+        {data: commonTimestamps.map(ut => ut.formatting)});
     commonTimestamps = filterDuplicatesAndSubtypes(commonTimestamps);
+    logger.debug(`Filtered duplicates and subtypes. Remaining ${commonTimestamps.length} formats.`,
+        {data: commonTimestamps.map(ut => ut.formatting)});
 
     if (commonTimestamps.length > 0) {
-        logger.debug("recognizeTimestamps - recognized a frequently used timestamp format",
+        logger.debug("Recognized a commonly used timestamp format",
             {data: source.slice(0,5), formats: commonTimestamps.map(ut => ut.formatting)});
         return commonTimestamps;
     }
@@ -35,9 +40,17 @@ export function recognizeTimestamps(source: string[], args: UseTypeArgs): Timest
     // otherwise do it the hard way
     const initialBatch = source.slice(0, initialBatchSize);
     let extractedUseTypes = extractTimestampUseTypes(initialBatch, args);
+    logger.debug(`Created ${extractedUseTypes.length} bruteforce timestamp formats.`,
+        {data: extractedUseTypes.map(ut => ut.formatting)});
     extractedUseTypes = filterInvalidUseTypes(extractedUseTypes);
+    logger.debug(`Validated. Remaining ${extractedUseTypes.length} formats.`,
+        {data: extractedUseTypes.map(ut => ut.formatting)});
     extractedUseTypes = filterTimestampUseTypes(source, extractedUseTypes, args.hasNull ? args.nullVal : undefined);
+    logger.debug(`Matched against source. Remaining ${extractedUseTypes.length} formats.`,
+        {data: extractedUseTypes.map(ut => ut.formatting)});
     extractedUseTypes = filterDuplicatesAndSubtypes(extractedUseTypes);
+    logger.debug(`Filtered duplicates and subtypes. Remaining ${extractedUseTypes.length} formats.`,
+        {data: extractedUseTypes.map(ut => ut.formatting)});
 
     return extractedUseTypes;
 }

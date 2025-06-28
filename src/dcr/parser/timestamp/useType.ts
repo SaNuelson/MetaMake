@@ -246,7 +246,9 @@ export class Timestamp<T = Date | TimeOfDay> extends UseType<T> {
                 return false;
             }
 
-            const otherSubtoken = TimestampTokenDetails[(otherToken as TimestampTokenDetail).subtoken];
+            const otherSubtoken = (otherToken as TimestampTokenDetail).subtoken ?
+                TimestampTokenDetails[(otherToken as TimestampTokenDetail).subtoken] :
+                undefined;
             if (otherToken !== thisToken && otherSubtoken !== thisToken) {
                 return false;
             }
