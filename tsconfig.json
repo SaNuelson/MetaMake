@@ -1,11 +1,13 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "NodeNext",
     "esModuleInterop": true,
-    "allowJs": true,
+    "module": "NodeNext",
+    "preserveConstEnums": true,
+    /*"strict": true,*/
     "sourceMap": true,
+    "target": "ESNext",
     "outDir": "dist"
   },
-  "lib": ["es2015"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
 }
