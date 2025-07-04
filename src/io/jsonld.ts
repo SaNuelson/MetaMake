@@ -3,8 +3,9 @@ import jsonld from 'jsonld';
 import { JsonLdParser } from 'jsonld-streaming-parser';
 import { Quad, Store, Writer } from 'n3';
 import fs, { WriteStream } from 'node:fs';
-import { logger } from '../logger';
+import { getScopedLogger } from '../logger.js';
 
+const logger = getScopedLogger('io.jsonld');
 
 export async function storeJsonld(readStream: ReadStream, store: Store) : Promise<void> {
     const jsonLdParser = new JsonLdParser();
@@ -23,7 +24,7 @@ export async function dumpJsonld(
     const writer = new Writer({format: 'N-Quads'})
 
     // Strip graph info
-    quads = quads.map(q => new Quad(q.subject, q.predicate, q.object, null));
+    quads = quads.map(q => new Quad(q.subject, q.predicate, q.object));
     writer.addQuads(quads);
 
     let context: string | object;
@@ -41,7 +42,7 @@ export async function dumpJsonld(
 
     writer.end((error, result) => {
         if (error) {
-            logger.error(error);
+            logger.error(error.toString());
             return;
         }
         logger.info(result);

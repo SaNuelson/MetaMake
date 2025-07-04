@@ -1,7 +1,7 @@
 import { BlankNode, NamedNode } from 'n3';
 import { isCsvDataSource } from '../data/utils';
 import { Catalogue } from '../dcr/core/Catalogue';
-import { getScopedLogger, logger, ScopedLogger } from '../logger';
+import { getScopedLogger, ScopedLogger } from '../logger';
 import { Configuration, Processor } from './processor';
 import { MetaStore } from '../memory/store';
 import { SourceManager } from '../data/source-manager';
@@ -46,7 +46,7 @@ export default class DcrProcessor implements Processor<DcrProcessorConfiguration
         for (let i = 0; i < catalogue.useTypes.length; i++) {
             const useType = catalogue.useTypes[i];
             const allUseTypes = catalogue.allUseTypes[i];
-            logger.info(useType.type, 'from', allUseTypes.map(ut => ut.type));
+            this.logger.info(`${useType.type} from ${allUseTypes.map(ut => ut.type)}`);
         }
 
         this.logger.debug(`execute end.`);

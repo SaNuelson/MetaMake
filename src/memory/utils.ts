@@ -6,9 +6,11 @@ import {
     Quad, Term,
     Util, Variable,
 } from 'n3';
+import { getScopedLogger } from '../logger';
 import literal = DataFactory.literal;
 import { dateTimeType, dateType, uriToPrefix } from './vocabulary';
-import logger from '../logger';
+
+const logger = getScopedLogger('Memory')
 
 const dateFormatter = new Intl.DateTimeFormat('en', {year: 'numeric', month: '2-digit', day: '2-digit'});
 

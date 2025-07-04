@@ -1,6 +1,6 @@
 import { NamedNode, Util } from 'n3';
 
-import { logger } from '../logger';
+import logger from '../logger';
 
 /**
  * Mapping of prefixes to their namespace URIs.

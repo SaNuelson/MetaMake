@@ -1,6 +1,6 @@
 import { parseCsvStream } from '../io/csv';
 import { openReadableStream } from '../io/stream';
-import { logger } from '../logger';
+import logger from '../logger';
 import { isDevelopment } from '../utils/env';
 import { CsvDataSource, DataKind, SourceKind } from './data-source';
 import { DataHolder, LocalDataSource } from './local-data-source';

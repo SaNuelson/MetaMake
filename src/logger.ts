@@ -44,9 +44,6 @@ const logFileFormat = winston.format.printf(({level, message, caller, timestamp,
 });
 
 const consoleFormat = winston.format.printf(({level, message, caller, timestamp, ...metadata} : TransformableInfo) => {
-    // level = plainPadStart(`${level}`, 10);
-    // caller = plainPadEnd(`[${caller}]`, 20);
-    // TODO: HOW IS IT SO FKN HARD TO MAKE CONSISTENT PADDING IN CONSOLE
     let msg = `${timestamp}\t${level}\t${caller}:\t${message}`;
 
     // Append all other metadata to the message
@@ -57,7 +54,7 @@ const consoleFormat = winston.format.printf(({level, message, caller, timestamp,
     return msg;
 });
 
-const logger = winston.createLogger({
+const logger : winston.Logger = winston.createLogger({
     level: 'debug',
     format: winston.format.combine(
         winston.format.timestamp({
@@ -84,11 +81,11 @@ if (!isProduction()) {
 
 export default logger;
 
-type ScopedLogger = {
-    info: (message: string, meta: object) => void,
-    debug: (message: string, meta: object) => void,
-    error: (message: string, meta: object) => void,
-    warn: (message: string, meta: object) => void,
+export type ScopedLogger = {
+    info: (message: string, meta?: object) => void,
+    debug: (message: string, meta?: object) => void,
+    error: (message: string, meta?: object) => void,
+    warn: (message: string, meta?: object) => void,
 }
 
 export function getScopedLogger(scope: string): ScopedLogger {

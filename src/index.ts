@@ -44,7 +44,7 @@ async function main() {
         .all(null, null, null, dcatApCzGraph)
         .map(quad => new Quad(quad.subject, quad.predicate, quad.object));
 
-    logger.log("Out quads:", outQuads);
+    logger.info('Out quads:', {count: outQuads.length});
 
     // const contextPath = 'resources/context/rozhraní-katalogů-otevřených-dat.jsonld';
     const contextPath = 'https://ofn.gov.cz/dcat-ap-cz-rozhraní-katalogů-otevřených-dat/2024-05-28/kontexty/rozhraní-katalogů-otevřených-dat.jsonld';
@@ -53,10 +53,9 @@ async function main() {
     const debugOutput = fs.createWriteStream('out/address_points_debug.jsonld');
     const allQuads = store.all();
 
-    logger.log("All quads:", allQuads);
+    logger.info('All quads:', {count: allQuads.length});
 
     await dumpJsonld(debugOutput, allQuads, null);
 }
 
-main()
-    .then(() => console.log('Done'));
+await main();
