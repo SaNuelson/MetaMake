@@ -3,8 +3,8 @@
 ## Development Timeline
 
 1. [Core Infrastructure](#core-infrastructure-may-2025) (Completed) 
-2. [DCR Module Completion](#dcr-module-completion-june-2025) (Current)
-3. [Prototype Pipeline](#prototype-pipeline) (Next)
+2. ~~[DCR Module Completion](#dcr-module-completion-june-2025)~~ (Postponed)
+3. [Prototype Pipeline](#prototype-pipeline) (Current)
 4. [Extended Features](#extended-features) (Future)
 5. [Technical Debt](#current-technical-debt)
 6. [Known Bugs](#known-bugs)
@@ -34,7 +34,7 @@ Fix and complete the Data Content Recognition module:
 
 ### Prototype Pipeline
 
-Implement a basic end-to-end pipeline:
+**CURRENT FOCUS** - Implement a basic end-to-end pipeline:
 
 - Read a CSV file
 - Analyze CSV structure and content
