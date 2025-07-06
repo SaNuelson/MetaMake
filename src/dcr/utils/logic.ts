@@ -107,7 +107,7 @@ const must = {
     none: mustNone,
     notAll: mustNotAll,
     equalAll: mustIff,
-}
+};
 
 export { must };
 //#endregion

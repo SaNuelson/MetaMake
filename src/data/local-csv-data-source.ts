@@ -1,19 +1,19 @@
-import { parseCsvStream } from '../io/csv';
-import { openReadableStream } from '../io/stream';
-import logger from '../logger';
-import { isDevelopment } from '../utils/env';
-import { CsvDataSource, DataKind, SourceKind } from './data-source';
-import { DataHolder, LocalDataSource } from './local-data-source';
+import { parseCsvStream } from '../io/csv.js';
+import { openReadableStream } from '../io/stream.js';
+import logger from '../logger.js';
+import { isDevelopment } from '../utils/env.js';
+import { CsvDataSource, DataKind, SourceKind } from './data-source.js';
+import { DataHolder, LocalDataSource } from './local-data-source.js';
 
 class CsvDataHolder implements DataHolder<string[]> {
     private data: string[][];
 
-    public add(data: string[]): void {
-        this.data.push(data);
-    }
-
     public get size(): number {
         return this.data.length;
+    }
+
+    public add(data: string[]): void {
+        this.data.push(data);
     }
 
     public getData(): string[][] {
@@ -35,10 +35,7 @@ export class LocalCsvDataSource extends LocalDataSource<string[], CsvDataHolder>
         const dataSource = new LocalCsvDataSource(filename);
 
         if (isDevelopment()) {
-            logger.info(
-                `LocalCsvDataSource( ${filename} ) created:` +
-                (await dataSource.readNext(1))[0] +
-                '...');
+            logger.info(`LocalCsvDataSource( ${filename} ) created:` + (await dataSource.readNext(1))[0] + '...');
         }
 
         return dataSource;

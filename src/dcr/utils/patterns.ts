@@ -71,20 +71,15 @@ export function getCutPattern({
         }
     }
 
-    if (letters)
-        used.push({name: 'letters', val: [patternBits.letters, patternBits.marks]});
+    if (letters) used.push({name: 'letters', val: [patternBits.letters, patternBits.marks]});
 
-    if (punctuations)
-        used.push({name: 'punctuations', val: [patternBits.punctuations]});
+    if (punctuations) used.push({name: 'punctuations', val: [patternBits.punctuations]});
 
-    if (symbols)
-        used.push({name: 'symbols', val: [patternBits.symbols]});
+    if (symbols) used.push({name: 'symbols', val: [patternBits.symbols]});
 
-    if (numbers)
-        used.push({name: 'numbers', val: [patternBits.numbers]});
+    if (numbers) used.push({name: 'numbers', val: [patternBits.numbers]});
 
-    if (separators)
-        used.push({name: 'separators', val: [patternBits.separators, patternBits.whitespaces]});
+    if (separators) used.push({name: 'separators', val: [patternBits.separators, patternBits.whitespaces]});
 
     if (rest && used.length > 0) {
         const nonother = ['^', ...used.map(o => o.val)].flat();
@@ -96,8 +91,7 @@ export function getCutPattern({
     const toReg = (bit) => {
         const arr = ['('];
         if (matchAll) arr.push('?<', bit.name, '>');
-        if (bit.val.length > 1) arr.push('[', ...bit.val, ']+)');
-        else arr.push(bit.val[0], '+)');
+        if (bit.val.length > 1) arr.push('[', ...bit.val, ']+)'); else arr.push(bit.val[0], '+)');
         return arr.join('');
     };
 

@@ -1,13 +1,7 @@
 import {
-    CsvDataSource,
-    DataKind,
-    DataSource,
-    JsonDataSource,
-    RdfDataSource,
-    SourceKind,
-    XmlDataSource,
-} from './data-source';
-import { DataHolder, LocalDataSource } from './local-data-source';
+    CsvDataSource, DataKind, DataSource, JsonDataSource, RdfDataSource, SourceKind, XmlDataSource,
+} from './data-source.js';
+import { DataHolder, LocalDataSource } from './local-data-source.js';
 
 export function isLocalDataSource<T>(ds: DataSource<T>): ds is LocalDataSource<T, DataHolder<T>> {
     return ds.sourceKind === SourceKind.LOCAL;

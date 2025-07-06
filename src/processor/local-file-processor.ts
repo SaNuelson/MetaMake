@@ -1,14 +1,13 @@
-import { isLocalDataSource } from '../data/utils';
-import { MetaStore } from '../memory/store';
-import { IsLocalDataSource } from '../data/local-data-source';
-import { prefixToNamespace } from '../memory/vocabulary';
-import * as voc from '../memory/vocabulary';
-import { dateTimeLiteral, getCompactName } from '../memory/utils';
 import { BlankNode, DataFactory, NamedNode, Quad } from 'n3';
+import { SourceManager } from '../data/source-manager.js';
+import { isLocalDataSource } from '../data/utils.js';
+import { getScopedLogger, ScopedLogger } from '../logger.js';
+import { MetaStore } from '../memory/store.js';
+import { dateTimeLiteral, getCompactName } from '../memory/utils.js';
+import * as voc from '../memory/vocabulary.js';
+import { prefixToNamespace } from '../memory/vocabulary.js';
+import { Configuration, Processor } from './processor.js';
 import literal = DataFactory.literal;
-import { Configuration, Processor } from './processor';
-import { getScopedLogger, ScopedLogger } from '../logger';
-import { SourceManager } from '../data/source-manager';
 
 const mm = prefixToNamespace['mm'];
 
@@ -33,10 +32,9 @@ export default class LocalFileProcessor implements Processor<LocalFileProcessorC
     execute(data: SourceManager, store: MetaStore, dataset: BlankNode): void {
         this.logger.debug(`execute begin`);
 
-        const source = data.getPrimarySource()
+        const source = data.getPrimarySource();
 
-        if (!isLocalDataSource(source))
-            return;
+        if (!isLocalDataSource(source)) return;
 
         const distribution = new BlankNode('Distribution');
 

@@ -1,9 +1,9 @@
-import {hasDuplicates, isSubsetOf} from '../utils/array.ts';
+import {hasDuplicates, isSubsetOf} from '../utils/array.js';
 
 /**
  * Find all possible sets of indexes, which together have empty ambiguity sets.
  * @param {...number[][]} ambiguitySetsArgs
- * @example 
+ * @example
  * let first = [[1, 2, 3]];
  * let secnd = [[1], [2, 3]];
  * let third = [[1], [2], [3]];
@@ -22,7 +22,7 @@ function determinePrimaryKeysBruteForce(ambiguitySetsArray) {
     for (let i in potentialSet) {
         if (isSetDisabled[i])
             continue;
-        
+
         let set = potentialSet[i];
 
         let selection = ambiguitySetsArray.filter((_,i)=>set.includes(i));
@@ -46,9 +46,9 @@ function getPotentialSet(array) {
 }
 
 function isCompoundKeyValid(ambiguitySets) {
-    if (ambiguitySets.length === 0) 
+    if (ambiguitySets.length === 0)
         return false;
-    
+
     if (ambiguitySets.length === 1)
         return ambiguitySets[0].every(edge => edge.length === 1);
 
@@ -59,7 +59,7 @@ function isCompoundKeyValid(ambiguitySets) {
     //     for each vertex in referenceEdge
     //         create list of indexes of edges in all respective sets, where referenceVertex appears
     //     if any two referenceVertices were found in the same edge, return false
-    
+
     // in other words, we get arrays for each referenceVertex in some referenceEdge in form
     // [ s_2_v, s_3_v, s_4_v, ...]
     // which specify edges in individual sets, where vertex v has been found

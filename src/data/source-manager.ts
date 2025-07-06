@@ -1,9 +1,9 @@
 import { Quad_Subject } from 'n3';
-import { getScopedLogger, ScopedLogger } from '../logger';
-import { DataSource } from './data-source';
-import { MetaStore } from '../memory/store';
-import { Distribution, hasDistribution, isA, PrimaryDistribution } from '../memory/vocabulary';
-import { isBlankNode } from '../memory/utils';
+import { getScopedLogger, ScopedLogger } from '../logger.js';
+import { MetaStore } from '../memory/store.js';
+import { isBlankNode } from '../memory/utils.js';
+import { Distribution, hasDistribution, isA, PrimaryDistribution } from '../memory/vocabulary.js';
+import { DataSource } from './data-source.js';
 
 export class SourceManager {
     private sources: Map<string, DataSource<unknown>> = new Map();
@@ -50,7 +50,7 @@ export class SourceManager {
             return this.sources.get(primaryDistribution.id) ?? null;
         }
 
-        this.logger.error(`No primary distribution found for dataset ${this.dataset.id}.`)
+        this.logger.error(`No primary distribution found for dataset ${this.dataset.id}.`);
         return null;
     }
 

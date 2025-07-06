@@ -1,12 +1,13 @@
 import { NamedNode, Util } from 'n3';
+import { getScopedLogger } from '../logger.js';
 
-import logger from '../logger';
+const logger = getScopedLogger('vocabulary');
 
 /**
  * Mapping of prefixes to their namespace URIs.
  * @example prefixToUri['dcat'] === 'http://www.w3.org/ns/dcat#'
  */
-export const prefixToUri: {[prefix: string]: string;} = {
+export const prefixToUri: { [prefix: string]: string; } = {
     adms: 'http://www.w3.org/ns/adms#',
     csvw: 'http://www.w3.org/ns/csvw#',
     dbo: 'https://dbpedia.org/ontology/',
@@ -34,17 +35,15 @@ export const prefixToUri: {[prefix: string]: string;} = {
  * Mapping of prefixes to a function turning local names into named nodes.
  * @example prefixToNamespace['dcat']('dataset') === new NamedNode('http://www.w3.org/ns/dcat#dataset')
  */
-export const prefixToNamespace: { [prefix: string]: (localName: string) => NamedNode } = Object.fromEntries(
-    Object.entries(prefixToUri).map(([p, uri]) => [p, Util.prefix(uri)])
-);
+export const prefixToNamespace: {
+    [prefix: string]: (localName: string) => NamedNode
+} = Object.fromEntries(Object.entries(prefixToUri).map(([p, uri]) => [p, Util.prefix(uri)]));
 
 /**
  * Mapping of URIs to their commonly used namespace prefixes.
  * @example uriToPrefix['http://www.w3.org/ns/dcat#'] === 'dcat'
  */
-export const uriToPrefix = Object.fromEntries(
-    Object.entries(prefixToUri).map(([p, uri]) => [uri, p])
-);
+export const uriToPrefix = Object.fromEntries(Object.entries(prefixToUri).map(([p, uri]) => [uri, p]));
 
 /**
  * Add a prefix with its namespace to the lookup table. Used in logging and provenance.
@@ -54,8 +53,7 @@ export const uriToPrefix = Object.fromEntries(
  */
 export function addPrefix(prefix: string, uri: string): boolean {
     if (prefix in prefixToUri) {
-        if (prefixToUri[prefix] !== uri)
-            logger.error(`Prefix ${prefix} already exists with different URI ${prefixToUri[prefix]} and ${uri}.`);
+        if (prefixToUri[prefix] !== uri) logger.error(`Prefix ${prefix} already exists with different URI ${prefixToUri[prefix]} and ${uri}.`);
         return false;
     }
 

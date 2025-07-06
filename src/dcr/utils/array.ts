@@ -1,4 +1,3 @@
-
 export function unique<T>(arr: T[]): T[] {
     return [...new Set(arr)];
 }
@@ -13,13 +12,10 @@ export function charsToRegex(arr: string[]): RegExp {
  * @param arr Array in which to count occurrences.
  * @returns object with keys being the unique values in arr, their values being number of occurrences
  */
-export function count<T>(arr: Array<T>): {[key: string]: number } {
-    return arr.reduce((acc: {[key: string]: number }, next): {[key: string]: number } => {
+export function count<T>(arr: Array<T>): { [key: string]: number } {
+    return arr.reduce((acc: { [key: string]: number }, next): { [key: string]: number } => {
         const key = next.toString();
-        if (acc[key])
-            acc[key]++;
-        else
-            acc[key] = 1;
+        if (acc[key]) acc[key]++; else acc[key] = 1;
         return acc;
     }, {});
 }
@@ -53,12 +49,10 @@ type stringCallback = (item: string) => boolean;
 export function findIndexes<T>(domain: T[], callbackFn: genericCallback<T>, thisArg?: unknown): number[];
 export function findIndexes(domain: string, callbackFn: stringCallback, thisArgs?: unknown): number[];
 export function findIndexes<T>(domain: T[] | string, callbackFn: genericCallback<T> | stringCallback, thisArg?: unknown): number[] {
-    if (!callbackFn)
-        callbackFn = (el) => !!el;
+    if (!callbackFn) callbackFn = (el) => !!el;
     const indices = [];
     for (let i = 0; i < domain.length; i++) {
-        if (callbackFn.call(thisArg, domain[i], i, domain))
-            indices.push(i);
+        if (callbackFn.call(thisArg, domain[i], i, domain)) indices.push(i);
     }
     return indices;
 }
@@ -82,8 +76,7 @@ export function hasDuplicates<T>(array: T[]): boolean {
  * // {'5':[{'a':5}], '10':[{'a':10}], 'false':{'a':false}]}
  */
 export function groupBy(xs: object[], key: string, dropKeyless: boolean = true): object {
-    if (dropKeyless)
-        xs = xs.filter(x => x[key] || x[key] === 0);
+    if (dropKeyless) xs = xs.filter(x => x[key] || x[key] === 0);
 
     const groups = {};
     for (const x of xs) {
@@ -100,8 +93,7 @@ export function groupBy(xs: object[], key: string, dropKeyless: boolean = true):
  * @returns {boolean} true if of same size and all elements equal, false otherwise
  */
 export function areEqual(ax: unknown[], bx: unknown[]): boolean {
-    if (ax.length !== bx.length)
-        return false;
+    if (ax.length !== bx.length) return false;
     return ax.every((a, i) => a === bx[i]);
 }
 
@@ -127,10 +119,8 @@ export function intersection(as, bs) {
  */
 export function infill(arr: Array<unknown>, el: unknown, start: boolean = false, end: boolean = false): Array<unknown> {
     const infilled = arr.map(a => [a, el]).flat(1);
-    if (start)
-        infilled.splice(0, 0, el);
-    if (!end)
-        infilled.splice(-1, 1);
+    if (start) infilled.splice(0, 0, el);
+    if (!end) infilled.splice(-1, 1);
     return infilled;
 }
 
@@ -146,16 +136,14 @@ export function filterInclusionMinima(groups: unknown[][]): unknown[] {
     for (let i = 0; i < groups.length; i++) {
         let isMinimal = true;
         for (let j = 0; j < groups.length; j++) {
-            if (i === j)
-                continue;
+            if (i === j) continue;
 
             if (isSubsetOf(groups[j], groups[i])) {
                 isMinimal = false;
                 break;
             }
         }
-        if (isMinimal)
-            minima.push(groups[i]);
+        if (isMinimal) minima.push(groups[i]);
     }
     return minima;
 }
@@ -166,16 +154,14 @@ export function filterInclusionMaxima(groups: unknown[][]): unknown[] {
     for (let i = 0; i < groups.length; i++) {
         let isMaximal = true;
         for (let j = 0; j < groups.length; j++) {
-            if (i === j)
-                continue;
+            if (i === j) continue;
 
             if (isSubsetOf(groups[i], groups[j])) {
                 isMaximal = false;
                 break;
             }
         }
-        if (isMaximal)
-            maxima.push(groups[i]);
+        if (isMaximal) maxima.push(groups[i]);
     }
     return maxima;
 }

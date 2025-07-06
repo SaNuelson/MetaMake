@@ -1,113 +1,42 @@
 import { CutPatternArgs, getCutPattern } from '../patterns.js';
 
-type TestBit = {[label: string]: string}
+type TestBit = { [label: string]: string }
 
 type TestTuple = {
-    source: string,
-    split: TestBit[]
+    source: string, split: TestBit[]
 }
 
 type StrippedTestTuple = {
-    source: string,
-    split: string[]
+    source: string, split: string[]
 }
 
 const testStrings: { [label: string]: TestTuple } = {
     wspaces: {
         source: 'space tab\tlinuxEndline\nwinEndline\r\n',
-        split: [
-            {letters: 'space'},
-            {separators: ' '},
-            {letters: 'tab'},
-            {separators: '\t'},
-            {letters: 'linuxEndline'},
-            {separators: '\n'},
-            {letters: 'winEndline'},
-            {separators: '\r\n'},
-        ],
-    },
-    mix: {
+        split: [{letters: 'space'}, {separators: ' '}, {letters: 'tab'}, {separators: '\t'}, {letters: 'linuxEndline'}, {separators: '\n'}, {letters: 'winEndline'}, {separators: '\r\n'}],
+    }, mix: {
         source: 'aBc123\u{20AC}.DeF-GHI98.76$',
-        split: [
-            {letters: 'aBc'},
-            {numbers: '123'},
-            {symbols: '\u{20AC}'},
-            {punctuations: '.'},
-            {letters: 'DeF'},
-            {punctuations: '-'},
-            {letters: 'GHI'},
-            {numbers: '98'},
-            {punctuations: '.'},
-            {numbers: '76'},
-            {symbols: '$'},
-        ],
-    },
-    chinese: {
+        split: [{letters: 'aBc'}, {numbers: '123'}, {symbols: '\u{20AC}'}, {punctuations: '.'}, {letters: 'DeF'}, {punctuations: '-'}, {letters: 'GHI'}, {numbers: '98'}, {punctuations: '.'}, {numbers: '76'}, {symbols: '$'}],
+    }, chinese: {
         source: '\u{6D4B}\u{8BD5}\u{5B57}\u{7B26}\u{4E32}123',
-        split: [
-            {letters: '\u{6D4B}\u{8BD5}\u{5B57}\u{7B26}\u{4E32}'},
-            {numbers: '123'},
-        ],
-    },
-    arabic: {
+        split: [{letters: '\u{6D4B}\u{8BD5}\u{5B57}\u{7B26}\u{4E32}'}, {numbers: '123'}],
+    }, arabic: {
         source: '\u{633}\u{644}\u{633}\u{644}\u{629} \u{627}\u{644}\u{627}\u{62E}\u{62A}\u{628}\u{627}\u{631} 123',
-        split: [
-            {letters: '\u{633}\u{644}\u{633}\u{644}\u{629}'},
-            {separators: ' '},
-            {letters: '\u{627}\u{644}\u{627}\u{62E}\u{62A}\u{628}\u{627}\u{631}'},
-            {separators: ' '},
-            {numbers: '123'},
-        ],
-    },
-    math: {
+        split: [{letters: '\u{633}\u{644}\u{633}\u{644}\u{629}'}, {separators: ' '}, {letters: '\u{627}\u{644}\u{627}\u{62E}\u{62A}\u{628}\u{627}\u{631}'}, {separators: ' '}, {numbers: '123'}],
+    }, math: {
         // \forall x \in \Sigma * \exists y \in \Sigma * : x . y \in P :
-        source: '\u{2200}x\u{2208}\u{2211}*\u{2203}y\u{2208}\u{2211}*:x.y\u{2208}P',
-        split: [
-            {symbols: '\u{2200}'}, // forall
-            {letters: 'x'},
-            {symbols: '\u{2208}\u{2211}'}, // in Sigma
-            {punctuations: '*'},
-            {symbols: '\u{2203}'}, // exists
-            {letters: 'y'},
-            {symbols: '\u{2208}\u{2211}'}, // in Sigma
-            {punctuations: '*:'},
-            {letters: 'x'},
-            {punctuations: '.'},
-            {letters: 'y'},
-            {symbols: '\u{2208}'}, // in
-            {letters: 'P'},
-        ],
-    },
-    price: {
+        source: '\u{2200}x\u{2208}\u{2211}*\u{2203}y\u{2208}\u{2211}*:x.y\u{2208}P', split: [{symbols: '\u{2200}'}, // forall
+            {letters: 'x'}, {symbols: '\u{2208}\u{2211}'}, // in Sigma
+            {punctuations: '*'}, {symbols: '\u{2203}'}, // exists
+            {letters: 'y'}, {symbols: '\u{2208}\u{2211}'}, // in Sigma
+            {punctuations: '*:'}, {letters: 'x'}, {punctuations: '.'}, {letters: 'y'}, {symbols: '\u{2208}'}, // in
+            {letters: 'P'}],
+    }, price: {
         source: '$1,540,500.00',
-        split: [
-            {symbols: '$'},
-            {numbers: '1'},
-            {punctuations: ','},
-            {numbers: '540'},
-            {punctuations: ','},
-            {numbers: '500'},
-            {punctuations: '.'},
-            {numbers: '00'},
-        ],
-    },
-    datetime: {
+        split: [{symbols: '$'}, {numbers: '1'}, {punctuations: ','}, {numbers: '540'}, {punctuations: ','}, {numbers: '500'}, {punctuations: '.'}, {numbers: '00'}],
+    }, datetime: {
         source: '28.Feb 1999 15:32:38.105',
-        split: [
-            {numbers: '28'},
-            {punctuations: '.'},
-            {letters: 'Feb'},
-            {separators: ' '},
-            {numbers: '1999'},
-            {separators: ' '},
-            {numbers: '15'},
-            {punctuations: ':'},
-            {numbers: '32'},
-            {punctuations: ':'},
-            {numbers: '38'},
-            {punctuations: '.'},
-            {numbers: '105'},
-        ],
+        split: [{numbers: '28'}, {punctuations: '.'}, {letters: 'Feb'}, {separators: ' '}, {numbers: '1999'}, {separators: ' '}, {numbers: '15'}, {punctuations: ':'}, {numbers: '32'}, {punctuations: ':'}, {numbers: '38'}, {punctuations: '.'}, {numbers: '105'}],
     },
 };
 
@@ -141,8 +70,7 @@ function generateAllCombinations(matchall: boolean): CutPatternArgs[] {
 function reformatTestUsingSettings(testStringData: TestTuple, patternFormat: CutPatternArgs): TestTuple | StrippedTestTuple {
     // replace unwanted token types with "rest"
     let newSplit: TestBit[] = testStringData.split.map(token => {
-        if (patternFormat[Object.keys(token)[0]])
-            return token;
+        if (patternFormat[Object.keys(token)[0]]) return token;
         return {rest: token[Object.keys(token)[0]]};
     });
 
@@ -164,14 +92,12 @@ function reformatTestUsingSettings(testStringData: TestTuple, patternFormat: Cut
 
     if (!patternFormat.matchAll) {
         return {
-            source: testStringData.source,
-            split: newSplit.map(token => Object.values(token)[0]),
+            source: testStringData.source, split: newSplit.map(token => Object.values(token)[0]),
         };
     }
 
     return {
-        source: testStringData.source,
-        split: newSplit,
+        source: testStringData.source, split: newSplit,
     };
 }
 
@@ -181,8 +107,7 @@ describe.skip('Pattern cutter factory', () => {
         const allPatternArgs = generateAllCombinations(true);
         const combinations = allPatternArgs
             .map(patternArgs => testTuples
-                .map(tuple =>
-                    [reformatTestUsingSettings(tuple, patternArgs), patternArgs] as [TestTuple, CutPatternArgs]))
+                .map(tuple => [reformatTestUsingSettings(tuple, patternArgs), patternArgs] as [TestTuple, CutPatternArgs]))
             .flat();
         //combinations = combinations.map(([data, params]) => [data.source, data.split, params]);
         test.each(combinations)('from string \'%s\' extracting expected %p using groups %p', (tuple, params) => {
@@ -197,8 +122,7 @@ describe.skip('Pattern cutter factory', () => {
         const paramSets = generateAllCombinations(false);
         const combinations = paramSets
             .map(ps => dataSets
-                .map(ds =>
-                    [reformatTestUsingSettings(ds, ps), ps] as [StrippedTestTuple, CutPatternArgs]))
+                .map(ds => [reformatTestUsingSettings(ds, ps), ps] as [StrippedTestTuple, CutPatternArgs]))
             .flat();
         test.each(combinations)('from string \'%s\' extracting expected %p using groups %p', (tuple, params) => {
             const regex = getCutPattern(params) as string;

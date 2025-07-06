@@ -1,5 +1,5 @@
-import { recognizeNumbers } from '../recognize';
-import { NumberUseType } from '../useType';
+import { recognizeNumbers } from '../recognize.js';
+import { NumberUseType } from '../useType.js';
 
 
 describe('NumberUseType Recognition', () => {

@@ -1,5 +1,5 @@
-import { recognizeEnums } from '../recognize';
-import { EnumUseType } from '../useType';
+import { recognizeEnums } from '../recognize.js';
+import { EnumUseType } from '../useType.js';
 
 describe('parse.enum', () => {
 
@@ -9,7 +9,7 @@ describe('parse.enum', () => {
         const result = recognizeEnums(input, {});
 
         expect(result).toEqual([]);
-    })
+    });
 
     test('does recognize categorical column', () => {
         const input = ['male', 'female', 'nonbinary', 'unknown', 'female', 'male', 'unknown', 'nonbinary', 'male', 'unknown'];
@@ -18,7 +18,7 @@ describe('parse.enum', () => {
 
         expect(result).toHaveLength(1);
         expect(result[0].domain).toHaveLength(4);
-    })
+    });
 
     // TODO: This doesn't seem right in retrospect lol
     test('does not recognize enumeration when the only repeating item is potentially a null value', () => {
@@ -28,19 +28,13 @@ describe('parse.enum', () => {
 
         expect(result).toEqual([]);
     });
-})
+});
 
 describe('EnumUseType', () => {
     test('formats items properly', () => {
         const enumUseType = new EnumUseType({
-            domain:
-                [
-                    'Gryffindor',
-                    'Hufflepuff',
-                    'Ravenclaw',
-                    'Slytherin',
-                ]
-        }, {})
+            domain: ['Gryffindor', 'Hufflepuff', 'Ravenclaw', 'Slytherin'],
+        }, {});
 
         const input_values = ['Gryffindor', 'Something', 'Hufflepuff', 'AgainSomething'];
         const expected_output = ['Gryffindor', undefined, 'Hufflepuff', undefined];
@@ -48,17 +42,11 @@ describe('EnumUseType', () => {
         for (let i = 0; i < input_values.length; i++) {
             expect(enumUseType.format(input_values[i])).toEqual(expected_output[i]);
         }
-    })
+    });
 
     test('deformats items properly', () => {
         const enumUseType = new EnumUseType({
-            domain:
-                [
-                    'Gryffindor',
-                    'Hufflepuff',
-                    'Ravenclaw',
-                    'Slytherin',
-                ],
+            domain: ['Gryffindor', 'Hufflepuff', 'Ravenclaw', 'Slytherin'],
         }, {});
 
         const input_values = ['Gryffindor', 'Something', 'Hufflepuff', 'AgainSomething'];
@@ -68,4 +56,4 @@ describe('EnumUseType', () => {
             expect(enumUseType.deformat(input_values[i])).toEqual(expected_output[i]);
         }
     });
-})
+});

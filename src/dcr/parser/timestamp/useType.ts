@@ -1,13 +1,8 @@
-import { compareDates, compareTods, dateToTimeOfDay, isValidDate, isValidTimeOfDay, TimeOfDay } from '../../utils/time';
-import { DomainType, UseType, UseTypeArgs, UseTypeType } from '../useType';
-import { escapeRegExp } from '../../utils/string';
-import {
-    existsLabel,
-    getTokenDetailsByLabel, isLiteral,
-    TimestampTokenDetail,
-    TimestampTokenDetails,
-} from './tokens';
-import { determineTypeFromFormatting, hasValidFormat } from './format';
+import { escapeRegExp } from '../../utils/string.js';
+import { compareDates, compareTods, dateToTimeOfDay, isValidDate, isValidTimeOfDay, TimeOfDay } from '../../utils/time.js';
+import { DomainType, UseType, UseTypeArgs, UseTypeType } from '../useType.js';
+import { determineTypeFromFormatting, hasValidFormat } from './format.js';
+import { existsLabel, getTokenDetailsByLabel, isLiteral, TimestampTokenDetail, TimestampTokenDetails } from './tokens.js';
 
 export type DateTokenExtractor = (date: Date, format?: string[]) => string;
 export type TodTokenExtractor = (tod: TimeOfDay, format?: string[]) => string;
@@ -15,16 +10,18 @@ export type DateTokenApplier = (date: Date, value: string) => void;
 export type TodTokenApplier = (tod: TimeOfDay, value: string) => void;
 
 export enum TimestampType {
-    UNKNOWN = 'unknown',
-    TIME = 'time',
-    DATE = 'date',
-    DATETIME = 'datetime',
-    TIMEOFDAY = 'timeofday'
+    UNKNOWN = 'unknown', TIME = 'time', DATE = 'date', DATETIME = 'datetime', TIMEOFDAY = 'timeofday'
 }
+
 type DateTimestampType = TimestampType.DATETIME | TimestampType.DATE | TimestampType.TIME;
 
-function nullDate(): Date { return new Date(0) }
-function nullTod(): TimeOfDay { return [0, 0, 0, 0] }
+function nullDate(): Date {
+    return new Date(0);
+}
+
+function nullTod(): TimeOfDay {
+    return [0, 0, 0, 0];
+}
 
 export type TimestampArgs<T = Date | TimeOfDay> = {
     formatting: string[],
@@ -36,6 +33,21 @@ export type TimestampArgs<T = Date | TimeOfDay> = {
 
 export class Timestamp<T = Date | TimeOfDay> extends UseType<T> {
 
+    /** Minimal observed value */
+    min: T = undefined;
+    /** Maximal observed value */
+    max: T = undefined;
+    /**
+     * Array of {@link TimestampTokenDetail} labels and literals in order in which they form the timestamp.
+     * @example ['{hh}', ':', '{mm}', ':', '{ss}']
+     */
+    formatting?: string[];
+    timestampType: TimestampType = TimestampType.UNKNOWN;
+    pattern?: string;
+    replacement = null;
+    type: UseTypeType = 'timestamp';
+    domainType: DomainType = 'ordinal';
+    priority = 3;
     /**
      * Pattern constructed during initialization.
      * Used during {@link deformat} for matching a source string,
@@ -43,13 +55,11 @@ export class Timestamp<T = Date | TimeOfDay> extends UseType<T> {
      * to its respective token / literal.
      */
     private readonly _pattern: RegExp;
-
     /**
      * A set of functions used during {@link format}.
      * These are used in sequence on the source value to construct a formatted string.
      */
     private _extractors: T extends Date ? DateTokenExtractor[] : TodTokenExtractor[] = [];
-
     /**
      * A set of functions used during {@link deformat}.
      * These are used in sequence on their groups matched from source string to modify the output value.
@@ -57,31 +67,11 @@ export class Timestamp<T = Date | TimeOfDay> extends UseType<T> {
      */
     private _appliers: T extends Date ? DateTokenApplier[] : TodTokenApplier[] = [];
 
-    /** Minimal observed value */
-    min: T = undefined;
-    /** Maximal observed value */
-    max: T = undefined;
-
-    /**
-     * Array of {@link TimestampTokenDetail} labels and literals in order in which they form the timestamp.
-     * @example ['{hh}', ':', '{mm}', ':', '{ss}']
-     */
-    formatting?: string[];
-
-    timestampType: TimestampType = TimestampType.UNKNOWN;
-
-    pattern?: string;
-    replacement = null;
-    type: UseTypeType = 'timestamp';
-    domainType: DomainType = 'ordinal';
-    priority = 3;
-
     constructor(args: TimestampArgs<T>, superArgs: UseTypeArgs) {
         super(superArgs);
 
         let explicitType: TimestampType = args.type;
-        if (!explicitType)
-            explicitType = TimestampType.UNKNOWN;
+        if (!explicitType) explicitType = TimestampType.UNKNOWN;
 
         let minType: TimestampType = TimestampType.UNKNOWN;
         if (args.min) {
@@ -112,8 +102,7 @@ export class Timestamp<T = Date | TimeOfDay> extends UseType<T> {
 
         if (!allTypesEqual) {
             this.timestampType = TimestampType.UNKNOWN;
-        }
-        else {
+        } else {
             this.timestampType = gatheredTypes[0] as TimestampType;
         }
 
@@ -142,8 +131,7 @@ export class Timestamp<T = Date | TimeOfDay> extends UseType<T> {
                 if (this.timestampType === TimestampType.TIMEOFDAY) {
                     (this._appliers as Array<TodTokenApplier>).push(token.applyTod);
                     (this._extractors as Array<TodTokenExtractor>).push(token.extractTod);
-                }
-                else {
+                } else {
                     (this._appliers as Array<DateTokenApplier>).push(token.apply);
                     (this._extractors as Array<DateTokenExtractor>).push(token.extract);
                 }
@@ -163,27 +151,51 @@ export class Timestamp<T = Date | TimeOfDay> extends UseType<T> {
         }
     }
 
+    /**
+     * Try to generate timestamp useType from short string formatting
+     * @param {string} string usual formatting joined into string (without curly brackets)
+     * @warning volatile, should be used only for debugging purposes.
+     */
+    static fromShortFormatting(string) {
+        const strippedLabels = [];
+        for (const key in TimestampTokenDetails) strippedLabels.push(TimestampTokenDetails[key].label.slice(1, -1));
+        let temp = string;
+        let properLabels = [];
+        while (temp.length > 0) {
+            const matched = strippedLabels.filter(label => temp.startsWith(label));
+            if (matched.length > 0) {
+                const longest = matched.reduce((l, n) => l.length < n.length ? n : l, '');
+                properLabels.push('{' + longest + '}');
+                temp = temp.slice(longest.length);
+            } else {
+                properLabels.push(temp[0]);
+                temp = temp.slice(1);
+            }
+        }
+        properLabels[0] = [properLabels[0]];
+        properLabels = properLabels.reduce((acc, next) => {
+            if (acc[acc.length - 1].endsWith('}') || next.startsWith('{')) {
+                acc.push(next);
+                return acc;
+            } else {
+                acc[acc.length - 1] = acc[acc.length - 1] + next;
+                return acc;
+            }
+        });
+        return new Timestamp({formatting: properLabels}, {});
+    }
+
+    static toShortFormatting(formatting) {
+        return formatting.map(f => f.replace(/\{(.*)\}/, '$1')).join('');
+    }
+
     toString() {
         let ret = '';
-        if (this.min && this.max)
-            ret = this.format(this.min) + '-' + this.format(this.max);
-        else if (this.min || this.max)
-            ret = this.format(this.min ? this.min : this.max);
-        else {
-            if (this.timestampType === 'datetime')
-                ret = this.format(nullDate() as T);
-            else if (this.timestampType === 'date')
-                ret = this.format(nullDate() as T);
-            else if (this.timestampType === 'timeofday')
-                ret = this.format(dateToTimeOfDay(nullDate()) as T);
+        if (this.min && this.max) ret = this.format(this.min) + '-' + this.format(this.max); else if (this.min || this.max) ret = this.format(this.min ? this.min : this.max); else {
+            if (this.timestampType === 'datetime') ret = this.format(nullDate() as T); else if (this.timestampType === 'date') ret = this.format(nullDate() as T); else if (this.timestampType === 'timeofday') ret = this.format(dateToTimeOfDay(nullDate()) as T);
         }
         let prefix = 'X';
-        if (this.timestampType === 'date')
-            prefix = 'D';
-        else if (this.timestampType === 'datetime')
-            prefix = 'DT';
-        else if (this.timestampType === 'timeofday')
-            prefix = 'TOD';
+        if (this.timestampType === 'date') prefix = 'D'; else if (this.timestampType === 'datetime') prefix = 'DT'; else if (this.timestampType === 'timeofday') prefix = 'TOD';
         return prefix + '{' + ret + '}';
     }
 
@@ -201,11 +213,7 @@ export class Timestamp<T = Date | TimeOfDay> extends UseType<T> {
 
     deformat(string: string, verbose = false): T {
         let value: T = null;
-        if (this.timestampType === TimestampType.TIMEOFDAY)
-            (value as TimeOfDay) = nullTod();
-        else if ([TimestampType.TIME, TimestampType.DATE, TimestampType.DATETIME].includes(this.timestampType))
-            (value as Date) = nullDate();
-        else {
+        if (this.timestampType === TimestampType.TIMEOFDAY) (value as TimeOfDay) = nullTod(); else if ([TimestampType.TIME, TimestampType.DATE, TimestampType.DATETIME].includes(this.timestampType)) (value as Date) = nullDate(); else {
             return value;
         }
 
@@ -246,9 +254,7 @@ export class Timestamp<T = Date | TimeOfDay> extends UseType<T> {
                 return false;
             }
 
-            const otherSubtoken = (otherToken as TimestampTokenDetail).subtoken ?
-                TimestampTokenDetails[(otherToken as TimestampTokenDetail).subtoken] :
-                undefined;
+            const otherSubtoken = (otherToken as TimestampTokenDetail).subtoken ? TimestampTokenDetails[(otherToken as TimestampTokenDetail).subtoken] : undefined;
             if (otherToken !== thisToken && otherSubtoken !== thisToken) {
                 return false;
             }
@@ -271,56 +277,10 @@ export class Timestamp<T = Date | TimeOfDay> extends UseType<T> {
 
     _checkDomain(value: T) {
         let compFunc;
-        if (this.timestampType === 'timeofday')
-            compFunc = compareTods;
-        else if (this.timestampType === 'datetime' || this.timestampType === 'date')
-            compFunc = compareDates;
-        else
-            return;
+        if (this.timestampType === 'timeofday') compFunc = compareTods; else if (this.timestampType === 'datetime' || this.timestampType === 'date') compFunc = compareDates; else return;
 
-        if (this.min === undefined || compFunc(this.min, value) > 0)
-            this.min = value;
+        if (this.min === undefined || compFunc(this.min, value) > 0) this.min = value;
 
-        if (this.max === undefined || compFunc(this.max, value) < 0)
-            this.max = value;
-    }
-
-    /**
-     * Try to generate timestamp useType from short string formatting
-     * @param {string} string usual formatting joined into string (without curly brackets)
-     * @warning volatile, should be used only for debugging purposes.
-     */
-    static fromShortFormatting(string) {
-        const strippedLabels = [];
-        for (const key in TimestampTokenDetails)
-            strippedLabels.push(TimestampTokenDetails[key].label.slice(1, -1));
-        let temp = string;
-        let properLabels = [];
-        while (temp.length > 0) {
-            const matched = strippedLabels.filter(label => temp.startsWith(label));
-            if (matched.length > 0) {
-                const longest = matched.reduce((l, n) => l.length < n.length ? n : l, '');
-                properLabels.push('{' + longest + '}');
-                temp = temp.slice(longest.length);
-            } else {
-                properLabels.push(temp[0]);
-                temp = temp.slice(1);
-            }
-        }
-        properLabels[0] = [properLabels[0]];
-        properLabels = properLabels.reduce((acc, next) => {
-            if (acc[acc.length - 1].endsWith('}') || next.startsWith('{')) {
-                acc.push(next);
-                return acc;
-            } else {
-                acc[acc.length - 1] = acc[acc.length - 1] + next;
-                return acc;
-            }
-        });
-        return new Timestamp({formatting: properLabels}, {});
-    }
-
-    static toShortFormatting(formatting) {
-        return formatting.map(f => f.replace(/\{(.*)\}/, '$1')).join('');
+        if (this.max === undefined || compFunc(this.max, value) < 0) this.max = value;
     }
 }

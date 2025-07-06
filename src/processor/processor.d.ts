@@ -1,6 +1,6 @@
 import { BlankNode, NamedNode } from 'n3';
-import { MetaStore } from '../memory/store';
 import { SourceManager } from '../data/source-manager';
+import { MetaStore } from '../memory/store';
 
 interface Configuration {
     metaInput: Array<NamedNode>;

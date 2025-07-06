@@ -1,20 +1,22 @@
 import { Quad } from 'n3';
-import { openReadableStream } from '../io/stream';
-import logger from '../logger';
-import { isDevelopment } from '../utils/env';
-import { DataKind, RdfDataSource, SourceKind } from './data-source';
-import { parseRdfStream } from '../io/rdf';
-import { DataHolder, LocalDataSource } from './local-data-source';
+import { parseRdfStream } from '../io/rdf.js';
+import { openReadableStream } from '../io/stream.js';
+import logger from '../logger.js';
+import { isDevelopment } from '../utils/env.js';
+import { DataKind, RdfDataSource, SourceKind } from './data-source.js';
+import { DataHolder, LocalDataSource } from './local-data-source.js';
 
 class QuadHolder implements DataHolder<Quad> {
     private quads: Quad[] = [];
 
-    public add(data: Quad): void {
-        this.quads.push(data);
-    }
     public get size(): number {
         return this.quads.length;
     }
+
+    public add(data: Quad): void {
+        this.quads.push(data);
+    }
+
     public getData(): Quad[] {
         return this.quads;
     }
@@ -35,10 +37,7 @@ export class LocalRdfDataSource extends LocalDataSource<Quad, QuadHolder> implem
         const dataSource = new LocalRdfDataSource(filename);
 
         if (isDevelopment()) {
-            logger.info(
-                `LocalRdfDataSource( ${filename} ) created:` +
-                (await dataSource.readNext(1))[0] +
-                '...');
+            logger.info(`LocalRdfDataSource( ${filename} ) created:` + (await dataSource.readNext(1))[0] + '...');
         }
 
         return dataSource;

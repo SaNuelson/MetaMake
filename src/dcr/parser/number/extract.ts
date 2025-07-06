@@ -1,7 +1,7 @@
-import { unique } from '../../utils/array';
-import { escapeRegExp } from '../../utils/string';
+import { unique } from '../../utils/array.js';
+import { escapeRegExp } from '../../utils/string.js';
 
-import { NumberUseType } from './useType';
+import { NumberUseType } from './useType.js';
 
 /**
  * Slow method to be used on a small number of samples to generate all possible numeric use-types.
@@ -71,8 +71,7 @@ export function extractPossibleFormats(source: string[], args): NumberUseType[] 
         let potentialPlus = false;
         const potentialSignMatch = sample.match(/^[-+]/);
         if (potentialSignMatch) {
-            if (potentialSignMatch[0] === '+')
-                potentialPlus = true;
+            if (potentialSignMatch[0] === '+') potentialPlus = true;
             potentialMinus = true;
             sample = sample.replace(potentialSignMatch[0], '');
         }
@@ -111,14 +110,11 @@ export function extractPossibleFormats(source: string[], args): NumberUseType[] 
             let builtinParseSuccess = false;
             for (const tsep of potentialThousandSeparators) {
                 for (const dsep of potentialDecimalSeparators) {
-                    if (tsep === dsep)
-                        continue;
+                    if (tsep === dsep) continue;
 
-                    if (!isValidThousandSeparator(sample, tsep))
-                        continue;
+                    if (!isValidThousandSeparator(sample, tsep)) continue;
 
-                    if (!isValidDecimalSeparator(sample, dsep))
-                        continue;
+                    if (!isValidDecimalSeparator(sample, dsep)) continue;
 
                     const parseSample = sample.split(tsep).join('').split(dsep).join('.');
 
@@ -143,10 +139,8 @@ export function extractPossibleFormats(source: string[], args): NumberUseType[] 
         // let potentialRightEllipsisMatch = sample.match(/\.$/);
 
         /* TODO: Potential strict mode where inconsistencies are considered errors */
-        if (potentialPrefix)
-            determinedPrefixes.push(potentialPrefix);
-        if (potentialSuffix)
-            determinedSuffixes.push(potentialSuffix);
+        if (potentialPrefix) determinedPrefixes.push(potentialPrefix);
+        if (potentialSuffix) determinedSuffixes.push(potentialSuffix);
 
         determinedMinus &&= potentialMinus;
         determinedPlus &&= potentialPlus;
@@ -176,10 +170,8 @@ export function extractPossibleFormats(source: string[], args): NumberUseType[] 
         change = false;
         for (let i = 0; i < numutypes.length; i++) {
             for (let j = 0; j < numutypes.length; j++) {
-                if (i === j)
-                    continue;
-                if (numutypes[i].isEqualTo(numutypes[j]) ||
-                    numutypes[i].isSupersetOf(numutypes[j])) {
+                if (i === j) continue;
+                if (numutypes[i].isEqualTo(numutypes[j]) || numutypes[i].isSupersetOf(numutypes[j])) {
                     numutypes.splice(j);
                     change = true;
                 } else if (numutypes[j].isSupersetOf(numutypes[i])) {
@@ -199,10 +191,8 @@ function isValidThousandSeparator(string: string, sep: string): boolean {
     // thousands separator is valid only if it separates groups of 3 digits,
     // with the exception of first part, last part, and the part with decimal separator
     const split = string.split(sep);
-    if (split[0].length > 3)
-        return false;
-    if (split[split.length - 1].length !== 3 && split[split.length - 1].match(/^[0-9]+$/))
-        return false;
+    if (split[0].length > 3) return false;
+    if (split[split.length - 1].length !== 3 && split[split.length - 1].match(/^[0-9]+$/)) return false;
     return split.slice(1, -1).every(part => part.length === 3 || part.match(/\D/));
 }
 

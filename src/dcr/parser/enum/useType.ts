@@ -1,4 +1,4 @@
-import { UseType, UseTypeType } from '../useType';
+import { UseType, UseTypeType } from '../useType.js';
 
 /**
  * Enum useType. Holds all possible values of a domain.

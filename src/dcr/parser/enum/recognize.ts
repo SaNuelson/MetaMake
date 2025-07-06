@@ -1,10 +1,8 @@
-import { getScopedLogger } from '../../../logger';
-import { EnumUseType } from './useType';
+import { getScopedLogger } from '../../../logger.js';
+import { EnumUseType } from './useType.js';
 
 const logger = getScopedLogger('DCR.enum.recognize');
-const commonNullVals = [
-    '', '-', 'n/a', 'null', 'none', 'nan',
-];
+const commonNullVals = ['', '-', 'n/a', 'null', 'none', 'nan'];
 
 /**
  * Try to recognize possible formats of string-represented enums in source array.
@@ -12,16 +10,13 @@ const commonNullVals = [
  * @returns possible enum formats of specified strings
  */
 export function recognizeEnums(source: string[], args): EnumUseType[] {
-    logger.info('recognizeEnums start',
-        {data: source.slice(0, 5), args});
+    logger.info('recognizeEnums start', {data: source.slice(0, 5), args});
 
-    if (!source || source.length === 0)
-        return [];
+    if (!source || source.length === 0) return [];
 
     const valueIndexes: { [value: string]: number[] } = {};
     for (let i = 0; i < source.length; i++) {
-        if (!valueIndexes[source[i]])
-            valueIndexes[source[i]] = [];
+        if (!valueIndexes[source[i]]) valueIndexes[source[i]] = [];
         valueIndexes[source[i]].push(i);
     }
 
@@ -52,8 +47,7 @@ export function recognizeEnums(source: string[], args): EnumUseType[] {
     // create info about non-uniqueness to be used in mapping step
     const ambiguousSets: number[][] = [];
     for (const value in valueIndexes) {
-        if (valueIndexes[value].length > 1)
-            ambiguousSets.push(valueIndexes[value]);
+        if (valueIndexes[value].length > 1) ambiguousSets.push(valueIndexes[value]);
     }
     args.ambiguousSets = ambiguousSets;
 
@@ -63,8 +57,10 @@ export function recognizeEnums(source: string[], args): EnumUseType[] {
     const reductionFactor = source.length / valueCounts.length;
     if (reductionFactor > 0.5 && valueCounts[0][1] >= 2 && valueCounts.length > 2) {
         const enumUseType = new EnumUseType({domain: valueCounts.map(a => a[0])}, {ambiguousSets: ambiguousSets});
-        logger.info(`recongnizeEnums for ${args.label} determined potential enum`,
-            {args, useType: enumUseType.toString()});
+        logger.info(`recongnizeEnums for ${args.label} determined potential enum`, {
+            args,
+            useType: enumUseType.toString(),
+        });
         return [enumUseType];
     }
 
@@ -83,8 +79,10 @@ export function recognizeEnums(source: string[], args): EnumUseType[] {
         args.hasNoval = true;
         args.novalVal = valueCounts[valueCounts.length - 1][0];
 
-        logger.info(`recognizeEnums for ${args.label} determined potential noVal with value ${args.novalVal}.`,
-            {args, noVal: args.novalVal});
+        logger.info(`recognizeEnums for ${args.label} determined potential noVal with value ${args.novalVal}.`, {
+            args,
+            noVal: args.novalVal,
+        });
         return [];
     }
 

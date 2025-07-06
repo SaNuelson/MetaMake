@@ -30,11 +30,28 @@ export abstract class UseType<T> {
 
     potentialIds: boolean;
 
-    ambiguousSets: number[][] | undefined
+    ambiguousSets: number[][] | undefined;
 
     ignored: boolean = false;
 
     limitExceeded: boolean = false;
+    /**
+     * Possible underlying types for this UseType subclass.
+     */
+    compatibleTypes: UseTypeType[] = [];
+    /**
+     * Underlying type for this UseType instance.
+     */
+    type: UseTypeType = 'undefined';
+    /**
+     * Type of the universe. Can be ordinal or nominal.
+     */
+    domainType: DomainType = 'none';
+    /**
+     * Priority with respect to other UseType instances.
+     * Could be intertwined with confidence. For now basically depends on its subclass.
+     */
+    priority: number = -1;
 
     constructor(args: UseTypeArgs) {
         if (this.constructor === UseType) {
@@ -98,25 +115,4 @@ export abstract class UseType<T> {
      * Usually implemented as isSupersetOf || isSubsetOf
      */
     abstract isSimilarTo(other: UseType<unknown>): boolean;
-
-    /**
-     * Possible underlying types for this UseType subclass.
-     */
-    compatibleTypes: UseTypeType[] = [];
-
-    /**
-     * Underlying type for this UseType instance.
-     */
-    type: UseTypeType = 'undefined';
-
-    /**
-     * Type of the universe. Can be ordinal or nominal.
-     */
-    domainType: DomainType = 'none';
-
-    /**
-     * Priority with respect to other UseType instances.
-     * Could be intertwined with confidence. For now basically depends on its subclass.
-     */
-    priority: number = -1;
 }

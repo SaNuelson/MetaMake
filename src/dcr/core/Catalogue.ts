@@ -1,29 +1,38 @@
-import { NumberUseType } from '../parser';
-import { UseType } from '../parser/useType';
-import { determineType } from '../parser/parse.main';
-import { determinePrimaryKeys } from '../mapper/mapper.main';
-import {
-    count,
-    filterInclusionMinima,
-} from '../utils/array';
 import Papa from 'papaparse';
+import { determinePrimaryKeys } from '../mapper/mapper.main.js';
+import { NumberUseType } from '../parser/index.js';
+import { determineType } from '../parser/parse.main.js';
+import { UseType } from '../parser/useType.js';
+import { count, filterInclusionMinima } from '../utils/array.js';
 
 export class Catalogue {
 
     private _auto: boolean;
+    private _isHeaderValid: boolean = false;
+    private _areUseTypesLoaded: boolean = false;
+    /** Error object output from Papa Parse library */
+    private _dataErr: object = {};
+    private _areKeySetsLoaded = false;
+
+    constructor() {
+        this._auto = true;
+    }
 
     /** Header of parsed data */
     private _header: string[] = [];
-    private _isHeaderValid: boolean = false;
 
     get header() {
-        if (!this._isHeaderValid && this._auto)
-            this._checkHeaderValidity();
+        if (!this._isHeaderValid && this._auto) this._checkHeaderValidity();
         return this._header;
     }
 
     /** Content of parsed data in form of a table */
     private _data: string[][] = [];
+
+    /** Data table */
+    get data() {
+        return this._data;
+    }
 
     /** Number of records (rows) */
     get height() {
@@ -40,9 +49,39 @@ export class Catalogue {
         return this.height * this.width;
     }
 
-    /** Data table */
-    get data() {
-        return this._data;
+    private _useTypes: UseType<unknown>[] = [];
+
+    get useTypes() {
+        if (!this._areUseTypesLoaded && this._auto) this._determineUseTypes();
+        return this._useTypes;
+    }
+
+    private _allUseTypes: UseType<unknown>[][] = [];
+
+    get allUseTypes() {
+        if (!this._areUseTypesLoaded && this._auto) this._determineUseTypes();
+        return this._allUseTypes;
+    }
+
+    /** Metadata output from Papa Parse library */
+    private _meta: object = {};
+
+    get meta() {
+        return this._meta;
+    }
+
+    get errors() {
+        return this._dataErr;
+    }
+
+    /**
+     * Set of determined primary (composite) keys in form of a list of groups of indexes of columns
+     */
+    private _keySets: number[][] = [];
+
+    get keySets() {
+        if (!this._areKeySetsLoaded) this._generateKeySets();
+        return this._keySets;
     }
 
     /** I-th record (row) */
@@ -53,51 +92,6 @@ export class Catalogue {
     /** I-th feature (column) */
     col(i: number): string[] {
         return this._data.map(row => row[i]);
-    }
-
-    private _useTypes: UseType<unknown>[] = [];
-    private _allUseTypes: UseType<unknown>[][] = [];
-    private _areUseTypesLoaded: boolean = false;
-
-    get useTypes() {
-        if (!this._areUseTypesLoaded && this._auto)
-            this._determineUseTypes();
-        return this._useTypes;
-    }
-
-    get allUseTypes() {
-        if (!this._areUseTypesLoaded && this._auto)
-            this._determineUseTypes()
-        return this._allUseTypes;
-    }
-
-    /** Metadata output from Papa Parse library */
-    private _meta: object = {};
-    get meta() {
-        return this._meta;
-    }
-
-    /** Error object output from Papa Parse library */
-    private _dataErr: object = {};
-
-    get errors() {
-        return this._dataErr;
-    }
-
-    /**
-     * Set of determined primary (composite) keys in form of a list of groups of indexes of columns
-     */
-    private _keySets: number[][] = [];
-    private _areKeySetsLoaded = false;
-
-    get keySets() {
-        if (!this._areKeySetsLoaded)
-            this._generateKeySets();
-        return this._keySets;
-    }
-
-    constructor() {
-        this._auto = true;
     }
 
     /**
@@ -126,8 +120,7 @@ export class Catalogue {
 
         if (papares instanceof Array) {
             this._data = papares;
-        }
-        else {
+        } else {
             const data = papares.data;
 
             this._header = data[0];
@@ -193,10 +186,8 @@ export class Catalogue {
         this._isHeaderValid = false;
         for (let i = 0; i < this._header.length; i++) {
             const ut: UseType<unknown> = this.useTypes[i];
-            if (ut.hasNull && ut.nullVal === this._header[i])
-                this._isHeaderValid = false;
-            if (ut.deformat(this._header[i]) === null)
-                this._isHeaderValid = true;
+            if (ut.hasNull && ut.nullVal === this._header[i]) this._isHeaderValid = false;
+            if (ut.deformat(this._header[i]) === null) this._isHeaderValid = true;
         }
         if (!this._isHeaderValid) {
             this._data = [this._header, ...this._data];
@@ -208,8 +199,7 @@ export class Catalogue {
                     this._useTypes[i].ambiguousSets = this._useTypes[i].ambiguousSets.map(set => set.map(val => +val + 1));
                     const ambiVals = this._useTypes[i].ambiguousSets.map(set => this._data[set[0]][i]);
                     for (let j = 0; j < ambiVals.length; j++) {
-                        if (this._data[0][i] === ambiVals[j])
-                            this._useTypes[i].ambiguousSets[j].push(0);
+                        if (this._data[0][i] === ambiVals[j]) this._useTypes[i].ambiguousSets[j].push(0);
                     }
                 }
             }

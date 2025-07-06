@@ -1,9 +1,9 @@
-import { getScopedLogger } from '../../../logger';
-import { infill } from '../../utils/array';
-import { Timestamp } from './useType';
-import { getTokenDetailsByLabel, TimestampCategory, TimestampTokenDetails } from './tokens';
-import { hasValidFormat } from './format';
-import { UseTypeArgs } from '../useType';
+import { getScopedLogger } from '../../../logger.js';
+import { infill } from '../../utils/array.js';
+import { UseTypeArgs } from '../useType.js';
+import { hasValidFormat } from './format.js';
+import { getTokenDetailsByLabel, TimestampCategory, TimestampTokenDetails } from './tokens.js';
+import { Timestamp } from './useType.js';
 
 const logger = getScopedLogger('DCR.timestamp.recognize');
 
@@ -25,32 +25,28 @@ export function recognizeTimestamps(source: string[], args: UseTypeArgs): Timest
     let commonTimestamps = getCommonTimestampUseTypes(args);
     logger.debug(`Created ${commonTimestamps.length} common timestamp formats.`);
     commonTimestamps = filterTimestampUseTypes(source, commonTimestamps, args.hasNull ? args.nullVal : undefined);
-    logger.debug(`Matched against source. Remaining ${commonTimestamps.length} formats.`,
-        {data: commonTimestamps.map(ut => ut.formatting)});
+    logger.debug(`Matched against source. Remaining ${commonTimestamps.length} formats.`, {data: commonTimestamps.map(ut => ut.formatting)});
     commonTimestamps = filterDuplicatesAndSubtypes(commonTimestamps);
-    logger.debug(`Filtered duplicates and subtypes. Remaining ${commonTimestamps.length} formats.`,
-        {data: commonTimestamps.map(ut => ut.formatting)});
+    logger.debug(`Filtered duplicates and subtypes. Remaining ${commonTimestamps.length} formats.`, {data: commonTimestamps.map(ut => ut.formatting)});
 
     if (commonTimestamps.length > 0) {
-        logger.debug("Recognized a commonly used timestamp format",
-            {data: source.slice(0,5), formats: commonTimestamps.map(ut => ut.formatting)});
+        logger.debug('Recognized a commonly used timestamp format', {
+            data: source.slice(0, 5),
+            formats: commonTimestamps.map(ut => ut.formatting),
+        });
         return commonTimestamps;
     }
 
     // otherwise do it the hard way
     const initialBatch = source.slice(0, initialBatchSize);
     let extractedUseTypes = extractTimestampUseTypes(initialBatch, args);
-    logger.debug(`Created ${extractedUseTypes.length} bruteforce timestamp formats.`,
-        {data: extractedUseTypes.map(ut => ut.formatting)});
+    logger.debug(`Created ${extractedUseTypes.length} bruteforce timestamp formats.`, {data: extractedUseTypes.map(ut => ut.formatting)});
     extractedUseTypes = filterInvalidUseTypes(extractedUseTypes);
-    logger.debug(`Validated. Remaining ${extractedUseTypes.length} formats.`,
-        {data: extractedUseTypes.map(ut => ut.formatting)});
+    logger.debug(`Validated. Remaining ${extractedUseTypes.length} formats.`, {data: extractedUseTypes.map(ut => ut.formatting)});
     extractedUseTypes = filterTimestampUseTypes(source, extractedUseTypes, args.hasNull ? args.nullVal : undefined);
-    logger.debug(`Matched against source. Remaining ${extractedUseTypes.length} formats.`,
-        {data: extractedUseTypes.map(ut => ut.formatting)});
+    logger.debug(`Matched against source. Remaining ${extractedUseTypes.length} formats.`, {data: extractedUseTypes.map(ut => ut.formatting)});
     extractedUseTypes = filterDuplicatesAndSubtypes(extractedUseTypes);
-    logger.debug(`Filtered duplicates and subtypes. Remaining ${extractedUseTypes.length} formats.`,
-        {data: extractedUseTypes.map(ut => ut.formatting)});
+    logger.debug(`Filtered duplicates and subtypes. Remaining ${extractedUseTypes.length} formats.`, {data: extractedUseTypes.map(ut => ut.formatting)});
 
     return extractedUseTypes;
 }
@@ -59,8 +55,8 @@ export function recognizeTimestamps(source: string[], args: UseTypeArgs): Timest
 function extractTimestampUseTypes(source: string[], args): Timestamp[] {
 
     const formattings = [];
-    const memo: {[srcPlusCats: string]: string[][]} = {};
-    const hashTable: {[format: string]: boolean} = {};
+    const memo: { [srcPlusCats: string]: string[][] } = {};
+    const hashTable: { [format: string]: boolean } = {};
     const tokenHandles = Object.keys(TimestampTokenDetails);
     for (const string of source) {
         const combinations = extractTokenRecursive(string);
@@ -77,8 +73,7 @@ function extractTimestampUseTypes(source: string[], args): Timestamp[] {
 
     function extractTokenRecursive(string: string, usedCategories: TimestampCategory[] = [], startingIndex: number = 0): string[][] {
 
-        if (!string || string === '')
-            return [[]];
+        if (!string || string === '') return [[]];
 
         if (memo[[string, '|', usedCategories].join()]) {
             return memo[[string, '|', usedCategories].join()];
@@ -134,12 +129,11 @@ function extractTimestampUseTypes(source: string[], args): Timestamp[] {
 function filterTimestampUseTypes(source: string[], useTypes: Timestamp[], skipVal?: string): Timestamp[] {
     for (let i = 0; i < source.length; i++) {
 
-        if (skipVal !== undefined && source[i] === skipVal)
-            continue;
+        if (skipVal !== undefined && source[i] === skipVal) continue;
 
         const areUseTypesDisabled = useTypes.map(_ => false);
 
-        for (let j = 0; j < useTypes.length; j++){
+        for (let j = 0; j < useTypes.length; j++) {
             const useType = useTypes[j];
             const val = useType.deformat(source[i]);
             if (val === null) {
@@ -173,8 +167,7 @@ function filterDuplicatesAndSubtypes(useTypes: Timestamp[]): Timestamp[] {
     for (let i = 0; i < useTypes.length; i++) {
         const subtypes = [];
         for (let j = i + 1; j < useTypes.length; j++) {
-            if (useTypes[i].isSupersetOf(useTypes[j]))
-                subtypes.push(j);
+            if (useTypes[i].isSupersetOf(useTypes[j])) subtypes.push(j);
         }
         useTypes = useTypes.filter((_, i) => !subtypes.includes(i));
     }
@@ -186,11 +179,9 @@ function filterDuplicatesAndSubtypes(useTypes: Timestamp[]): Timestamp[] {
 let expectedUseTypesCache;
 
 function getCommonTimestampUseTypes(args: UseTypeArgs): Timestamp[] {
-    if (!expectedUseTypesCache)
-        generateCommonTimestampUseTypes();
+    if (!expectedUseTypesCache) generateCommonTimestampUseTypes();
     return expectedUseTypesCache.map((format: string[]) => new Timestamp({
-        formatting: format,
-        skipValidation: true,
+        formatting: format, skipValidation: true,
     }, args));
 
     function generateCommonTimestampUseTypes() {
@@ -199,46 +190,26 @@ function getCommonTimestampUseTypes(args: UseTypeArgs): Timestamp[] {
 
         //#region UTC
 
-        const utcDateBasic = [
-            ['{YYYY}', '{MM}', '{DD}'],
-            ['--', '{MM}', '{DD}'],
-        ];
+        const utcDateBasic = [['{YYYY}', '{MM}', '{DD}'], ['--', '{MM}', '{DD}']];
         cache = cache.concat(utcDateBasic);
 
-        const utcDateExtended = [
-            ['{YYYY}', '-', '{MM}', '-', '{DD}'],
-            ['{YYYY}', '-', '{MM}'],
-            ['--', '{MM}', '-', '{DD}'],
-        ];
+        const utcDateExtended = [['{YYYY}', '-', '{MM}', '-', '{DD}'], ['{YYYY}', '-', '{MM}'], ['--', '{MM}', '-', '{DD}']];
         cache = cache.concat(utcDateExtended);
 
         const utcDateTimeConnector = 'T';
 
-        const utcTimeBasic = [
-            ['T', '{hh}', '{mm}', '{ss}', '.', '{nnn}'],
-            ['T', '{hh}', '{mm}', '{ss}'],
-            ['T', '{hh}', '{mm}'],
-            ['T', '{hh}'],
-        ];
+        const utcTimeBasic = [['T', '{hh}', '{mm}', '{ss}', '.', '{nnn}'], ['T', '{hh}', '{mm}', '{ss}'], ['T', '{hh}', '{mm}'], ['T', '{hh}']];
         cache = cache.concat(utcTimeBasic);
 
         const utcDatetimeBasic = [];
-        for (const date of utcDateBasic)
-            for (const time of utcTimeBasic)
-                utcDatetimeBasic.push(date.concat(time));
+        for (const date of utcDateBasic) for (const time of utcTimeBasic) utcDatetimeBasic.push(date.concat(time));
         cache = cache.concat(utcDatetimeBasic);
 
-        const utcTimeExtended = [
-            ['{hh}', ':', '{mm}', ':', '{ss}', '.', '{nnn}'],
-            ['{hh}', ':', '{mm}', ':', '{ss}'],
-            ['{hh}', ':', '{mm}'],
-        ];
+        const utcTimeExtended = [['{hh}', ':', '{mm}', ':', '{ss}', '.', '{nnn}'], ['{hh}', ':', '{mm}', ':', '{ss}'], ['{hh}', ':', '{mm}']];
         cache = cache.concat(utcTimeExtended);
 
         const utcDatetimeExtended = [];
-        for (const date of utcDateExtended)
-            for (const time of utcTimeExtended)
-                utcDatetimeExtended.push(date.concat([utcDateTimeConnector], time));
+        for (const date of utcDateExtended) for (const time of utcTimeExtended) utcDatetimeExtended.push(date.concat([utcDateTimeConnector], time));
         cache = cache.concat(utcDatetimeExtended);
 
         //#endregion
@@ -248,36 +219,20 @@ function getCommonTimestampUseTypes(args: UseTypeArgs): Timestamp[] {
         const frequentDateSeparators = ['.', '-', '/'];
         const frequentTimeSeparators = [':', '.'];
         const frequentDateTimeSeparators = [' ', '\t'];
-        const frequentDateOrders = [
-            ['{DD}', '{MM}', '{YYYY}'],
-            ['{DD}', '{MM}', '{YY}'],
-            ['{MM}', '{DD}', '{YYYY}'],
-            ['{MM}', '{DD}', '{YY}'],
-            ['{YYYY}', '{MM}', '{DD}'],
-        ];
+        const frequentDateOrders = [['{DD}', '{MM}', '{YYYY}'], ['{DD}', '{MM}', '{YY}'], ['{MM}', '{DD}', '{YYYY}'], ['{MM}', '{DD}', '{YY}'], ['{YYYY}', '{MM}', '{DD}']];
 
-        const frequentTimeOrders = [
-            ['{hh}', '{mm}', '{ss}', '{nnn}'],
-            ['{hh}', '{mm}', '{ss}'],
-            ['{hh}', '{mm}'],
-        ];
+        const frequentTimeOrders = [['{hh}', '{mm}', '{ss}', '{nnn}'], ['{hh}', '{mm}', '{ss}'], ['{hh}', '{mm}']];
 
         const frequentDates = [];
-        for (const date of frequentDateOrders)
-            for (const sep of frequentDateSeparators)
-                frequentDates.push(infill(date, sep));
+        for (const date of frequentDateOrders) for (const sep of frequentDateSeparators) frequentDates.push(infill(date, sep));
         cache = cache.concat(frequentDates);
 
         const frequentTimes = [];
-        for (const time of frequentTimeOrders)
-            for (const sep of frequentTimeSeparators)
-                frequentTimes.push(infill(time, sep));
+        for (const time of frequentTimeOrders) for (const sep of frequentTimeSeparators) frequentTimes.push(infill(time, sep));
         cache = cache.concat(frequentTimes);
 
         let frequentDatetimes = [];
-        for (const date of frequentDates)
-            for (const time of frequentTimes)
-                frequentDatetimes = frequentDatetimes.concat(frequentDateTimeSeparators.map(sep => [].concat(date, [sep], time)));
+        for (const date of frequentDates) for (const time of frequentTimes) frequentDatetimes = frequentDatetimes.concat(frequentDateTimeSeparators.map(sep => [].concat(date, [sep], time)));
         cache = cache.concat(frequentDatetimes);
 
         //#endregion

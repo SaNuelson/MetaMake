@@ -14,46 +14,40 @@ const fetchList = {
         },
         names: [] as string[],
         codes: [] as string[],
-    },
-    currencies: {
-        url: 'https://raw.githubusercontent.com/ourworldincode/currency/main/currencies.json',
-        extract: (json) => {
+    }, currencies: {
+        url: 'https://raw.githubusercontent.com/ourworldincode/currency/main/currencies.json', extract: (json) => {
             const codes = Object.keys(json);
             fetchList.currencies.codes = codes;
             fetchList.currencies.symbols = codes.map(code => json[code].symbol);
-            fetchList.currencies.nativeSymbols = codes.map(code => json[code].symbol_native)
-        },
-        names: [] as string[],
-        codes: [] as string[],
-        symbols: [] as string[],
-        nativeSymbols: [] as string[],
-    },
-    cities: {
-        url: 'https://raw.githubusercontent.com/lutangar/cities.json/master/cities.json',
-        extract: (json) => {
+            fetchList.currencies.nativeSymbols = codes.map(code => json[code].symbol_native);
+        }, names: [] as string[], codes: [] as string[], symbols: [] as string[], nativeSymbols: [] as string[],
+    }, cities: {
+        url: 'https://raw.githubusercontent.com/lutangar/cities.json/master/cities.json', extract: (json) => {
             fetchList.cities.names = json.map(country => country.name);
             fetchList.cities.codes = json.map(country => country.country);
-        },
-        names: [] as string[],
-        codes: [] as string[],
-    }
-}
+        }, names: [] as string[], codes: [] as string[],
+    },
+};
 
 let isDataFetched = false;
 (function prefetchData() {
-    if (isDataFetched)
-        return;
+    if (isDataFetched) return;
 
     for (const fetchItem in fetchList) {
         let fallbackRes;
         fetch(fetchList[fetchItem].url)
-            .then(res => { return res.json() })
+            .then(res => {
+                return res.json();
+            })
             .then(json => fetchList[fetchItem].extract(json))
-            .catch(err => { console.error("parse.constants.js fetch item", fetchItem, "failed with err", err); return fallbackRes.text() });
+            .catch(err => {
+                console.error('parse.constants.js fetch item', fetchItem, 'failed with err', err);
+                return fallbackRes.text();
+            });
     }
 
     isDataFetched = true;
-})()
+})();
 
 function getMonthNames(locale) {
     return ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -90,33 +84,31 @@ export const timestampConstants = {
     getDayNameAbbreviations: getDayNameAbbreviations,
     getDayCountInMonth: getDayCountInMonth,
     getPotentialTimeSeparators: getPotentialTimeSeparators,
-    getPotentialDateSeparators: getPotentialDateSeparators
-}
+    getPotentialDateSeparators: getPotentialDateSeparators,
+};
 
 function getCurrencySymbols() {
     const fetchItem = fetchList.currencies;
-    if (!fetchItem || !fetchItem.symbols)
-        return [];
+    if (!fetchItem || !fetchItem.symbols) return [];
     return fetchItem.symbols;
 }
 
 function getCurrencyCodes() {
     const fetchItem = fetchList.currencies;
-    if (!fetchItem || !fetchItem.codes)
-        return [];
+    if (!fetchItem || !fetchItem.codes) return [];
     return fetchItem.codes;
 }
 
 function getMetricPrefixes(locale) {
-    return ["yotta", "zetta", "exa", "peta", "tera", "giga", "mega", "kilo", "hecto", "deca", "", "deci", "centi", "milli", "micro", "nano", "pico", "femto", "atto", "zepto", "yocto"];
+    return ['yotta', 'zetta', 'exa', 'peta', 'tera', 'giga', 'mega', 'kilo', 'hecto', 'deca', '', 'deci', 'centi', 'milli', 'micro', 'nano', 'pico', 'femto', 'atto', 'zepto', 'yocto'];
 }
 
 function getMetricPrefixSymbols(locale) {
-    return ["Y", "Z", "E", "P", "T", "G", "M", "k", "h", "da", "", "d", "c", "m", "μ", "n", "p", "f", "a", "z", "y"];
+    return ['Y', 'Z', 'E', 'P', 'T', 'G', 'M', 'k', 'h', 'da', '', 'd', 'c', 'm', 'μ', 'n', 'p', 'f', 'a', 'z', 'y'];
 }
 
 function getCardinalityPrefixSymbols(locale) {
-    return ["K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc", "Ud", "Dd", "Td"]; // ...
+    return ['K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc', 'Ud', 'Dd', 'Td']; // ...
 }
 
 export const numberConstants = {
@@ -124,65 +116,29 @@ export const numberConstants = {
     getCurrencyCodes: getCurrencyCodes,
     getMetricPrefixes: getMetricPrefixes,
     getMetricPrefixSymbols: getMetricPrefixSymbols,
-    getCardinalityPrefixSymbols: getCardinalityPrefixSymbols
-}
+    getCardinalityPrefixSymbols: getCardinalityPrefixSymbols,
+};
 
 function getCountryCodes() {
     const fetchItem = fetchList.countries;
-    if (!fetchItem || !fetchItem.codes)
-        return [];
+    if (!fetchItem || !fetchItem.codes) return [];
     return fetchItem.codes;
 }
 
 function getCountryNames(locale) {
     const fetchItem = fetchList.countries;
-    if (!fetchItem || !fetchItem.names)
-        return [];
+    if (!fetchItem || !fetchItem.names) return [];
     return fetchItem.names;
 }
 
 export const enumConstants = {
-    getCountryCodes: getCountryCodes,
-    getCountryNames: getCountryNames
-}
+    getCountryCodes: getCountryCodes, getCountryNames: getCountryNames,
+};
 
 function getUtf16Whitespace() {
-    return [
-        '\t',
-        '\n',
-        '\x0b',
-        '\x0c',
-        '\r',
-        ' ',
-        '\xa0',
-        '\xc2\x85',
-        '\xc2\xa0',
-        '\xe1\x9a\x80',
-        '\xe1\xa0\x8e',
-        '\xe2\x80\x80',
-        '\xe2\x80\x81',
-        '\xe2\x80\x82',
-        '\xe2\x80\x83',
-        '\xe2\x80\x84',
-        '\xe2\x80\x85',
-        '\xe2\x80\x86',
-        '\xe2\x80\x87',
-        '\xe2\x80\x88',
-        '\xe2\x80\x89',
-        '\xe2\x80\x8a',
-        '\xe2\x80\x8b',
-        '\xe2\x80\x8c',
-        '\xe2\x80\x8d',
-        '\xe2\x80\xa8',
-        '\xe2\x80\xa9',
-        '\xe2\x80\xaf',
-        '\xe2\x81\x9f',
-        '\xe2\x81\xa0',
-        '\xe3\x80\x80',
-        '\xef\xbb\xbf'
-    ];
+    return ['\t', '\n', '\x0b', '\x0c', '\r', ' ', '\xa0', '\xc2\x85', '\xc2\xa0', '\xe1\x9a\x80', '\xe1\xa0\x8e', '\xe2\x80\x80', '\xe2\x80\x81', '\xe2\x80\x82', '\xe2\x80\x83', '\xe2\x80\x84', '\xe2\x80\x85', '\xe2\x80\x86', '\xe2\x80\x87', '\xe2\x80\x88', '\xe2\x80\x89', '\xe2\x80\x8a', '\xe2\x80\x8b', '\xe2\x80\x8c', '\xe2\x80\x8d', '\xe2\x80\xa8', '\xe2\x80\xa9', '\xe2\x80\xaf', '\xe2\x81\x9f', '\xe2\x81\xa0', '\xe3\x80\x80', '\xef\xbb\xbf'];
 }
 
 export const unicodeConstants = {
-    getUtf16Whitespace: getUtf16Whitespace
+    getUtf16Whitespace: getUtf16Whitespace,
 };

@@ -14,23 +14,17 @@ export function isValidDate(date: any): date is Date {
  * Checks if the provided variable is a valid time of day (according to Google Charts)
  */
 export function isValidTimeOfDay(tod: any): tod is TimeOfDay {
-    if (!(tod instanceof Array))
-        return false;
+    if (!(tod instanceof Array)) return false;
 
-    if (tod.length < 3 || tod.length > 4)
-        return false;
+    if (tod.length < 3 || tod.length > 4) return false;
 
-    if (tod[0] < 0 || tod[0] > 23)
-        return false;
+    if (tod[0] < 0 || tod[0] > 23) return false;
 
-    if (tod[1] < 0 || tod[1] > 59)
-        return false;
+    if (tod[1] < 0 || tod[1] > 59) return false;
 
-    if (tod[2] < 0 || tod[2] > 59)
-        return false;
+    if (tod[2] < 0 || tod[2] > 59) return false;
 
-    if (tod[3] && (tod[3] < 0 || tod[3] > 999))
-        return false;
+    if (tod[3] && (tod[3] < 0 || tod[3] > 999)) return false;
 
     return true;
 }

@@ -1,12 +1,14 @@
 import { Stats } from 'fs';
 import { existsSync, statSync } from 'node:fs';
 import { Duplex } from 'node:stream';
-import { getScopedLogger, ScopedLogger } from '../logger';
-import { DataKind, DataSource, SourceKind } from './data-source';
+import { getScopedLogger, ScopedLogger } from '../logger.js';
+import { DataKind, DataSource, SourceKind } from './data-source.js';
 
 export abstract class DataHolder<DataChunk> {
-    public abstract add(data: DataChunk): void;
     public abstract get size(): number;
+
+    public abstract add(data: DataChunk): void;
+
     public abstract getData(): DataChunk[];
 }
 
@@ -42,21 +44,15 @@ export abstract class LocalDataSource<Data, Holder extends DataHolder<Data>> imp
     public async reset(): Promise<boolean> {
         this.logger.info(`${this.constructor.name}(${this.filename}) reset.`);
 
-        if (!this.isOpen)
-            return true;
+        if (!this.isOpen) return true;
 
         this.fileStream.destroy();
         return true;
     }
 
-    protected abstract open(): Promise<boolean>;
-
-    protected abstract createHolder(): Holder;
-
     public async readNext(n?: number): Promise<Data[]> {
         this.logger.info(`${this.constructor.name}(${this.filename}) read ${n}.`);
-        if (!this.isOpen)
-            await this.open();
+        if (!this.isOpen) await this.open();
 
         return new Promise<Data[]>((res, rej) => {
 
@@ -82,4 +78,8 @@ export abstract class LocalDataSource<Data, Holder extends DataHolder<Data>> imp
             });
         });
     }
+
+    protected abstract open(): Promise<boolean>;
+
+    protected abstract createHolder(): Holder;
 }

@@ -1,12 +1,12 @@
 import { BlankNode, NamedNode } from 'n3';
-import { isCsvDataSource } from '../data/utils';
-import { Catalogue } from '../dcr/core/Catalogue';
-import { getScopedLogger, ScopedLogger } from '../logger';
-import { Configuration, Processor } from './processor';
-import { MetaStore } from '../memory/store';
-import { SourceManager } from '../data/source-manager';
-import { CsvMediaType, hasDistribution, mediaType } from '../memory/vocabulary';
-import { isBlankNode } from '../memory/utils';
+import { SourceManager } from '../data/source-manager.js';
+import { isCsvDataSource } from '../data/utils.js';
+import { Catalogue } from '../dcr/core/Catalogue.js';
+import { getScopedLogger, ScopedLogger } from '../logger.js';
+import { MetaStore } from '../memory/store.js';
+import { isBlankNode } from '../memory/utils.js';
+import { CsvMediaType, hasDistribution, mediaType } from '../memory/vocabulary.js';
+import { Configuration, Processor } from './processor.js';
 
 export class DcrProcessorConfiguration implements Configuration {
     metaInput: Array<NamedNode>;

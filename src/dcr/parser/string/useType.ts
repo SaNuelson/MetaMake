@@ -1,10 +1,18 @@
-import { DomainType, UseType, UseTypeType } from '../useType';
+import { DomainType, UseType, UseTypeType } from '../useType.js';
 
 export class StringUseType extends UseType<string> {
     isUnique: boolean;
     constantValue: string;
 
     kind: string;
+    compatibleTypes: UseTypeType[] = ['string'];
+    /**
+     * Underlying type for this UseType instance.
+     * @type {string}
+     */
+    type: UseTypeType = 'string';
+    domainType: DomainType = 'nominal';
+    priority = 0;
 
     constructor(args) {
         super(args);
@@ -67,16 +75,4 @@ export class StringUseType extends UseType<string> {
         if (this.kind) ret += ' of kind ' + this.kind;
         return ret;
     }
-
-    compatibleTypes: UseTypeType[] = ['string'];
-
-    /**
-     * Underlying type for this UseType instance.
-     * @type {string}
-     */
-    type: UseTypeType = 'string';
-
-    domainType: DomainType = 'nominal';
-
-    priority = 0;
 }

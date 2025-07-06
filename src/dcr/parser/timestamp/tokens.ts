@@ -1,6 +1,5 @@
-import { DateTokenApplier, DateTokenExtractor, TodTokenApplier, TodTokenExtractor } from './useType';
-import { TimeOfDay } from '../../utils/time';
-import { escapeRegExp } from '../../utils/string';
+import { escapeRegExp } from '../../utils/string.js';
+import { DateTokenApplier, DateTokenExtractor, TodTokenApplier, TodTokenExtractor } from './useType.js';
 
 // TODO: From constants
 const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -23,33 +22,20 @@ export enum TimestampCategory {
 }
 
 export enum TimestampSpecificity {
-    NumericShort = 0,
-    NumericMedium = 1,
-    NumericLong = 2,
-    WordShort = 3,
-    WordLong = 4,
+    NumericShort = 0, NumericMedium = 1, NumericLong = 2, WordShort = 3, WordLong = 4,
 }
 
 export type TimestampTokenDetail = {
     /** Token label used within a formatting string */
-    label: string,
-    /** Partial regex used to extract this token */
-    regexBit: string,
-    /** Specific category of this token's value */
-    category: TimestampCategory,
-    /** Flag whether a token's value is numeric */
-    numeric: boolean,
-    /** Optionally label of token that is identical but less strict version */
-    subtoken?: string,
-    /** Method to apply the provided value to a date */
-    apply: DateTokenApplier,
-    /** Method to apply provided value to a time of day */
-    applyTod: TodTokenApplier,
-    /** Method to extract this token's value from a date */
-    extract: DateTokenExtractor,
-    /** Method to extract this token's value from a time of day */
-    extractTod: TodTokenExtractor,
-    /** Whether token is a literal */
+    label: string, /** Partial regex used to extract this token */
+    regexBit: string, /** Specific category of this token's value */
+    category: TimestampCategory, /** Flag whether a token's value is numeric */
+    numeric: boolean, /** Optionally label of token that is identical but less strict version */
+    subtoken?: string, /** Method to apply the provided value to a date */
+    apply: DateTokenApplier, /** Method to apply provided value to a time of day */
+    applyTod: TodTokenApplier, /** Method to extract this token's value from a date */
+    extract: DateTokenExtractor, /** Method to extract this token's value from a time of day */
+    extractTod: TodTokenExtractor, /** Whether token is a literal */
     literal?: boolean
 };
 
@@ -60,8 +46,10 @@ export function createTokenLiteral(value: string): TimestampTokenDetail {
         regexBit: escapeRegExp(value),
         category: TimestampCategory.Literal,
         literal: true,
-        apply: () => {},
-        applyTod: () => {},
+        apply: () => {
+        },
+        applyTod: () => {
+        },
         extract: () => '',
         extractTod: () => '',
     };
@@ -74,8 +62,7 @@ export const TimestampTokenDetails: { [label: string]: TimestampTokenDetail } = 
         label: '{EE}',
         regexBit: '(AD|BC)',
         category: TimestampCategory.Era,
-        numeric: false,
-        // apply is valid since one can expect year preceding era in a format (BC 1500 makes little sense)
+        numeric: false, // apply is valid since one can expect year preceding era in a format (BC 1500 makes little sense)
         apply: (date, val) => date.getUTCFullYear() > 0 && val === 'BC' && date.setUTCFullYear(-date.getUTCFullYear()),
         applyTod: () => undefined,
         extract: (date) => date.getUTCFullYear() >= 0 ? 'AD' : 'BC',
@@ -210,14 +197,11 @@ export const TimestampTokenDetails: { [label: string]: TimestampTokenDetail } = 
         label: '{RR}',
         regexBit: '(AM|PM)',
         category: TimestampCategory.Meridiem,
-        numeric: false,
-        // same like era, it should be safe to assume meridiem won't be preceding hours (e.g. AM 7:30)
+        numeric: false, // same like era, it should be safe to assume meridiem won't be preceding hours (e.g. AM 7:30)
         apply: (date, val) => {
             const hours = date.getUTCHours();
-            if (val === 'PM' && hours < 12)
-                date.setUTCHours(hours + 12); // all after noon
-            else if (val === 'AM' && hours === 12)
-                date.setUTCHours(0); // midnight
+            if (val === 'PM' && hours < 12) date.setUTCHours(hours + 12); // all after noon
+            else if (val === 'AM' && hours === 12) date.setUTCHours(0); // midnight
         },
         applyTod: () => undefined,
         extract: (date) => date.getUTCHours() < 12 || date.getUTCHours() === 0 ? 'AM' : 'PM',
@@ -234,14 +218,12 @@ export const TimestampTokenDetails: { [label: string]: TimestampTokenDetail } = 
         applyTod: (tod, val) => tod[0] = +val,
         extract: (date, format) => {
             let extracted = date.getUTCHours();
-            if (format && format.includes(TimestampTokenDetails.meridiem.label))
-                extracted %= 12;
+            if (format && format.includes(TimestampTokenDetails.meridiem.label)) extracted %= 12;
             return extracted.toString().padStart(2, '0');
         },
         extractTod: (tod, format) => {
             let extracted = tod[0];
-            if (format && format.includes(TimestampTokenDetails.meridiem.label))
-                extracted %= 12;
+            if (format && format.includes(TimestampTokenDetails.meridiem.label)) extracted %= 12;
             return extracted.toString().padStart(2, '0');
         },
     },
@@ -257,14 +239,12 @@ export const TimestampTokenDetails: { [label: string]: TimestampTokenDetail } = 
         applyTod: (tod, val) => tod[0] = +val,
         extract: (date, format) => {
             let extracted = date.getUTCHours();
-            if (format && format.includes(TimestampTokenDetails.meridiem.label))
-                extracted %= 12;
+            if (format && format.includes(TimestampTokenDetails.meridiem.label)) extracted %= 12;
             return extracted.toString();
         },
         extractTod: (tod, format) => {
             let extracted = tod[0];
-            if (format && format.includes(TimestampTokenDetails.meridiem.label))
-                extracted %= 12;
+            if (format && format.includes(TimestampTokenDetails.meridiem.label)) extracted %= 12;
             return extracted.toString();
         },
     },

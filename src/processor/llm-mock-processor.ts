@@ -1,9 +1,9 @@
-import { MetaStore } from '../memory/store';
-import { description, prefixToNamespace, title } from '../memory/vocabulary';
 import { BlankNode, DataFactory as df, NamedNode } from 'n3';
-import { Configuration, Processor } from './processor';
-import { LlmProcessorConfiguration } from './llm-processor';
-import { SourceManager } from '../data/source-manager';
+import { SourceManager } from '../data/source-manager.js';
+import { MetaStore } from '../memory/store.js';
+import { description, prefixToNamespace, title } from '../memory/vocabulary.js';
+import { LlmProcessorConfiguration } from './llm-processor.js';
+import { Configuration, Processor } from './processor.js';
 
 const mm = prefixToNamespace['mm'];
 

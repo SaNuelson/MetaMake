@@ -1,16 +1,16 @@
-import * as voc from './memory/vocabulary';
-import { MetaStore } from './memory/store';
-import { isA } from './memory/vocabulary';
-import LocalFileProcessor from './processor/local-file-processor';
-import DcrProcessor from './processor/dcr-processor';
-import LlmMockProcessor from './processor/llm-mock-processor';
-import DcatApCzExtractor, { dcatApCzGraph } from './processor/dcat-ap-cz-extractor';
-import { dumpJsonld } from './io/jsonld';
-import fs from 'node:fs';
-import { LocalCsvDataSource } from './data/local-csv-data-source';
 import { BlankNode, Quad } from 'n3';
-import logger from './logger';
-import { SourceManager } from './data/source-manager';
+import fs from 'node:fs';
+import { LocalCsvDataSource } from './data/local-csv-data-source.js';
+import { SourceManager } from './data/source-manager.js';
+import { dumpJsonld } from './io/jsonld.js';
+import logger from './logger.js';
+import { MetaStore } from './memory/store.js';
+import * as voc from './memory/vocabulary.js';
+import { isA } from './memory/vocabulary.js';
+import DcrProcessor from './processor/dcr-processor.js';
+import LlmMockProcessor from './processor/llm-mock-processor.js';
+import LocalFileProcessor from './processor/local-file-processor.js';
+import MetadataExtractor, { dcatApCzGraph } from './processor/metadata-extractor.js';
 
 async function main() {
 
@@ -36,7 +36,7 @@ async function main() {
     const llmProcessor = new LlmMockProcessor();
     llmProcessor.execute(sourceManager, store, dataset);
 
-    const dcatApCzExtractor = new DcatApCzExtractor();
+    const dcatApCzExtractor = new MetadataExtractor();
     dcatApCzExtractor.execute(sourceManager, store, dataset);
 
     const output = fs.createWriteStream('out/address_points.jsonld');

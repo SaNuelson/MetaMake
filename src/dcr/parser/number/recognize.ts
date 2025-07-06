@@ -1,6 +1,6 @@
-import { getScopedLogger } from '../../../logger';
-import { extractPossibleFormats } from './extract';
-import { NumberUseType } from './useType';
+import { getScopedLogger } from '../../../logger.js';
+import { extractPossibleFormats } from './extract.js';
+import { NumberUseType } from './useType.js';
 
 const logger = getScopedLogger('DCR.number.recognize');
 
@@ -18,12 +18,9 @@ export function recognizeNumbers(source: string[], args): NumberUseType[] {
     const initialBatch = source.slice(0, 5);
 
     let nuts = extractPossibleFormats(initialBatch, args);
-    logger.debug(`${args.label ?? ''} found initial batch of number formats`,
-        {
-            args,
-            data: source.slice(0, 5),
-            useTypes: nuts,
-        });
+    logger.debug(`${args.label ?? ''} found initial batch of number formats`, {
+        args, data: source.slice(0, 5), useTypes: nuts,
+    });
 
     /** _[i] = if i-th NUT has failed the threshold of invalid matches. */
     const isNutDisabled: Array<boolean> = nuts.map(() => false);
@@ -49,21 +46,17 @@ export function recognizeNumbers(source: string[], args): NumberUseType[] {
                     nut.min = Math.min(nut.min, num);
                 } else {
                     // NUT does not fit the value
-                    logger.debug(`${args.label ?? ''} failed to parse value`,
-                        {
-                            value,
-                            useType: nut,
-                        });
+                    logger.debug(`${args.label ?? ''} failed to parse value`, {
+                        value, useType: nut,
+                    });
 
                     // Generate a new set of NUTs for value only when needed
                     if (!potentialExpansionNuts) {
                         potentialExpansionNuts = extractPossibleFormats([value], args);
 
-                        logger.debug(`${args.label ?? ''} found extended batch of number formats`,
-                            {
-                                value,
-                                useTypes: potentialExpansionNuts.map(nut => nut.toString()),
-                            });
+                        logger.debug(`${args.label ?? ''} found extended batch of number formats`, {
+                            value, useTypes: potentialExpansionNuts.map(nut => nut.toString()),
+                        });
                     }
 
                     // See if any extend the current NUT
@@ -74,11 +67,9 @@ export function recognizeNumbers(source: string[], args): NumberUseType[] {
                         const expansionNut = potentialExpansionNuts[k];
 
                         if (expansionNut.isSupersetOf(nut)) {
-                            logger.debug(`${args.label ?? ''} successfully extended number format`,
-                                {
-                                    original: nut,
-                                    extended: expansionNut,
-                                });
+                            logger.debug(`${args.label ?? ''} successfully extended number format`, {
+                                original: nut, extended: expansionNut,
+                            });
 
                             foundExpansion = true;
                             const currentParsed = expansionNut.deformat(value);

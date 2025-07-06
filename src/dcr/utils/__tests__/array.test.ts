@@ -1,18 +1,18 @@
 import {
-    unique,
-    count,
-    sum,
-    avg,
-    findIndexes,
-    hasDuplicates,
-    groupBy,
     areEqual,
-    isSubsetOf,
-    intersection,
-    infill,
-    filterInclusionMinima,
+    avg,
+    count,
     filterInclusionMaxima,
-} from '../array';
+    filterInclusionMinima,
+    findIndexes,
+    groupBy,
+    hasDuplicates,
+    infill,
+    intersection,
+    isSubsetOf,
+    sum,
+    unique,
+} from '../array.js';
 
 describe('Array utilities', () => {
 
@@ -66,12 +66,10 @@ describe('Array utilities', () => {
 
     describe('groupBy', () => {
         test('groups objects by key', () => {
-            const objects = [
-                {type: 'A', value: 1},
-                {type: 'B', value: 2},
-                {type: 'A', value: 3},
-                {type: 'C', value: 4},
-            ];
+            const objects = [{type: 'A', value: 1}, {type: 'B', value: 2}, {type: 'A', value: 3}, {
+                type: 'C',
+                value: 4,
+            }];
             const result = groupBy(objects, 'type');
             expect(result).toEqual({
                 A: [{type: 'A', value: 1}, {type: 'A', value: 3}],
@@ -81,15 +79,11 @@ describe('Array utilities', () => {
         });
 
         test('can drop objects without specified key', () => {
-            const objects = [
-                {type: 'A', value: 1},
-                {value: 2}, // No type
-                {type: 'C', value: 4},
-            ];
+            const objects = [{type: 'A', value: 1}, {value: 2}, // No type
+                {type: 'C', value: 4}];
             const result = groupBy(objects, 'type', true);
             expect(result).toEqual({
-                A: [{type: 'A', value: 1}],
-                C: [{type: 'C', value: 4}],
+                A: [{type: 'A', value: 1}], C: [{type: 'C', value: 4}],
             });
         });
     });
@@ -108,37 +102,37 @@ describe('Array utilities', () => {
             expect(isSubsetOf([1, 5], [1, 2, 3, 4])).toBe(false);
         });
 
-      test('empty array is subset of any array', () => {
-        expect(isSubsetOf([], [1, 2, 3])).toBe(true);
-      });
+        test('empty array is subset of any array', () => {
+            expect(isSubsetOf([], [1, 2, 3])).toBe(true);
+        });
 
-      test('array is subset of itself', () => {
-        expect(isSubsetOf([1, 2, 3], [1, 2, 3])).toBe(true);
-      });
+        test('array is subset of itself', () => {
+            expect(isSubsetOf([1, 2, 3], [1, 2, 3])).toBe(true);
+        });
 
-      test('array is not subset of empty array', () => {
-        expect(isSubsetOf([1, 2, 3], [])).toBe(false);
-      });
+        test('array is not subset of empty array', () => {
+            expect(isSubsetOf([1, 2, 3], [])).toBe(false);
+        });
 
-      test('works with string arrays', () => {
-        expect(isSubsetOf(['a', 'b'], ['a', 'b', 'c'])).toBe(true);
-        expect(isSubsetOf(['a', 'd'], ['a', 'b', 'c'])).toBe(false);
-      });
+        test('works with string arrays', () => {
+            expect(isSubsetOf(['a', 'b'], ['a', 'b', 'c'])).toBe(true);
+            expect(isSubsetOf(['a', 'd'], ['a', 'b', 'c'])).toBe(false);
+        });
 
-      test('works with object arrays', () => {
-        const obj1 = { id: 1 };
-        const obj2 = { id: 2 };
-        const obj3 = { id: 3 };
+        test('works with object arrays', () => {
+            const obj1 = {id: 1};
+            const obj2 = {id: 2};
+            const obj3 = {id: 3};
 
-        expect(isSubsetOf([obj1, obj2], [obj1, obj2, obj3])).toBe(true);
-        expect(isSubsetOf([obj1, { id: 4 }], [obj1, obj2, obj3])).toBe(false);
-      });
+            expect(isSubsetOf([obj1, obj2], [obj1, obj2, obj3])).toBe(true);
+            expect(isSubsetOf([obj1, {id: 4}], [obj1, obj2, obj3])).toBe(false);
+        });
 
-      // TODO
-      // test('works with nested arrays', () => {
-      //   expect(isSubsetOf([[1], [2]], [[1], [2], [3]])).toBe(true);
-      //   expect(isSubsetOf([[1, 2], [3]], [[1], [2], [3]])).toBe(false);
-      // });
+        // TODO
+        // test('works with nested arrays', () => {
+        //   expect(isSubsetOf([[1], [2]], [[1], [2], [3]])).toBe(true);
+        //   expect(isSubsetOf([[1, 2], [3]], [[1], [2], [3]])).toBe(false);
+        // });
     });
 
     describe('intersection', () => {
